@@ -12,6 +12,8 @@ from fastapi import (
     HTTPException
 )
 
+from fastapi.responses import FileResponse
+
 from app.services.pipeline_service import (
     run_encode_pipeline
 )
@@ -85,3 +87,26 @@ async def encode_audio_route(
             status_code=500,
             detail=str(e)
         )
+
+
+@router.get("/download/{filename}")
+async def download_encoded_file(filename: str):
+
+    output_dir = (
+        BASE_DIR / "temp" / "outputs"
+    )
+
+    file_path = output_dir / filename
+
+    if not file_path.exists():
+
+        raise HTTPException(
+            status_code=404,
+            detail="File not found"
+        )
+
+    return FileResponse(
+        path=str(file_path),
+        filename=filename,
+        media_type="audio/wav"
+    )
