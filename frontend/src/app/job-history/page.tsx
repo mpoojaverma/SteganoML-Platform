@@ -1,65 +1,109 @@
+"use client";
+
+import { useMemo, useState } from "react";
+
 import AppShell from "@/components/layout/AppShell";
+import useJobs from "@/hooks/useJobs";
 
 export default function JobHistoryPage() {
+  const { jobs, loading } = useJobs();
+
+  const [search, setSearch] =
+    useState("");
+
+  const filteredJobs = useMemo(() => {
+    return jobs.filter((job: any) =>
+      `${job.file_name} ${job.method} ${job.type}`
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    );
+  }, [jobs, search]);
+
+  const totalJobs =
+    jobs.length;
+
+  const encodeJobs =
+    jobs.filter(
+      (job: any) =>
+        job.type === "encode"
+    ).length;
+
+  const decodeJobs =
+    jobs.filter(
+      (job: any) =>
+        job.type === "decode"
+    ).length;
+
+  const successRate =
+    jobs.length === 0
+      ? "0%"
+      : `${Math.round(
+          (jobs.filter(
+            (job: any) =>
+              job.status ===
+              "success"
+          ).length /
+            jobs.length) *
+            100
+        )}%`;
+
   return (
     <AppShell>
       <div className="space-y-6">
 
         <div className="flex items-center justify-between">
+
           <div>
             <h1 className="text-5xl font-bold">
               Job History
             </h1>
 
             <p className="mt-2 text-slate-400">
-              Review completed encoding and decoding operations.
+              Review encoding and decoding operations.
             </p>
           </div>
 
-          <button className="rounded-xl border border-white/10 px-4 py-2 text-sm">
-            Export CSV
-          </button>
         </div>
 
         <div className="grid grid-cols-4 gap-4">
 
           <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
-            <p className="text-xs text-slate-500 uppercase">
+            <p className="text-xs uppercase text-slate-500">
               Total Jobs
             </p>
 
             <h2 className="mt-4 text-5xl font-bold">
-              24
+              {totalJobs}
             </h2>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
-            <p className="text-xs text-slate-500 uppercase">
+            <p className="text-xs uppercase text-slate-500">
               Encodes
             </p>
 
             <h2 className="mt-4 text-5xl font-bold">
-              18
+              {encodeJobs}
             </h2>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
-            <p className="text-xs text-slate-500 uppercase">
+            <p className="text-xs uppercase text-slate-500">
               Decodes
             </p>
 
             <h2 className="mt-4 text-5xl font-bold">
-              6
+              {decodeJobs}
             </h2>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
-            <p className="text-xs text-slate-500 uppercase">
+            <p className="text-xs uppercase text-slate-500">
               Success Rate
             </p>
 
-            <h2 className="mt-4 text-5xl font-bold">
-              100%
+            <h2 className="mt-4 text-5xl font-bold text-emerald-400">
+              {successRate}
             </h2>
           </div>
 
@@ -68,83 +112,127 @@ export default function JobHistoryPage() {
         <div className="rounded-3xl border border-white/10 bg-[#0b1327] overflow-hidden">
 
           <div className="flex items-center justify-between border-b border-white/10 p-5">
+
             <h2 className="font-semibold">
               Recent Operations
             </h2>
 
             <input
+              value={search}
+              onChange={(e) =>
+                setSearch(
+                  e.target.value
+                )
+              }
               placeholder="Search jobs..."
-              className="rounded-lg border border-white/10 bg-[#182238] px-4 py-2 text-sm outline-none"
+              className="rounded-xl border border-white/10 bg-[#182238] px-4 py-2 text-sm"
             />
+
           </div>
 
-          <table className="w-full">
-            <thead>
-              <tr className="text-left text-xs text-slate-500">
-                <th className="px-5 py-4">Job ID</th>
-                <th>File</th>
-                <th>Type</th>
-                <th>Method</th>
-                <th>PSNR</th>
-                <th>Status</th>
-                <th>Date</th>
-              </tr>
-            </thead>
+          {loading ? (
+            <div className="p-6 text-slate-400">
+              Loading jobs...
+            </div>
+          ) : filteredJobs.length === 0 ? (
+            <div className="p-6 text-slate-400">
+              No jobs found.
+            </div>
+          ) : (
+            <table className="w-full text-sm">
 
-            <tbody>
+              <thead>
 
-              {[
-                [
-                  "job_d12f7c44",
-                  "speech_sample_01.wav",
-                  "Encode",
-                  "ML-guided",
-                  "95.89",
-                  "Complete",
-                  "2026-05-28",
-                ],
-                [
-                  "job_a81bc220",
-                  "music_track_03.wav",
-                  "Encode",
-                  "ML-guided",
-                  "98.57",
-                  "Complete",
-                  "2026-05-27",
-                ],
-                [
-                  "job_98fc12ab",
-                  "voice_sample_16.wav",
-                  "Decode",
-                  "ML-guided",
-                  "--",
-                  "Complete",
-                  "2026-05-27",
-                ],
-                [
-                  "job_77df8120",
-                  "conference.wav",
-                  "Encode",
-                  "Randomized",
-                  "92.01",
-                  "Complete",
-                  "2026-05-26",
-                ],
-              ].map((row, i) => (
-                <tr
-                  key={i}
-                  className="border-t border-white/5 hover:bg-white/[0.02]"
-                >
-                  {row.map((cell) => (
-                    <td key={cell} className="px-5 py-4">
-                      {cell}
-                    </td>
-                  ))}
+                <tr className="border-b border-white/10 text-slate-400">
+
+                  <th className="p-4 text-left">
+                    File
+                  </th>
+
+                  <th className="p-4 text-left">
+                    Type
+                  </th>
+
+                  <th className="p-4 text-left">
+                    Method
+                  </th>
+
+                  <th className="p-4 text-left">
+                    Status
+                  </th>
+
+                  <th className="p-4 text-left">
+                    PSNR
+                  </th>
+
+                  <th className="p-4 text-left">
+                    SNR
+                  </th>
+
+                  <th className="p-4 text-left">
+                    Created
+                  </th>
+
                 </tr>
-              ))}
 
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody>
+
+                {filteredJobs.map(
+                  (
+                    job: any,
+                    index: number
+                  ) => (
+                    <tr
+                      key={index}
+                      className="border-b border-white/5"
+                    >
+                      <td className="p-4">
+                        {job.file_name}
+                      </td>
+
+                      <td className="p-4 capitalize">
+                        {job.type}
+                      </td>
+
+                      <td className="p-4 uppercase">
+                        {job.method}
+                      </td>
+
+                      <td className="p-4">
+                        {job.status}
+                      </td>
+
+                      <td className="p-4">
+                        {job.psnr
+                          ? Number(
+                              job.psnr
+                            ).toFixed(2)
+                          : "-"}
+                      </td>
+
+                      <td className="p-4">
+                        {job.snr
+                          ? Number(
+                              job.snr
+                            ).toFixed(2)
+                          : "-"}
+                      </td>
+
+                      <td className="p-4">
+                        {new Date(
+                          job.created_at
+                        ).toLocaleString()}
+                      </td>
+                    </tr>
+                  )
+                )}
+
+              </tbody>
+
+            </table>
+          )}
 
         </div>
 

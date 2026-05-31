@@ -1,12 +1,13 @@
 import pickle
 import struct
+import json
 import numpy as np
 
 from pathlib import Path
 
 from core.crypto import (
     encrypt_message,
-    decrypt_message
+    decrypt_message,
 )
 
 from core.utils import (
@@ -19,13 +20,17 @@ from core.utils import (
     flatten_audio,
     reshape_audio,
     validate_audio_capacity,
-    generate_deterministic_positions
+    generate_deterministic_positions,
 )
 
 from core.ml_pipeline import (
-    get_ml_guided_positions
+    get_ml_guided_positions,
 )
 
+from app.utils.metrics import (
+    calculate_psnr,
+    calculate_snr,
+)
 
 # =========================================================
 # POSITION STORAGE
@@ -33,44 +38,104 @@ from core.ml_pipeline import (
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-POSITION_DIR = BASE_DIR / "temp" / "positions"
+POSITION_DIR = (
+    BASE_DIR / "temp" / "positions"
+)
+
+BITSTREAM_DIR = (
+    BASE_DIR / "temp" / "bitstreams"
+)
 
 POSITION_DIR.mkdir(
     parents=True,
-    exist_ok=True
+    exist_ok=True,
 )
 
+BITSTREAM_DIR.mkdir(
+    parents=True,
+    exist_ok=True,
+)
 
 # =========================================================
 # HEADER HELPERS
 # =========================================================
 
-def create_payload_header(payload_size: int):
+def create_payload_header(
+    payload_size: int,
+):
+    return struct.pack(
+        ">I",
+        payload_size,
+    )
 
-    return struct.pack(">I", payload_size)
 
-
-def parse_payload_header(header_bytes: bytes):
-
-    return struct.unpack(">I", header_bytes)[0]
+def parse_payload_header(
+    header_bytes: bytes,
+):
+    return struct.unpack(
+        ">I",
+        header_bytes,
+    )[0]
 
 
 # =========================================================
 # POSITION STORAGE
 # =========================================================
 
-def save_positions(position_file, positions):
+def save_positions(
+    position_file,
+    positions,
+):
+    with open(
+        position_file,
+        "wb",
+    ) as f:
+        pickle.dump(
+            positions,
+            f,
+        )
 
-    with open(position_file, "wb") as f:
 
-        pickle.dump(positions, f)
-
-
-def load_positions(position_file):
-
-    with open(position_file, "rb") as f:
-
+def load_positions(
+    position_file,
+):
+    with open(
+        position_file,
+        "rb",
+    ) as f:
         return pickle.load(f)
+
+
+# =========================================================
+# BITSTREAM STORAGE
+# =========================================================
+
+def save_bitstream(
+    filepath,
+    payload_bits,
+):
+    with open(
+        filepath,
+        "w",
+        encoding="utf-8",
+    ) as f:
+        json.dump(
+            {
+                "payload_bits": payload_bits,
+            },
+            f,
+        )
+
+
+def load_bitstream(
+    filepath,
+):
+    with open(
+        filepath,
+        "r",
+        encoding="utf-8",
+    ) as f:
+        return json.load(f)
 
 
 # =========================================================
@@ -82,39 +147,50 @@ def encode_message(
     output_audio_path: str,
     secret_message: str,
     password: str,
-    method: str = "ml"
+    method: str = "ml",
 ):
 
     audio_data, sample_rate = load_audio(
         input_audio_path
     )
 
-    original_shape = audio_data.shape
+    original_shape = (
+        audio_data.shape
+    )
 
-    flat_audio = flatten_audio(audio_data)
+    flat_audio = flatten_audio(
+        audio_data
+    )
 
     encrypted_payload = encrypt_message(
         append_delimiter(
             secret_message.encode()
         ),
-        password
+        password,
     )
 
     payload_header = create_payload_header(
-        len(encrypted_payload)
+        len(
+            encrypted_payload
+        )
     )
 
-    full_payload = payload_header + encrypted_payload
+    full_payload = (
+        payload_header
+        + encrypted_payload
+    )
 
     payload_bits = bytes_to_bits(
         full_payload
     )
 
-    required_bits = len(payload_bits)
+    required_bits = len(
+        payload_bits
+    )
 
     validate_audio_capacity(
         len(flat_audio),
-        required_bits
+        required_bits,
     )
 
     # -----------------------------------------------------
@@ -123,18 +199,22 @@ def encode_message(
 
     if method == "ml":
 
-        positions = get_ml_guided_positions(
-            input_audio_path,
-            required_bits,
-            password
+        positions = (
+            get_ml_guided_positions(
+                input_audio_path,
+                required_bits,
+                password,
+            )
         )
 
     else:
 
-        positions = generate_deterministic_positions(
-            len(flat_audio),
-            required_bits,
-            password
+        positions = (
+            generate_deterministic_positions(
+                len(flat_audio),
+                required_bits,
+                password,
+            )
         )
 
     # -----------------------------------------------------
@@ -146,25 +226,52 @@ def encode_message(
     ).stem
 
     position_file = (
-        POSITION_DIR / f"{output_name}.pkl"
+        POSITION_DIR
+        / f"{output_name}.pkl"
     )
 
     save_positions(
         position_file,
-        positions
+        positions,
+    )
+
+    bitstream_file = (
+        BITSTREAM_DIR
+        / f"{output_name}.json"
+    )
+
+    save_bitstream(
+        bitstream_file,
+        payload_bits,
     )
 
     # -----------------------------------------------------
     # EMBEDDING
     # -----------------------------------------------------
 
-    modified_audio = np.copy(flat_audio)
+    modified_audio = np.copy(
+        flat_audio
+    )
 
-    for bit_idx, sample_idx in enumerate(positions):
+    for (
+        bit_idx,
+        sample_idx,
+    ) in enumerate(
+        positions
+    ):
 
-        modified_audio[sample_idx] = (
-            modified_audio[sample_idx] & ~1
-        ) | int(payload_bits[bit_idx])
+        modified_audio[
+            sample_idx
+        ] = (
+            modified_audio[
+                sample_idx
+            ]
+            & ~1
+        ) | int(
+            payload_bits[
+                bit_idx
+            ]
+        )
 
     # -----------------------------------------------------
     # SAVE AUDIO
@@ -172,20 +279,32 @@ def encode_message(
 
     modified_audio = reshape_audio(
         modified_audio,
-        original_shape
+        original_shape,
     )
 
     save_audio(
         output_audio_path,
         modified_audio,
-        sample_rate
+        sample_rate,
+    )
+
+    psnr = calculate_psnr(
+        audio_data,
+        modified_audio,
+    )
+
+    snr = calculate_snr(
+        audio_data,
+        modified_audio,
     )
 
     return {
         "status": "success",
         "method": method,
         "bits_embedded": required_bits,
-        "output_file": output_audio_path
+        "output_file": output_audio_path,
+        "psnr": float(psnr),
+        "snr": float(snr),
     }
 
 
@@ -196,84 +315,90 @@ def encode_message(
 def decode_message(
     audio_path: str,
     password: str,
-    method: str = "ml"
+    method: str = "ml",
 ):
 
     audio_data, sample_rate = load_audio(
         audio_path
     )
 
-    flat_audio = flatten_audio(audio_data)
+    flat_audio = flatten_audio(
+        audio_data
+    )
 
     audio_name = Path(
         audio_path
     ).stem
 
     position_file = (
-        POSITION_DIR / f"{audio_name}.pkl"
+        POSITION_DIR
+        / f"{audio_name}.pkl"
     )
 
     if not position_file.exists():
 
         return {
             "status": "error",
-            "message": "Position map missing."
+            "message": "Position map missing.",
         }
 
     positions = load_positions(
         position_file
     )
 
-    # -----------------------------------------------------
-    # EXTRACT BITS
-    # -----------------------------------------------------
-
     extracted_bits = ""
 
     for sample_idx in positions:
 
         extracted_bits += str(
-            flat_audio[sample_idx] & 1
+            flat_audio[
+                sample_idx
+            ]
+            & 1
         )
 
-    extracted_bytes = bits_to_bytes(
-        extracted_bits
+    extracted_bytes = (
+        bits_to_bytes(
+            extracted_bits
+        )
     )
 
-    # -----------------------------------------------------
-    # HEADER
-    # -----------------------------------------------------
-
-    header_bytes = extracted_bytes[:4]
-
-    payload_size = parse_payload_header(
-        header_bytes
+    header_bytes = (
+        extracted_bytes[:4]
     )
 
-    encrypted_payload = extracted_bytes[
-        4:4 + payload_size
-    ]
+    payload_size = (
+        parse_payload_header(
+            header_bytes
+        )
+    )
 
-    # -----------------------------------------------------
-    # DECRYPT
-    # -----------------------------------------------------
+    encrypted_payload = (
+        extracted_bytes[
+            4 : 4 + payload_size
+        ]
+    )
 
     try:
 
-        decrypted_payload = decrypt_message(
-            encrypted_payload,
-            password
+        decrypted_payload = (
+            decrypt_message(
+                encrypted_payload,
+                password,
+            )
         )
 
-        cleaned_payload = remove_delimiter(
-            decrypted_payload
+        cleaned_payload = (
+            remove_delimiter(
+                decrypted_payload
+            )
         )
 
         return {
             "status": "success",
             "message": cleaned_payload.decode(
                 errors="ignore"
-            )
+            ),
         }
 
     except Exception as e:
@@ -281,5 +406,5 @@ def decode_message(
         return {
             "status": "error",
             "message": "Decryption failed.",
-            "details": repr(e)
+            "details": repr(e),
         }

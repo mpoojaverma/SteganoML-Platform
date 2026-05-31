@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import {
   LayoutDashboard,
@@ -11,7 +12,10 @@ import {
   History,
   Settings,
   FileCode,
+  User,
 } from "lucide-react";
+
+import { supabase } from "@/lib/supabase";
 
 const workspace = [
   {
@@ -20,12 +24,12 @@ const workspace = [
     icon: LayoutDashboard,
   },
   {
-    label: "Encode studio",
+    label: "Encode Studio",
     href: "/encode",
     icon: AudioWaveform,
   },
   {
-    label: "Decode studio",
+    label: "Decode Studio",
     href: "/decode",
     icon: ShieldCheck,
   },
@@ -38,7 +42,7 @@ const insights = [
     icon: BarChart3,
   },
   {
-    label: "Job history",
+    label: "Job History",
     href: "/job-history",
     icon: History,
   },
@@ -46,12 +50,17 @@ const insights = [
 
 const system = [
   {
+    label: "Profile",
+    href: "/profile",
+    icon: User,
+  },
+  {
     label: "Settings",
     href: "/settings",
     icon: Settings,
   },
   {
-    label: "API docs",
+    label: "API Docs",
     href: "/api-docs",
     icon: FileCode,
   },
@@ -60,20 +69,74 @@ const system = [
 export default function Sidebar() {
   const pathname = usePathname();
 
+  const [name, setName] =
+    useState("User");
+
+  const [email, setEmail] =
+    useState("");
+
+  useEffect(() => {
+    async function loadUser() {
+      const {
+        data,
+      } =
+        await supabase.auth.getUser();
+
+      if (data.user) {
+        setName(
+          data.user.user_metadata
+            ?.full_name || "User"
+        );
+
+        setEmail(
+          data.user.email || ""
+        );
+      }
+    }
+
+    loadUser();
+  }, []);
+
   return (
-    <aside className="w-[220px] min-h-screen border-r border-white/10 bg-[#07111f] flex flex-col">
+    <aside className="flex min-h-screen w-[240px] flex-col border-r border-white/10 bg-[#07111f]">
+
+      {/* LOGO */}
 
       <div className="px-6 py-6">
-        <h1 className="text-4xl font-bold text-white">
-          SteganoML
-        </h1>
+
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-3"
+        >
+
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/20 font-bold text-cyan-400">
+            S
+          </div>
+
+          <div>
+
+            <h1 className="text-xl font-bold text-white">
+              SteganoML
+            </h1>
+
+            <p className="text-xs text-slate-500">
+              Audio Steganography
+            </p>
+
+          </div>
+
+        </Link>
+
       </div>
+
+      {/* NAVIGATION */}
 
       <div className="flex-1 px-4">
 
         {/* Workspace */}
 
         <div className="mb-8">
+
           <p className="mb-3 text-xs uppercase tracking-wider text-slate-500">
             Workspace
           </p>
@@ -88,9 +151,9 @@ export default function Sidebar() {
               <Link
                 key={item.label}
                 href={item.href}
-                className={`mb-2 flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${
+                className={`mb-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${
                   active
-                    ? "bg-teal-500/20 text-teal-300"
+                    ? "bg-cyan-500/20 text-cyan-300"
                     : "text-slate-300 hover:bg-white/5"
                 }`}
               >
@@ -99,11 +162,13 @@ export default function Sidebar() {
               </Link>
             );
           })}
+
         </div>
 
         {/* Insights */}
 
         <div className="mb-8">
+
           <p className="mb-3 text-xs uppercase tracking-wider text-slate-500">
             Insights
           </p>
@@ -118,9 +183,9 @@ export default function Sidebar() {
               <Link
                 key={item.label}
                 href={item.href}
-                className={`mb-2 flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${
+                className={`mb-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${
                   active
-                    ? "bg-teal-500/20 text-teal-300"
+                    ? "bg-cyan-500/20 text-cyan-300"
                     : "text-slate-300 hover:bg-white/5"
                 }`}
               >
@@ -129,11 +194,13 @@ export default function Sidebar() {
               </Link>
             );
           })}
+
         </div>
 
         {/* System */}
 
         <div>
+
           <p className="mb-3 text-xs uppercase tracking-wider text-slate-500">
             System
           </p>
@@ -148,9 +215,9 @@ export default function Sidebar() {
               <Link
                 key={item.label}
                 href={item.href}
-                className={`mb-2 flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${
+                className={`mb-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${
                   active
-                    ? "bg-teal-500/20 text-teal-300"
+                    ? "bg-cyan-500/20 text-cyan-300"
                     : "text-slate-300 hover:bg-white/5"
                 }`}
               >
@@ -159,28 +226,40 @@ export default function Sidebar() {
               </Link>
             );
           })}
+
         </div>
 
       </div>
 
+      {/* USER SECTION */}
+
       <div className="border-t border-white/10 p-4">
-        <div className="flex items-center gap-3">
 
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-500 text-black font-semibold">
-            P
+        <Link
+          href="/profile"
+          className="flex items-center gap-3 rounded-xl p-2 transition hover:bg-white/5"
+        >
+
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-500 font-bold text-black">
+
+            {name.charAt(0).toUpperCase()}
+
           </div>
 
-          <div>
-            <p className="text-sm font-medium">
-              M. Pooja Verma
+          <div className="min-w-0">
+
+            <p className="truncate text-sm font-medium text-white">
+              {name}
             </p>
 
-            <p className="text-xs text-slate-400">
-              Researcher
+            <p className="truncate text-xs text-slate-400">
+              {email}
             </p>
+
           </div>
 
-        </div>
+        </Link>
+
       </div>
 
     </aside>

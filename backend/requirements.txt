@@ -18,3 +18,5 @@ python-jose
 aiofiles
 pydantic
 joblib
+supabase
+python-dotenv

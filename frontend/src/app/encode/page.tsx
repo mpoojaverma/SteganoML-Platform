@@ -4,6 +4,7 @@ import { useState } from "react";
 import useEncode from "@/hooks/useEncode";
 import AppShell from "@/components/layout/AppShell";
 import { getDownloadUrl } from "@/lib/api";
+import Toast from "@/components/ui/Toast";
 
 const waveform = [
   12, 18, 28, 42, 58, 74, 56, 38, 24, 18, 22, 34, 48, 66, 82, 62, 44, 26, 18,
@@ -24,10 +25,12 @@ export default function EncodePage() {
 
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState("");
+  const [showToast, setShowToast] = useState(false);
 
   const { runEncode, loading, error, result } = useEncode();
   return (
     <AppShell>
+      <Toast show={showToast} message="✓ Encoding completed" />
       <div className="grid grid-cols-12 gap-6">
         {/* LEFT COLUMN */}
 
@@ -192,7 +195,20 @@ export default function EncodePage() {
 
               setLocalError("");
 
-              await runEncode(audioFile, message, password, "ml");
+              const response = await runEncode(
+                audioFile,
+                message,
+                password,
+                "ml",
+              );
+
+              if (response?.status === "success") {
+                setShowToast(true);
+
+                setTimeout(() => {
+                  setShowToast(false);
+                }, 3000);
+              }
             }}
             disabled={loading}
             className="w-full rounded-xl bg-[#1bd6d1] py-5 text-base font-semibold text-black transition hover:brightness-110 disabled:opacity-50"

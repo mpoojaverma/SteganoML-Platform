@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { encodeAudio } from "@/lib/api";
+import { supabase } from "@/lib/supabase";
 
 export default function useEncode() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
   const [error, setError] =
     useState<string | null>(null);
@@ -22,7 +24,19 @@ export default function useEncode() {
       setLoading(true);
       setError(null);
 
-      const formData = new FormData();
+      const {
+        data: { user },
+      } =
+        await supabase.auth.getUser();
+
+      if (!user) {
+        throw new Error(
+          "User not logged in"
+        );
+      }
+
+      const formData =
+        new FormData();
 
       formData.append(
         "audio_file",
@@ -44,8 +58,15 @@ export default function useEncode() {
         method
       );
 
+      formData.append(
+        "user_email",
+        user.email || ""
+      );
+
       const data =
-        await encodeAudio(formData);
+        await encodeAudio(
+          formData
+        );
 
       setResult(data);
 
@@ -54,7 +75,8 @@ export default function useEncode() {
       console.error(err);
 
       setError(
-        err?.response?.data?.detail ||
+        err?.response?.data
+          ?.detail ||
           err?.message ||
           "Encoding failed"
       );

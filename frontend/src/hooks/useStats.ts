@@ -1,0 +1,53 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
+import { api } from "@/lib/api";
+import { supabase } from "@/lib/supabase";
+
+export default function useStats() {
+  const [stats, setStats] =
+    useState({
+      total_jobs: 0,
+      encodes: 0,
+      decodes: 0,
+      success_rate: 0,
+      avg_psnr: 0,
+      avg_snr: 0,
+    });
+
+  const [loading, setLoading] =
+    useState(true);
+
+  async function loadStats() {
+    try {
+      const {
+        data: { user },
+      } =
+        await supabase.auth.getUser();
+
+      if (!user?.email) return;
+
+      const response =
+        await api.get(
+          `/stats/?email=${user.email}`
+        );
+
+      setStats(response.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadStats();
+  }, []);
+
+  return {
+    stats,
+    loading,
+    refresh: loadStats,
+  };
+}

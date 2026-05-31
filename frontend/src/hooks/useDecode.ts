@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { decodeAudio } from "@/lib/api";
+import { supabase } from "@/lib/supabase";
 
 export default function useDecode() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
   const [error, setError] =
     useState<string | null>(null);
@@ -21,7 +23,19 @@ export default function useDecode() {
       setLoading(true);
       setError(null);
 
-      const formData = new FormData();
+      const {
+        data: { user },
+      } =
+        await supabase.auth.getUser();
+
+      if (!user) {
+        throw new Error(
+          "User not logged in"
+        );
+      }
+
+      const formData =
+        new FormData();
 
       formData.append(
         "audio_file",
@@ -38,8 +52,15 @@ export default function useDecode() {
         method
       );
 
+      formData.append(
+        "user_email",
+        user.email || ""
+      );
+
       const data =
-        await decodeAudio(formData);
+        await decodeAudio(
+          formData
+        );
 
       setResult(data);
 
@@ -48,7 +69,8 @@ export default function useDecode() {
       console.error(err);
 
       setError(
-        err?.response?.data?.detail ||
+        err?.response?.data
+          ?.detail ||
           err?.message ||
           "Decode failed"
       );

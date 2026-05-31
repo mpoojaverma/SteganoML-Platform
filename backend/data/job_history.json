@@ -1,0 +1,14 @@
+[
+  {
+    "timestamp": "2026-05-30T14:36:47.216411",
+    "type": "encode",
+    "file": "457024__orphantrainproject__sweet-thang-instrumental-edit.wav",
+    "method": "ml",
+    "status": "success",
+    "output_file": "E:\\POOJA_FOLDER\\COLLEGE STUFFS\\RESEARCH\\steganoml\\backend\\temp\\outputs\\steganoml_output_c01a4ef2053d4707a3d43e64b22bb646.wav",
+    "psnr": 127.51985528907127,
+    "snr": 107.1144234981316,
+    "ber": 4.3e-07,
+    "nc": 1.0
+  }
+]
