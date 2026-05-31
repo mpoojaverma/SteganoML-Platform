@@ -14,6 +14,8 @@ export default function useStats() {
       success_rate: 0,
       avg_psnr: 0,
       avg_snr: 0,
+      avg_ber: 0,
+      avg_nc: 0,
     });
 
   const [loading, setLoading] =

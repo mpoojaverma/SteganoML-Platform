@@ -7,6 +7,10 @@ from core.stego_engine import (
     decode_message,
 )
 
+from app.utils.storage import (
+    upload_audio_file,
+)
+
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 UPLOAD_DIR = BASE_DIR / "temp" / "uploads"
@@ -54,11 +58,24 @@ async def run_encode_pipeline(
         method=method,
     )
 
+    storage_url = (
+        upload_audio_file(
+            str(output_audio_path)
+        )
+    )
+
     return {
         "status": "success",
-        "output_file": str(
-            output_audio_path
-        ),
+
+        # filename only
+        "filename": output_filename,
+
+        # supabase public url
+        "storage_url": storage_url,
+
+        # frontend compatibility
+        "output_file": storage_url,
+
         "details": {
             "bits_embedded": result.get(
                 "bits_embedded",

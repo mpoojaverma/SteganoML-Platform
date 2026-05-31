@@ -7,7 +7,6 @@ cryptography
 matplotlib
 scipy
 soundfile
-playsound3
 fastapi
 uvicorn
 python-multipart

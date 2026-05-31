@@ -323,7 +323,7 @@ export default function AnalyticsPage() {
                     </p>
 
                     <p className="mt-2 font-medium">
-                      {bestPSNR?.file ||
+                      {bestPSNR?.file_name ||
                         "N/A"}
                     </p>
 
@@ -339,7 +339,7 @@ export default function AnalyticsPage() {
                     </p>
 
                     <p className="mt-2 font-medium">
-                      {bestSNR?.file ||
+                      {bestSNR?.file_name ||
                         "N/A"}
                     </p>
 
@@ -388,7 +388,7 @@ export default function AnalyticsPage() {
                         className="border-t border-white/5"
                       >
                         <td className="px-5 py-4">
-                          {job.file}
+                          {job.file_name}
                         </td>
                         <td>
                           {job.method}

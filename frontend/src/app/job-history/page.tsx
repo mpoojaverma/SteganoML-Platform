@@ -51,65 +51,42 @@ export default function JobHistoryPage() {
     <AppShell>
       <div className="space-y-6">
 
-        <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-5xl font-bold">
+            Job History
+          </h1>
 
-          <div>
-            <h1 className="text-5xl font-bold">
-              Job History
-            </h1>
-
-            <p className="mt-2 text-slate-400">
-              Review encoding and decoding operations.
-            </p>
-          </div>
-
+          <p className="mt-2 text-slate-400">
+            Review encoding and decoding operations.
+          </p>
         </div>
 
         <div className="grid grid-cols-4 gap-4">
 
-          <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
-            <p className="text-xs uppercase text-slate-500">
-              Total Jobs
-            </p>
+          <StatCard
+            title="Total Jobs"
+            value={totalJobs}
+          />
 
-            <h2 className="mt-4 text-5xl font-bold">
-              {totalJobs}
-            </h2>
-          </div>
+          <StatCard
+            title="Encodes"
+            value={encodeJobs}
+          />
 
-          <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
-            <p className="text-xs uppercase text-slate-500">
-              Encodes
-            </p>
+          <StatCard
+            title="Decodes"
+            value={decodeJobs}
+          />
 
-            <h2 className="mt-4 text-5xl font-bold">
-              {encodeJobs}
-            </h2>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
-            <p className="text-xs uppercase text-slate-500">
-              Decodes
-            </p>
-
-            <h2 className="mt-4 text-5xl font-bold">
-              {decodeJobs}
-            </h2>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
-            <p className="text-xs uppercase text-slate-500">
-              Success Rate
-            </p>
-
-            <h2 className="mt-4 text-5xl font-bold text-emerald-400">
-              {successRate}
-            </h2>
-          </div>
+          <StatCard
+            title="Success Rate"
+            value={successRate}
+            color="text-emerald-400"
+          />
 
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-[#0b1327] overflow-hidden">
+        <div className="overflow-hidden rounded-3xl border border-white/10 bg-[#0b1327]">
 
           <div className="flex items-center justify-between border-b border-white/10 p-5">
 
@@ -125,7 +102,7 @@ export default function JobHistoryPage() {
                 )
               }
               placeholder="Search jobs..."
-              className="rounded-xl border border-white/10 bg-[#182238] px-4 py-2 text-sm"
+              className="rounded-xl border border-white/10 bg-[#182238] px-4 py-2 text-sm outline-none"
             />
 
           </div>
@@ -139,104 +116,159 @@ export default function JobHistoryPage() {
               No jobs found.
             </div>
           ) : (
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
 
-              <thead>
+              <table className="w-full text-sm">
 
-                <tr className="border-b border-white/10 text-slate-400">
+                <thead>
 
-                  <th className="p-4 text-left">
-                    File
-                  </th>
+                  <tr className="border-b border-white/10 text-slate-400">
 
-                  <th className="p-4 text-left">
-                    Type
-                  </th>
+                    <th className="p-4 text-left">
+                      File
+                    </th>
 
-                  <th className="p-4 text-left">
-                    Method
-                  </th>
+                    <th className="p-4 text-left">
+                      Type
+                    </th>
 
-                  <th className="p-4 text-left">
-                    Status
-                  </th>
+                    <th className="p-4 text-left">
+                      Method
+                    </th>
 
-                  <th className="p-4 text-left">
-                    PSNR
-                  </th>
+                    <th className="p-4 text-left">
+                      Status
+                    </th>
 
-                  <th className="p-4 text-left">
-                    SNR
-                  </th>
+                    <th className="p-4 text-left">
+                      PSNR
+                    </th>
 
-                  <th className="p-4 text-left">
-                    Created
-                  </th>
+                    <th className="p-4 text-left">
+                      SNR
+                    </th>
 
-                </tr>
+                    <th className="p-4 text-left">
+                      BER
+                    </th>
 
-              </thead>
+                    <th className="p-4 text-left">
+                      NC
+                    </th>
 
-              <tbody>
+                    <th className="p-4 text-left">
+                      Created
+                    </th>
 
-                {filteredJobs.map(
-                  (
-                    job: any,
-                    index: number
-                  ) => (
-                    <tr
-                      key={index}
-                      className="border-b border-white/5"
-                    >
-                      <td className="p-4">
-                        {job.file_name}
-                      </td>
+                  </tr>
 
-                      <td className="p-4 capitalize">
-                        {job.type}
-                      </td>
+                </thead>
 
-                      <td className="p-4 uppercase">
-                        {job.method}
-                      </td>
+                <tbody>
 
-                      <td className="p-4">
-                        {job.status}
-                      </td>
+                  {filteredJobs.map(
+                    (
+                      job: any,
+                      index: number
+                    ) => (
+                      <tr
+                        key={index}
+                        className="border-b border-white/5 hover:bg-white/[0.02]"
+                      >
 
-                      <td className="p-4">
-                        {job.psnr
-                          ? Number(
-                              job.psnr
-                            ).toFixed(2)
-                          : "-"}
-                      </td>
+                        <td className="p-4 max-w-[260px] truncate">
+                          {job.file_name}
+                        </td>
 
-                      <td className="p-4">
-                        {job.snr
-                          ? Number(
-                              job.snr
-                            ).toFixed(2)
-                          : "-"}
-                      </td>
+                        <td className="p-4 capitalize">
+                          {job.type}
+                        </td>
 
-                      <td className="p-4">
-                        {new Date(
-                          job.created_at
-                        ).toLocaleString()}
-                      </td>
-                    </tr>
-                  )
-                )}
+                        <td className="p-4 uppercase">
+                          {job.method || "-"}
+                        </td>
 
-              </tbody>
+                        <td className="p-4">
 
-            </table>
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs ${
+                              job.status ===
+                              "success"
+                                ? "bg-emerald-500/10 text-emerald-400"
+                                : "bg-red-500/10 text-red-400"
+                            }`}
+                          >
+                            {job.status}
+                          </span>
+
+                        </td>
+
+                        <td className="p-4">
+                          {job.psnr
+                            ? Number(
+                                job.psnr
+                              ).toFixed(2)
+                            : "-"}
+                        </td>
+
+                        <td className="p-4">
+                          {job.snr
+                            ? Number(
+                                job.snr
+                              ).toFixed(2)
+                            : "-"}
+                        </td>
+
+                        <td className="p-4">
+                          {job.ber ?? "-"}
+                        </td>
+
+                        <td className="p-4">
+                          {job.nc ?? "-"}
+                        </td>
+
+                        <td className="p-4 whitespace-nowrap">
+                          {new Date(
+                            job.created_at
+                          ).toLocaleString()}
+                        </td>
+
+                      </tr>
+                    )
+                  )}
+
+                </tbody>
+
+              </table>
+
+            </div>
           )}
 
         </div>
 
       </div>
     </AppShell>
+  );
+}
+
+function StatCard({
+  title,
+  value,
+  color = "",
+}: any) {
+  return (
+    <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
+
+      <p className="text-xs uppercase text-slate-500">
+        {title}
+      </p>
+
+      <h2
+        className={`mt-4 text-5xl font-bold ${color}`}
+      >
+        {value}
+      </h2>
+
+    </div>
   );
 }

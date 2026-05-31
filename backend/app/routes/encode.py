@@ -91,7 +91,11 @@ async def encode_audio_route(
                     result["details"]["nc"]
                 ),
                 "output_file": result.get(
-                    "output_file",
+                    "filename",
+                    "",
+                ),
+                "storage_url": result.get(
+                    "storage_url",
                     "",
                 ),
             }

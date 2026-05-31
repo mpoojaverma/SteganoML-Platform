@@ -273,113 +273,138 @@ export default function EncodePage() {
                   </div>
                 </div>
               ))}
-            </div>
+                      </div>
+        </div>
+
+        {/* QUALITY REPORT */}
+
+        <div className="rounded-[20px] border border-white/10 bg-[#0b1327] overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+
+          <div className="px-6 py-5 border-b border-white/5">
+            <h2 className="font-semibold">
+              Quality Report
+            </h2>
+
+            <p className="text-xs text-slate-500 mt-1">
+              Live metrics from the latest encode operation
+            </p>
           </div>
 
-          {/* QUALITY REPORT */}
+          <div className="p-4">
 
-          <div className="rounded-[20px] border border-white/10 bg-[#0b1327] overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
-            <div className="px-6 py-5 border-b border-white/5">
-              <h2 className="font-semibold">Quality report</h2>
+            <div className="grid grid-cols-2 gap-3">
 
-              <p className="text-xs text-slate-500 mt-1">
-                Computed after embedding completes
-              </p>
+              <div className="rounded-xl bg-white/5 p-5">
+                <p className="text-xs text-slate-500">
+                  PSNR
+                </p>
+
+                <h3 className="text-[42px] leading-none font-bold mt-2">
+                  {result?.details?.psnr
+                    ? Number(result.details.psnr).toFixed(2)
+                    : "--"}
+                </h3>
+              </div>
+
+              <div className="rounded-xl bg-white/5 p-5">
+                <p className="text-xs text-slate-500">
+                  SNR
+                </p>
+
+                <h3 className="text-[42px] leading-none font-bold mt-2">
+                  {result?.details?.snr
+                    ? Number(result.details.snr).toFixed(2)
+                    : "--"}
+                </h3>
+              </div>
+
+              <div className="rounded-xl bg-white/5 p-5">
+                <p className="text-xs text-slate-500">
+                  BER
+                </p>
+
+                <h3 className="text-[28px] font-bold mt-2">
+                  {result?.details?.ber ?? "--"}
+                </h3>
+              </div>
+
+              <div className="rounded-xl bg-white/5 p-5">
+                <p className="text-xs text-slate-500">
+                  NC
+                </p>
+
+                <h3 className="text-[28px] font-bold mt-2">
+                  {result?.details?.nc ?? "--"}
+                </h3>
+              </div>
+
             </div>
 
-            <div className="p-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl bg-white/5 p-5">
-                  <p className="text-xs text-slate-500">PSNR</p>
-                  <h3 className="text-[42px] leading-none font-bold mt-2">
-                    95.89<span className="text-sm"> dB</span>
-                  </h3>
-                </div>
-
-                <div className="rounded-xl bg-white/5 p-5">
-                  <p className="text-xs text-slate-500">SNR</p>
-                  <h3 className="text-[42px] leading-none font-bold mt-2">
-                    76.59<span className="text-sm"> dB</span>
-                  </h3>
-                </div>
-
-                <div className="rounded-xl bg-white/5 p-5">
-                  <p className="text-xs text-slate-500">BER</p>
-                  <h3 className="text-[42px] leading-none font-bold mt-2">
-                    4.3e-7
-                  </h3>
-                </div>
-
-                <div className="rounded-xl bg-white/5 p-5">
-                  <p className="text-xs text-slate-500">NC</p>
-                  <h3 className="text-[42px] leading-none font-bold mt-2">
-                    1.000
-                  </h3>
-                </div>
+            {error && (
+              <div className="mt-4 rounded-xl bg-red-500/10 p-4 text-red-400">
+                {error}
               </div>
+            )}
 
-              <div className="grid grid-cols-3 gap-4 mt-4 text-sm">
-                <div className="rounded-xl bg-white/5 p-3">
-                  <p className="text-slate-500">Robust positions</p>
-                  <p className="mt-1 font-medium">184,320 bytes</p>
-                </div>
+            {result && (
+              <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4">
 
-                <div className="rounded-xl bg-white/5 p-3">
-                  <p className="text-slate-500">Payload size</p>
-                  <p className="mt-1 font-medium">248 bytes</p>
-                </div>
+                <h3 className="font-semibold text-emerald-400">
+                  Encoding Successful
+                </h3>
 
-                <div className="rounded-xl bg-white/5 p-3">
-                  <p className="text-slate-500">Processing</p>
-                  <p className="mt-1 font-medium">14.2s</p>
-                </div>
+                <p className="mt-2 text-sm text-slate-300">
+                  Status: {result.status}
+                </p>
+
+                <p className="mt-1 text-sm text-slate-300 break-all">
+                  Output: {result.output_file}
+                </p>
+
+                <p className="mt-1 text-sm text-slate-300">
+                  Bits Embedded: {result?.details?.bits_embedded}
+                </p>
+
               </div>
+            )}
 
-              {error && (
-                <div className="mb-4 rounded-xl bg-red-500/10 p-4 text-red-400">
-                  {error}
-                </div>
-              )}
+            {result?.output_file && (
+              <div className="mt-4 space-y-3">
 
-              {result && (
-                <div className="mb-4 rounded-xl bg-emerald-500/10 p-4 text-emerald-400">
-                  <p>Status: {result.status}</p>
-
-                  <p>Output: {result.output_file}</p>
-
-                  {result.details && (
-                    <p>Bits Embedded: {result.details.bits_embedded}</p>
-                  )}
-                </div>
-              )}
-
-              {result?.output_file && (
                 <a
-                  href={getDownloadUrl(result.output_file)}
+                  href={getDownloadUrl(
+                    result.storage_url,
+                    result.output_file
+                  )}
                   target="_blank"
                   rel="noreferrer"
-                  className="
-      block
-      w-full
-      mt-5
-      rounded-xl
-      border
-      border-teal-400
-      bg-teal-500/10
-      py-3
-      text-center
-      text-teal-300
-      hover:bg-teal-500/20
-      transition
-    "
+                  className="block w-full rounded-xl border border-teal-400 bg-teal-500/10 py-3 text-center text-teal-300 hover:bg-teal-500/20 transition"
                 >
-                  Download stego audio
+                  Download Stego Audio
                 </a>
-              )}
-            </div>
+
+                {result?.storage_url && (
+                  <button
+                    onClick={() =>
+                      navigator.clipboard.writeText(
+                        result.storage_url
+                      )
+                    }
+                    className="w-full rounded-xl border border-cyan-400 bg-cyan-500/10 py-3 text-cyan-300 hover:bg-cyan-500/20 transition"
+                  >
+                    Copy Cloud URL
+                  </button>
+                )}
+
+              </div>
+            )}
+
           </div>
+
         </div>
+
       </div>
-    </AppShell>
-  );
+    </div>
+  </AppShell>
+);
 }

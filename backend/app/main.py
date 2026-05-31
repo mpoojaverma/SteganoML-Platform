@@ -6,6 +6,7 @@ from app.routes.encode import router as encode_router
 from app.routes.decode import router as decode_router
 from app.routes.jobs import router as jobs_router
 from app.routes.stats import router as stats_router
+from app.routes import analytics
 
 
 # =========================================================
@@ -64,6 +65,12 @@ app.include_router(
     stats_router,
     prefix="/api/stats",
     tags=["Stats"]
+)
+
+app.include_router(
+    analytics.router,
+    prefix="/api/analytics",
+    tags=["Analytics"],
 )
 
 # =========================================================

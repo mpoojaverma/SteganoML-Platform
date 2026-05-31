@@ -21,14 +21,12 @@ export default function DashboardPage() {
           </h1>
 
           <p className="mt-2 text-slate-400">
-            Monitor adaptive
-            steganography pipelines,
-            security metrics and
-            system activity.
+            Monitor adaptive steganography pipelines,
+            security metrics and system activity.
           </p>
         </div>
 
-        <div className="grid grid-cols-6 gap-4">
+        <div className="grid grid-cols-8 gap-4">
 
           <MetricCard
             title="Total Jobs"
@@ -87,6 +85,28 @@ export default function DashboardPage() {
             color="text-purple-400"
           />
 
+          <MetricCard
+            title="Avg BER"
+            value={
+              loading
+                ? "-"
+                : Number(
+                    stats.avg_ber || 0
+                  ).toExponential(2)
+            }
+            color="text-orange-400"
+          />
+
+          <MetricCard
+            title="Avg NC"
+            value={
+              loading
+                ? "-"
+                : stats.avg_nc
+            }
+            color="text-pink-400"
+          />
+
         </div>
 
         <div className="grid grid-cols-12 gap-6">
@@ -105,93 +125,109 @@ export default function DashboardPage() {
 
             </div>
 
-            <table className="w-full">
+            <div className="overflow-x-auto">
 
-              <thead>
+              <table className="w-full">
 
-                <tr className="text-left text-xs text-slate-500">
+                <thead>
 
-                  <th className="px-5 py-4">
-                    File
-                  </th>
+                  <tr className="text-left text-xs text-slate-500">
 
-                  <th>Type</th>
+                    <th className="px-5 py-4">
+                      File
+                    </th>
 
-                  <th>Method</th>
+                    <th>Type</th>
 
-                  <th>Status</th>
+                    <th>Method</th>
 
-                  <th>PSNR</th>
+                    <th>Status</th>
 
-                  <th>SNR</th>
+                    <th>PSNR</th>
 
-                </tr>
+                    <th>SNR</th>
 
-              </thead>
+                    <th>BER</th>
 
-              <tbody>
+                    <th>NC</th>
 
-                {jobs
-                  .slice(0, 8)
-                  .map(
-                    (
-                      job: any,
-                      index: number
-                    ) => (
-                      <tr
-                        key={index}
-                        className="border-t border-white/5 hover:bg-white/[0.03]"
-                      >
-                        <td className="px-5 py-4">
-                          {job.file_name}
-                        </td>
+                  </tr>
 
-                        <td className="capitalize">
-                          {job.type}
-                        </td>
+                </thead>
 
-                        <td>
-                          {job.method}
-                        </td>
+                <tbody>
 
-                        <td>
+                  {jobs
+                    .slice(0, 8)
+                    .map(
+                      (
+                        job: any,
+                        index: number
+                      ) => (
+                        <tr
+                          key={index}
+                          className="border-t border-white/5 hover:bg-white/[0.03]"
+                        >
+                          <td className="px-5 py-4 max-w-[250px] truncate">
+                            {job.file_name}
+                          </td>
 
-                          <span
-                            className={`rounded-full px-3 py-1 text-xs ${
-                              job.status ===
-                              "success"
-                                ? "bg-emerald-500/10 text-emerald-400"
-                                : "bg-red-500/10 text-red-400"
-                            }`}
-                          >
-                            {job.status}
-                          </span>
+                          <td className="capitalize">
+                            {job.type}
+                          </td>
 
-                        </td>
+                          <td>
+                            {job.method || "-"}
+                          </td>
 
-                        <td>
-                          {job.psnr
-                            ? Number(
-                                job.psnr
-                              ).toFixed(2)
-                            : "-"}
-                        </td>
+                          <td>
 
-                        <td>
-                          {job.snr
-                            ? Number(
-                                job.snr
-                              ).toFixed(2)
-                            : "-"}
-                        </td>
+                            <span
+                              className={`rounded-full px-3 py-1 text-xs ${
+                                job.status ===
+                                "success"
+                                  ? "bg-emerald-500/10 text-emerald-400"
+                                  : "bg-red-500/10 text-red-400"
+                              }`}
+                            >
+                              {job.status}
+                            </span>
 
-                      </tr>
-                    )
-                  )}
+                          </td>
 
-              </tbody>
+                          <td>
+                            {job.psnr
+                              ? Number(
+                                  job.psnr
+                                ).toFixed(2)
+                              : "-"}
+                          </td>
 
-            </table>
+                          <td>
+                            {job.snr
+                              ? Number(
+                                  job.snr
+                                ).toFixed(2)
+                              : "-"}
+                          </td>
+
+                          <td>
+                            {job.ber ?? "-"}
+                          </td>
+
+                          <td>
+                            {job.nc ?? "-"}
+                          </td>
+
+                        </tr>
+                      )
+                    )}
+
+                </tbody>
+
+              </table>
+
+            </div>
 
           </div>
 
@@ -214,6 +250,12 @@ export default function DashboardPage() {
               }
               avgSNR={
                 stats.avg_snr
+              }
+              avgBER={
+                stats.avg_ber
+              }
+              avgNC={
+                stats.avg_nc
               }
             />
 
@@ -339,6 +381,8 @@ function MetricsCard({
   decodes,
   avgPSNR,
   avgSNR,
+  avgBER,
+  avgNC,
 }: any) {
   return (
     <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
@@ -372,6 +416,18 @@ function MetricsCard({
         <MetricRow
           label="Average SNR"
           value={avgSNR}
+        />
+
+        <MetricRow
+          label="Average BER"
+          value={Number(
+            avgBER || 0
+          ).toExponential(2)}
+        />
+
+        <MetricRow
+          label="Average NC"
+          value={avgNC}
         />
 
       </div>

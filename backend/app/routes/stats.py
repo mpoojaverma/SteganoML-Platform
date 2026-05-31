@@ -55,15 +55,27 @@ async def get_stats(
     )
 
     psnr_values = [
-        j["psnr"]
+        float(j["psnr"])
         for j in jobs
         if j.get("psnr") is not None
     ]
 
     snr_values = [
-        j["snr"]
+        float(j["snr"])
         for j in jobs
         if j.get("snr") is not None
+    ]
+
+    ber_values = [
+        float(j["ber"])
+        for j in jobs
+        if j.get("ber") is not None
+    ]
+
+    nc_values = [
+        float(j["nc"])
+        for j in jobs
+        if j.get("nc") is not None
     ]
 
     avg_psnr = (
@@ -86,6 +98,23 @@ async def get_stats(
         else 0
     )
 
+    avg_ber = (
+        sum(ber_values)
+        / len(ber_values)
+        if ber_values
+        else 0
+    )
+
+    avg_nc = (
+        round(
+            sum(nc_values)
+            / len(nc_values),
+            4,
+        )
+        if nc_values
+        else 0
+    )
+
     return {
         "total_jobs": total_jobs,
         "encodes": encodes,
@@ -93,4 +122,6 @@ async def get_stats(
         "success_rate": success_rate,
         "avg_psnr": avg_psnr,
         "avg_snr": avg_snr,
+        "avg_ber": avg_ber,
+        "avg_nc": avg_nc,
     }
