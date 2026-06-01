@@ -51,7 +51,8 @@ export default function DecodePage() {
   return (
     <AppShell>
       <div className="max-w-5xl mx-auto space-y-8 p-4">
-        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+        {/* Strictly matches the native Toast contract using show and message props */}
+        <Toast show={!!toast} message={toast?.message || ""} />
 
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-2xl">
           <h2 className="text-xl font-semibold text-white mb-4">Extract Payload Metadata</h2>
