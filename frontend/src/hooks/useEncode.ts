@@ -1,94 +1,39 @@
-"use client";
+/**
+ * SteganoML Platform Production-Grade Hook Suite
+ * Path: frontend/src/hooks/useEncode.ts
+ */
 
 import { useState } from "react";
-import { encodeAudio } from "@/lib/api";
-import { supabase } from "@/lib/supabase";
+import { SteganoAPI, EncodeResponse } from "@/lib/api";
 
 export default function useEncode() {
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<EncodeResponse | null>(null);
 
-  const [error, setError] =
-    useState<string | null>(null);
-
-  const [result, setResult] =
-    useState<any>(null);
-
-  async function runEncode(
-    audioFile: File,
-    message: string,
+  const encode = async (
+    file: File,
+    secretMessage: string,
     password: string,
-    method: "ml" | "random"
-  ) {
+    userEmail: string,
+    method: "ml" | "randomized" = "ml"
+  ) => {
+    setLoading(true);
+    setError(null);
+    setResult(null);
+
     try {
-      setLoading(true);
-      setError(null);
-
-      const {
-        data: { user },
-      } =
-        await supabase.auth.getUser();
-
-      if (!user) {
-        throw new Error(
-          "User not logged in"
-        );
-      }
-
-      const formData =
-        new FormData();
-
-      formData.append(
-        "audio_file",
-        audioFile
-      );
-
-      formData.append(
-        "secret_message",
-        message
-      );
-
-      formData.append(
-        "password",
-        password
-      );
-
-      formData.append(
-        "method",
-        method
-      );
-
-      formData.append(
-        "user_email",
-        user.email || ""
-      );
-
-      const data =
-        await encodeAudio(
-          formData
-        );
-
-      setResult(data);
-
-      return data;
+      const response = await SteganoAPI.encodeAudio(file, secretMessage, password, userEmail, method);
+      setResult(response);
+      return response;
     } catch (err: any) {
-      console.error(err);
-
-      setError(
-        err?.response?.data
-          ?.detail ||
-          err?.message ||
-          "Encoding failed"
-      );
+      const msg = err.message || "Embedding process halted due to capacity constraints or server exceptions.";
+      setError(msg);
+      throw new Error(msg);
     } finally {
       setLoading(false);
     }
-  }
-
-  return {
-    runEncode,
-    loading,
-    error,
-    result,
   };
+
+  return { encode, loading, error, result, setError, setResult };
 }
