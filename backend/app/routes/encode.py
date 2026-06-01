@@ -38,6 +38,11 @@ async def encode_audio_route(
         position_list = list(result.get("position_list", []))
         position_map_str = ",".join(map(str, position_list))
 
+        print(
+           "POSITION COUNT:",
+            len(position_list)
+        )
+        
         save_job_supabase({
             "user_email": user_email,
             "type": "encode",
