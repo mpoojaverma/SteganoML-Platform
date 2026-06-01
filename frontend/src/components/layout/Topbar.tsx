@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
 import { supabase } from "@/lib/supabase";
 
 export default function Topbar() {
   const router = useRouter();
+
+  const API_BASE =
+    process.env.NEXT_PUBLIC_API_URL;
 
   const [online, setOnline] =
     useState(false);
@@ -15,23 +17,33 @@ export default function Topbar() {
     useState<any>(null);
 
   useEffect(() => {
-    fetch(
-      "http://127.0.0.1:8000/api/health/"
-    )
-      .then(() => setOnline(true))
-      .catch(() => setOnline(false));
+    async function checkHealth() {
+      try {
+        const response = await fetch(
+          `${API_BASE}/health/`
+        );
+
+        if (response.ok) {
+          setOnline(true);
+        } else {
+          setOnline(false);
+        }
+      } catch {
+        setOnline(false);
+      }
+    }
 
     async function loadUser() {
       const {
         data,
-      } =
-        await supabase.auth.getUser();
+      } = await supabase.auth.getUser();
 
       setUser(data.user);
     }
 
+    checkHealth();
     loadUser();
-  }, []);
+  }, [API_BASE]);
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -40,8 +52,7 @@ export default function Topbar() {
   }
 
   const fullName =
-    user?.user_metadata?.full_name ||
-    "";
+    user?.user_metadata?.full_name || "";
 
   const email =
     user?.email || "";

@@ -15,22 +15,23 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Resolve explicit allowed UI origins via environment injections with local fallback
 ALLOWED_ORIGINS = [
-    os.getenv("FRONTEND_URL", "http://localhost:3000"),
-    "https://steganoml-platform.vercel.app",
-    "https://steganoml.vercel.app"
+    "http://localhost:3000",
+    "https://stegano-ml-platform.vercel.app",
 ]
+
+frontend_url = os.getenv("FRONTEND_URL")
+if frontend_url:
+    ALLOWED_ORIGINS.append(frontend_url)
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Route registrations with unified prefix logic
 app.include_router(health_router, prefix="/api/health", tags=["Health"])
 app.include_router(encode_router, prefix="/api/encode", tags=["Encode"])
 app.include_router(decode_router, prefix="/api/decode", tags=["Decode"])
@@ -42,6 +43,6 @@ app.include_router(analytics.router, prefix="/api/analytics", tags=["Analytics"]
 async def root():
     return {
         "status": "healthy",
-        "message": "SteganoML structural core engine backend actively running.",
+        "message": "SteganoML backend is running.",
         "environment": os.getenv("RAILWAY_ENVIRONMENT", "production")
     }
