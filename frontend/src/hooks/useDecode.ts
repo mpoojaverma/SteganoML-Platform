@@ -1,33 +1,88 @@
-/**
- * SteganoML Platform Production-Grade Hook Suite
- * Path: frontend/src/hooks/useDecode.ts
- */
+"use client";
 
 import { useState } from "react";
-import { SteganoAPI, DecodeResponse } from "@/lib/api";
+import { decodeAudio } from "@/lib/api";
+import { supabase } from "@/lib/supabase";
 
 export default function useDecode() {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<DecodeResponse | null>(null);
+  const [loading, setLoading] =
+    useState(false);
 
-  const decode = async (file: File, password: string, userEmail: string, method: "ml" | "randomized" = "ml") => {
-    setLoading(true);
-    setError(null);
-    setResult(null);
+  const [error, setError] =
+    useState<string | null>(null);
 
+  const [result, setResult] =
+    useState<any>(null);
+
+  async function runDecode(
+    audioFile: File,
+    password: string,
+    method: "ml" | "random"
+  ) {
     try {
-      const response = await SteganoAPI.decodeAudio(file, password, userEmail, method);
-      setResult(response);
-      return response;
+      setLoading(true);
+      setError(null);
+
+      const {
+        data: { user },
+      } =
+        await supabase.auth.getUser();
+
+      if (!user) {
+        throw new Error(
+          "User not logged in"
+        );
+      }
+
+      const formData =
+        new FormData();
+
+      formData.append(
+        "audio_file",
+        audioFile
+      );
+
+      formData.append(
+        "password",
+        password
+      );
+
+      formData.append(
+        "method",
+        method
+      );
+
+      formData.append(
+        "user_email",
+        user.email || ""
+      );
+
+      const data =
+        await decodeAudio(
+          formData
+        );
+
+      setResult(data);
+
+      return data;
     } catch (err: any) {
-      const msg = err.message || "Extraction procedure defaulted out due to data validation flags.";
-      setError(msg);
-      throw new Error(msg);
+      console.error(err);
+
+      setError(
+        err?.response?.data
+          ?.detail ||
+          err?.message ||
+          "Decode failed"
+      );
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  return { decode, loading, error, result, setError, setResult };
+  return {
+    runDecode,
+    loading,
+    error,
+    result,
+  };
 }
