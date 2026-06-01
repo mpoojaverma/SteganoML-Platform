@@ -35,7 +35,7 @@ async def encode_audio_route(
 
         # Map details safely with validation fallbacks
         details = result.get("details", {})
-        position_list = result.get("position_list", [])
+        position_list = list(result.get("position_list", []))
         position_map_str = ",".join(map(str, position_list))
 
         save_job_supabase({

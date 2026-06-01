@@ -175,8 +175,9 @@ def decode_message(
             "message": cleaned_payload.decode(errors="ignore"),
         }
     except Exception as e:
+        print("DECODE ERROR:", str(e))
         return {
             "status": "error",
-            "message": "Decryption failed. Invalid credentials or corrupted bitstream payload structural integrity.",
+            "message": str(e),
             "details": repr(e),
         }
