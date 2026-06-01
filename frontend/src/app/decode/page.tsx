@@ -1,10 +1,5 @@
 "use client";
 
-/**
- * SteganoML Platform Production-Grade Interface Configuration
- * Path: frontend/src/app/decode/page.tsx
- */
-
 import React, { useState, useEffect } from "react";
 import useDecode from "@/hooks/useDecode";
 import AppShell from "@/components/layout/AppShell";
