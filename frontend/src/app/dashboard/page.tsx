@@ -39,35 +39,27 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Primary Data Metric Cards Layout */}
+        {/* Primary Data Metric Cards Layout - Aligned Strictly with native Props */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <MetricCard
             title="Total Processed Signals"
             value={loading ? "..." : stats.total_jobs.toString()}
-            description="Aggregated steganographic operations"
-            trend={stats.total_jobs > 0 ? "+100%" : "0%"}
-            trendType="up"
+            subtitle={stats.total_jobs > 0 ? "Operations tracked (+100%)" : "No operations tracked"}
           />
           <MetricCard
             title="CatBoost ML Selection Rate"
             value={loading ? "..." : `${stats.success_rate}%`}
-            description="Imperceptibility target optimization rate"
-            trend="Stable"
-            trendType="neutral"
+            subtitle="Target optimization stable"
           />
           <MetricCard
             title="Mean Distortion Ratio (PSNR)"
             value={loading ? "..." : `${stats.avg_psnr} dB`}
-            description="Peak Signal-to-Noise Ratio average"
-            trend="SOTA Target"
-            trendType="up"
+            subtitle="SOTA baseline target active"
           />
           <MetricCard
             title="Bit Error Extraction (BER)"
             value={loading ? "..." : stats.avg_ber.toExponential(2)}
-            description="Payload extraction accuracy profile"
-            trend="Zero Loss"
-            trendType="up"
+            subtitle="Zero-loss verification profile"
           />
         </div>
 

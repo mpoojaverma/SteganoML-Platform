@@ -52,7 +52,7 @@ export default function EncodePage() {
   };
 
   return (
-    <AppShell title="Adaptive Audio Embedding Context Pipeline">
+    <AppShell>
       <div className="max-w-5xl mx-auto space-y-8 p-4">
         {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
