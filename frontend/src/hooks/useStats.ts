@@ -6,7 +6,7 @@
 import { useEffect, useState } from "react";
 import { SteganoAPI, DashboardStats } from "@/lib/api";
 
-export default function useStats(userEmail: string | null) {
+export default function useStats(userEmail: string | null = null) {
   const [stats, setStats] = useState<DashboardStats>({
     total_jobs: 0,
     encodes: 0,
@@ -21,7 +21,13 @@ export default function useStats(userEmail: string | null) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!userEmail) {
+    // Dynamically look up local state credentials if context parameters are missing
+    let targetEmail = userEmail;
+    if (!targetEmail && typeof window !== "undefined") {
+      targetEmail = localStorage.getItem("steganoml_user_email") || "portfolio.viewer@steganoml.internal";
+    }
+
+    if (!targetEmail) {
       setLoading(false);
       return;
     }
@@ -29,7 +35,7 @@ export default function useStats(userEmail: string | null) {
     async function loadMetrics() {
       try {
         setLoading(true);
-        const data = await SteganoAPI.getUserStats(userEmail!);
+        const data = await SteganoAPI.getUserStats(targetEmail!);
         setStats(data);
         setError(null);
       } catch (err: any) {

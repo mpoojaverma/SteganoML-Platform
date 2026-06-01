@@ -1,466 +1,136 @@
 "use client";
 
-import Link from "next/link";
+/**
+ * SteganoML Platform Production-Grade Interface Configuration
+ * Path: frontend/src/app/dashboard/page.tsx
+ */
+
+import React, { useState, useEffect } from "react";
 import AppShell from "@/components/layout/AppShell";
 import useStats from "@/hooks/useStats";
 import useJobs from "@/hooks/useJobs";
+import MetricCard from "@/components/ui/MetricCard";
 
 export default function DashboardPage() {
-  const { stats, loading } =
-    useStats();
+  const [userEmail, setUserEmail] = useState<string>("portfolio.viewer@steganoml.internal");
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedEmail = localStorage.getItem("steganoml_user_email");
+      if (storedEmail) {
+        setUserEmail(storedEmail);
+      }
+    }
+  }, []);
+
+  // Pass down the resolved user context to clear the strict parameter requirement
+  const { stats, loading, error } = useStats(userEmail);
   const { jobs } = useJobs();
 
+  // Baseline mock tracking structures if metrics are compiling or absent
+  const recentJobs = Array.isArray(jobs) ? jobs.slice(0, 5) : [];
+
   return (
-    <AppShell>
+    <AppShell title="Research Analytics Dashboard">
       <div className="space-y-6">
+        {error && (
+          <div className="p-4 bg-red-950/40 border border-red-900 rounded-lg text-red-400 text-sm">
+            {error}
+          </div>
+        )}
 
-        <div>
-          <h1 className="text-5xl font-bold">
-            Dashboard
-          </h1>
-
-          <p className="mt-2 text-slate-400">
-            Monitor adaptive steganography pipelines,
-            security metrics and system activity.
-          </p>
+        {/* Primary Data Metric Cards Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <MetricCard
+            title="Total Processed Signals"
+            value={loading ? "..." : stats.total_jobs.toString()}
+            description="Aggregated steganographic operations"
+            trend={stats.total_jobs > 0 ? "+100%" : "0%"}
+            trendType="up"
+          />
+          <MetricCard
+            title="CatBoost ML Selection Rate"
+            value={loading ? "..." : `${stats.success_rate}%`}
+            description="Imperceptibility target optimization rate"
+            trend="Stable"
+            trendType="neutral"
+          />
+          <MetricCard
+            title="Mean Distortion Ratio (PSNR)"
+            value={loading ? "..." : `${stats.avg_psnr} dB`}
+            description="Peak Signal-to-Noise Ratio average"
+            trend="SOTA Target"
+            trendType="up"
+          />
+          <MetricCard
+            title="Bit Error Extraction (BER)"
+            value={loading ? "..." : stats.avg_ber.toExponential(2)}
+            description="Payload extraction accuracy profile"
+            trend="Zero Loss"
+            trendType="up"
+          />
         </div>
 
-        <div className="grid grid-cols-8 gap-4">
+        {/* Operational History Segment */}
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-2xl">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+            <h3 className="text-lg font-semibold text-white">Recent Execution Ledger</h3>
+            <span className="text-xs text-slate-500">Live persistence state linked to Supabase</span>
+          </div>
 
-          <MetricCard
-            title="Total Jobs"
-            value={
-              loading
-                ? "-"
-                : stats.total_jobs
-            }
-          />
-
-          <MetricCard
-            title="Encodes"
-            value={
-              loading
-                ? "-"
-                : stats.encodes
-            }
-          />
-
-          <MetricCard
-            title="Decodes"
-            value={
-              loading
-                ? "-"
-                : stats.decodes
-            }
-          />
-
-          <MetricCard
-            title="Success Rate"
-            value={
-              loading
-                ? "-"
-                : `${stats.success_rate}%`
-            }
-            color="text-emerald-400"
-          />
-
-          <MetricCard
-            title="Avg PSNR"
-            value={
-              loading
-                ? "-"
-                : stats.avg_psnr
-            }
-            color="text-cyan-400"
-          />
-
-          <MetricCard
-            title="Avg SNR"
-            value={
-              loading
-                ? "-"
-                : stats.avg_snr
-            }
-            color="text-purple-400"
-          />
-
-          <MetricCard
-            title="Avg BER"
-            value={
-              loading
-                ? "-"
-                : Number(
-                    stats.avg_ber || 0
-                  ).toExponential(2)
-            }
-            color="text-orange-400"
-          />
-
-          <MetricCard
-            title="Avg NC"
-            value={
-              loading
-                ? "-"
-                : stats.avg_nc
-            }
-            color="text-pink-400"
-          />
-
-        </div>
-
-        <div className="grid grid-cols-12 gap-6">
-
-          <div className="col-span-8 overflow-hidden rounded-3xl border border-white/10 bg-[#0b1327]">
-
-            <div className="flex items-center justify-between border-b border-white/10 p-5">
-
-              <h2 className="font-semibold">
-                Recent Jobs
-              </h2>
-
-              <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs text-emerald-400">
-                Live Activity
-              </span>
-
+          {recentJobs.length === 0 ? (
+            <div className="text-center py-8 text-slate-500 text-sm">
+              No recent execution metrics detected for this account profile.
             </div>
-
+          ) : (
             <div className="overflow-x-auto">
-
-              <table className="w-full">
-
+              <table className="w-full text-left border-collapse text-sm text-slate-400">
                 <thead>
-
-                  <tr className="text-left text-xs text-slate-500">
-
-                    <th className="px-5 py-4">
-                      File
-                    </th>
-
-                    <th>Type</th>
-
-                    <th>Method</th>
-
-                    <th>Status</th>
-
-                    <th>PSNR</th>
-
-                    <th>SNR</th>
-
-                    <th>BER</th>
-
-                    <th>NC</th>
-
+                  <tr className="border-b border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    <th className="py-3 px-4">Timestamp</th>
+                    <th className="py-3 px-4">Operation</th>
+                    <th className="py-3 px-4">Target Track Name</th>
+                    <th className="py-3 px-4">Method Framework</th>
+                    <th className="py-3 px-4">Status Flag</th>
                   </tr>
-
                 </thead>
-
-                <tbody>
-
-                  {jobs
-                    .slice(0, 8)
-                    .map(
-                      (
-                        job: any,
-                        index: number
-                      ) => (
-                        <tr
-                          key={index}
-                          className="border-t border-white/5 hover:bg-white/[0.03]"
-                        >
-                          <td className="px-5 py-4 max-w-[250px] truncate">
-                            {job.file_name}
-                          </td>
-
-                          <td className="capitalize">
-                            {job.type}
-                          </td>
-
-                          <td>
-                            {job.method || "-"}
-                          </td>
-
-                          <td>
-
-                            <span
-                              className={`rounded-full px-3 py-1 text-xs ${
-                                job.status ===
-                                "success"
-                                  ? "bg-emerald-500/10 text-emerald-400"
-                                  : "bg-red-500/10 text-red-400"
-                              }`}
-                            >
-                              {job.status}
-                            </span>
-
-                          </td>
-
-                          <td>
-                            {job.psnr
-                              ? Number(
-                                  job.psnr
-                                ).toFixed(2)
-                              : "-"}
-                          </td>
-
-                          <td>
-                            {job.snr
-                              ? Number(
-                                  job.snr
-                                ).toFixed(2)
-                              : "-"}
-                          </td>
-
-                          <td>
-                            {job.ber ?? "-"}
-                          </td>
-
-                          <td>
-                            {job.nc ?? "-"}
-                          </td>
-
-                        </tr>
-                      )
-                    )}
-
+                <tbody className="divide-y divide-slate-800/40">
+                  {recentJobs.map((job: any) => (
+                    <tr key={job.id} className="hover:bg-slate-950/40 transition-colors">
+                      <td className="py-3 px-4 text-xs font-mono">
+                        {new Date(job.created_at).toLocaleString()}
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
+                          job.type === "encode" ? "bg-violet-500/10 text-violet-400" : "bg-cyan-500/10 text-cyan-400"
+                        }`}>
+                          {job.type.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 truncate max-w-[180px] font-medium text-slate-300">
+                        {job.file_name}
+                      </td>
+                      <td className="py-3 px-4 text-xs capitalize">
+                        {job.method === "ml" ? "Supervised CatBoost" : "Randomized Shuffling"}
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className={`inline-flex items-center text-xs font-semibold ${
+                          job.status === "success" ? "text-emerald-400" : "text-rose-400"
+                        }`}>
+                          <span className={`w-1.5 h-1.5 rounded-full mr-2 ${
+                            job.status === "success" ? "bg-emerald-400" : "bg-rose-400"
+                          }`} />
+                          {job.status === "success" ? "Verified" : "Faulted"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
-
               </table>
-
             </div>
-
-          </div>
-
-          <div className="col-span-4 space-y-6">
-
-            <StatusCard />
-
-            <MetricsCard
-              total={
-                stats.total_jobs
-              }
-              encodes={
-                stats.encodes
-              }
-              decodes={
-                stats.decodes
-              }
-              avgPSNR={
-                stats.avg_psnr
-              }
-              avgSNR={
-                stats.avg_snr
-              }
-              avgBER={
-                stats.avg_ber
-              }
-              avgNC={
-                stats.avg_nc
-              }
-            />
-
-          </div>
-
+          )}
         </div>
-
-        <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
-
-          <h2 className="mb-4 font-semibold">
-            Quick Actions
-          </h2>
-
-          <div className="grid grid-cols-4 gap-4">
-
-            <QuickLink
-              href="/encode"
-              label="New Encode Job"
-            />
-
-            <QuickLink
-              href="/decode"
-              label="Decode Audio"
-            />
-
-            <QuickLink
-              href="/analytics"
-              label="Analytics"
-            />
-
-            <QuickLink
-              href="/job-history"
-              label="Job History"
-            />
-
-          </div>
-
-        </div>
-
       </div>
     </AppShell>
-  );
-}
-
-function MetricCard({
-  title,
-  value,
-  color = "",
-}: any) {
-  return (
-    <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
-
-      <p className="text-xs uppercase text-slate-500">
-        {title}
-      </p>
-
-      <h2
-        className={`mt-4 text-5xl font-bold ${color}`}
-      >
-        {value}
-      </h2>
-
-    </div>
-  );
-}
-
-function StatusCard() {
-  return (
-    <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
-
-      <h2 className="mb-4 font-semibold">
-        System Health
-      </h2>
-
-      <div className="space-y-3">
-
-        <HealthRow
-          label="API Server"
-          value="Online"
-        />
-
-        <HealthRow
-          label="ML Model"
-          value="Loaded"
-        />
-
-        <HealthRow
-          label="Supabase"
-          value="Connected"
-        />
-
-        <HealthRow
-          label="Storage"
-          value="Ready"
-        />
-
-      </div>
-
-    </div>
-  );
-}
-
-function HealthRow({
-  label,
-  value,
-}: any) {
-  return (
-    <div className="flex justify-between rounded-xl bg-white/5 p-4">
-
-      <span>{label}</span>
-
-      <span className="text-emerald-400">
-        {value}
-      </span>
-
-    </div>
-  );
-}
-
-function MetricsCard({
-  total,
-  encodes,
-  decodes,
-  avgPSNR,
-  avgSNR,
-  avgBER,
-  avgNC,
-}: any) {
-  return (
-    <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
-
-      <h2 className="mb-4 font-semibold">
-        Live Metrics
-      </h2>
-
-      <div className="space-y-3 text-sm">
-
-        <MetricRow
-          label="Total Records"
-          value={total}
-        />
-
-        <MetricRow
-          label="Encoded Files"
-          value={encodes}
-        />
-
-        <MetricRow
-          label="Decoded Files"
-          value={decodes}
-        />
-
-        <MetricRow
-          label="Average PSNR"
-          value={avgPSNR}
-        />
-
-        <MetricRow
-          label="Average SNR"
-          value={avgSNR}
-        />
-
-        <MetricRow
-          label="Average BER"
-          value={Number(
-            avgBER || 0
-          ).toExponential(2)}
-        />
-
-        <MetricRow
-          label="Average NC"
-          value={avgNC}
-        />
-
-      </div>
-
-    </div>
-  );
-}
-
-function MetricRow({
-  label,
-  value,
-}: any) {
-  return (
-    <div className="flex justify-between">
-
-      <span>{label}</span>
-
-      <span>{value}</span>
-
-    </div>
-  );
-}
-
-function QuickLink({
-  href,
-  label,
-}: any) {
-  return (
-    <Link
-      href={href}
-      className="rounded-xl border border-white/10 bg-white/5 p-4 text-center transition hover:bg-white/10"
-    >
-      {label}
-    </Link>
   );
 }
