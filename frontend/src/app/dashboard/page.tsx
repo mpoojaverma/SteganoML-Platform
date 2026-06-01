@@ -31,7 +31,7 @@ export default function DashboardPage() {
   const recentJobs = Array.isArray(jobs) ? jobs.slice(0, 5) : [];
 
   return (
-    <AppShell title="Research Analytics Dashboard">
+    <AppShell>
       <div className="space-y-6">
         {error && (
           <div className="p-4 bg-red-950/40 border border-red-900 rounded-lg text-red-400 text-sm">
