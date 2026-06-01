@@ -8,9 +8,10 @@ const API_BASE =
 export async function getAnalytics() {
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } =
+    await supabase.auth.getUser();
 
-  if (!user) {
+  if (!user?.email) {
     return null;
   }
 

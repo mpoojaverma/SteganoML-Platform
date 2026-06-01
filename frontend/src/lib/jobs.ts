@@ -8,11 +8,17 @@ const API_BASE =
 export async function getJobs() {
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } =
+    await supabase.auth.getUser();
 
-  if (!user) {
+  if (!user?.email) {
     return [];
   }
+
+  console.log(
+    "Fetching jobs:",
+    `${API_BASE}/jobs/`
+  );
 
   const response =
     await axios.get(
