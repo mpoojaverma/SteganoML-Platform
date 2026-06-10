@@ -5,6 +5,7 @@ import useEncode from "@/hooks/useEncode";
 import AppShell from "@/components/layout/AppShell";
 import { getDownloadUrl } from "@/lib/api";
 import Toast from "@/components/ui/Toast";
+import { UploadCloud, FileAudio, CheckCircle2 } from "lucide-react";
 
 const waveform = [
   12, 18, 28, 42, 58, 74, 56, 38, 24, 18, 22, 34, 48, 66, 82, 62, 44, 26, 18,
@@ -94,6 +95,25 @@ export default function EncodePage() {
     sessionStorage.setItem("steganoml_encode_password", val);
   };
 
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    if (e.dataTransfer.files?.[0]) {
+      handleFileChange(e.dataTransfer.files[0]);
+    }
+  };
+
   const handleFileChange = (file: File | null) => {
     if (file) {
       const meta = { name: file.name, size: file.size, fake: false };
@@ -119,62 +139,128 @@ export default function EncodePage() {
         <div className="lg:col-span-8 space-y-6">
           {/* AUDIO SOURCE */}
 
-          <div className="rounded-[20px] border border-white/10 bg-[#0b1327] overflow-hidden">
-            <div className="px-6 py-5 border-b border-white/5">
-              <label htmlFor="encode-audio" className="sr-only">Upload audio file</label>
-              <input
-                id="encode-audio"
-                type="file"
-                accept=".wav,.mp3,.flac,.m4a"
-                onChange={(e) => {
-                  if (e.target.files?.[0]) {
-                    handleFileChange(e.target.files[0]);
-                  }
-                }}
-                className="mb-4 w-full rounded-xl border border-white/10 bg-white/5 p-3"
-              />
+          <div className="rounded-[20px] border border-white/10 bg-[#0b1327] p-6 space-y-6">
+            <div>
               <h2 className="font-semibold text-white">Audio source</h2>
-
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-slate-500 mt-0.5">
                 WAV, MP3, FLAC, M4A — max 50 MB
               </p>
             </div>
 
-            <div className="p-4 space-y-3">
-              <div className="rounded-xl bg-white/5 px-4 py-4 flex items-center gap-4">
-                <div className="w-10 h-10 rounded-lg bg-teal-500/20" />
+            {/* HIDDEN INPUT */}
+            <input
+              id="encode-audio"
+              type="file"
+              accept=".wav,.mp3,.flac,.m4a"
+              onChange={(e) => {
+                if (e.target.files?.[0]) {
+                  handleFileChange(e.target.files[0]);
+                }
+              }}
+              className="sr-only"
+            />
 
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium text-white truncate">
-                    {audioFile ? audioFile.name : "No file selected"}
-                  </p>
+            {/* UNIFIED SINGLE UPLOAD CARD */}
+            <div
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-8 transition-all duration-200 text-center ${
+                isDragOver
+                  ? "border-teal-400 bg-teal-500/10 shadow-[0_0_20px_rgba(20,184,166,0.15)] scale-[1.01]"
+                  : audioFile
+                    ? audioFile && 'fake' in audioFile
+                      ? "border-orange-500/30 bg-orange-500/5 hover:border-orange-500/50 hover:bg-orange-500/10"
+                      : "border-teal-500/30 bg-teal-500/5 hover:border-teal-500/50 hover:bg-teal-500/10"
+                    : "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]"
+              } focus-within:ring-2 focus-within:ring-cyan-400 focus-within:ring-offset-2 focus-within:ring-offset-[#0b1327]`}
+            >
+              <label htmlFor="encode-audio" className="absolute inset-0 cursor-pointer z-0" />
 
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    {audioFile
-                      ? `${audioFile.size ? (audioFile.size / (1024 * 1024)).toFixed(1) : "3.1"} MB · 44.1 kHz · Mono`
-                      : "44.1 kHz · Mono · 3.1 MB · 32.4s"}
-                  </p>
+              <div className="relative z-10 flex flex-col items-center">
+                {/* Upload Icon */}
+                <div
+                  className={`p-4 rounded-full mb-4 transition-all duration-300 ${
+                    isDragOver
+                      ? "bg-teal-500/20 text-teal-400 scale-110 animate-pulse"
+                      : audioFile
+                        ? audioFile && 'fake' in audioFile
+                          ? "bg-orange-500/20 text-orange-400"
+                          : "bg-teal-500/20 text-teal-400"
+                        : "bg-white/5 text-slate-500"
+                  }`}
+                >
+                  {audioFile ? <FileAudio size={32} /> : <UploadCloud size={32} />}
                 </div>
-              </div>
 
-              {audioFile && 'fake' in audioFile && (
-                <div className="rounded-xl bg-orange-500/10 border border-orange-500/20 px-4 py-3 text-xs text-orange-400">
-                  Previous file: <strong className="font-semibold">{audioFile.name}</strong>. Please re-upload the file before running encode.
-                </div>
-              )}
+                {/* Selected filename / Drag message */}
+                <p className="text-sm font-semibold text-white max-w-[280px] truncate">
+                  {isDragOver
+                    ? "Drop file to upload"
+                    : audioFile
+                      ? audioFile.name
+                      : "Drag & drop audio here or click to browse"}
+                </p>
 
-              <div className="rounded-xl bg-white/5 px-4 py-4 border-t border-white/5">
-                <div className="h-20 w-full flex items-center justify-between overflow-hidden">
-                  {activeWaveform.map((h, i) => (
-                    <div
-                      key={i}
-                      className="w-[3px] rounded-full bg-[#18d5d0]"
-                      style={{
-                        height: `${h}px`,
+                {/* Subtext info */}
+                {audioFile ? (
+                  <div className="mt-2 flex flex-col items-center gap-1">
+                    <p className="text-xs text-slate-400">
+                      {audioFile.size ? `${(audioFile.size / (1024 * 1024)).toFixed(1)} MB` : "Size unknown"} · 44.1 kHz · Mono
+                    </p>
+                    {audioFile && 'fake' in audioFile ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-orange-500/10 text-orange-400 border border-orange-500/20 mt-1">
+                        ⚠️ Needs re-upload (session restored)
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-400 border border-teal-500/20 mt-1">
+                        ✓ Success: Ready to encode
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-500 mt-2">
+                    Supports WAV, MP3, FLAC, M4A up to 50MB
+                  </p>
+                )}
+
+                {/* Action buttons inside the card */}
+                {audioFile && (
+                  <div className="mt-5 flex items-center gap-3 relative z-20">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleFileChange(null);
                       }}
-                    />
-                  ))}
-                </div>
+                      className="rounded-lg bg-white/5 border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400 transition focus-visible:ring-2 focus-visible:ring-red-400 outline-none min-h-[36px]"
+                    >
+                      Remove
+                    </button>
+                    <label
+                      htmlFor="encode-audio"
+                      className="rounded-lg bg-[#1bd6d1] px-3 py-1.5 text-xs font-semibold text-black hover:brightness-110 transition cursor-pointer flex items-center justify-center min-h-[36px] focus-visible:ring-2 focus-visible:ring-cyan-400 outline-none"
+                    >
+                      Change File
+                    </label>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* WAVEFORM */}
+            <div className="rounded-xl bg-white/5 px-4 py-4 border border-white/5">
+              <div className="h-20 w-full flex items-center justify-between overflow-hidden">
+                {activeWaveform.map((h, i) => (
+                  <div
+                    key={i}
+                    className="w-[3px] rounded-full bg-[#18d5d0] shrink-0"
+                    style={{
+                      height: `${h}px`,
+                    }}
+                  />
+                ))}
               </div>
             </div>
           </div>
@@ -199,7 +285,7 @@ export default function EncodePage() {
                   rows={4}
                   value={message}
                   onChange={(e) => handleMessageChange(e.target.value)}
-                  className="mt-2 w-full rounded-xl border border-white/5 bg-white/5 p-4 outline-none"
+                  className="mt-2 w-full rounded-xl border border-white/5 bg-white/5 p-4 outline-none focus:border-cyan-500/50 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1327] transition-all"
                 />
               </div>
 
@@ -214,7 +300,7 @@ export default function EncodePage() {
                   autoComplete="off"
                   value={password}
                   onChange={(e) => handlePasswordChange(e.target.value)}
-                  className="mt-2 w-full rounded-xl border border-white/5 bg-white/5 p-4 outline-none"
+                  className="mt-2 w-full rounded-xl border border-white/5 bg-white/5 p-4 outline-none focus:border-cyan-500/50 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1327] transition-all"
                 />
               </div>
 
@@ -233,7 +319,7 @@ export default function EncodePage() {
             </div>
 
             <div className="p-4 grid grid-cols-2 gap-4">
-              <div className="rounded-2xl border border-teal-400 bg-teal-500/10 shadow-[0_0_25px_rgba(20,184,166,0.15)] p-4 relative">
+              <div className="rounded-2xl border border-teal-400 bg-teal-500/10 shadow-[0_0_25px_rgba(20,184,166,0.15)] p-4 relative transition duration-200 hover:brightness-110">
                 <div className="absolute right-4 top-4 w-4 h-4 rounded-full bg-teal-400" />
 
                 <div className="w-7 h-7 rounded-md bg-indigo-500/40 mb-4" />
@@ -250,7 +336,7 @@ export default function EncodePage() {
                 </span>
               </div>
 
-              <div className="rounded-2xl border border-white/5 bg-white/5 p-4">
+              <div className="rounded-2xl border border-white/5 bg-white/5 p-4 transition duration-200 hover:border-white/10 hover:bg-white/[0.07] cursor-pointer hover:shadow-[0_4px_20px_rgba(255,255,255,0.02)]">
                 <div className="w-7 h-7 rounded-md bg-teal-500/20 mb-4" />
 
                 <h3 className="font-semibold">Randomized LSB</h3>
@@ -313,7 +399,7 @@ export default function EncodePage() {
               }
             }}
             disabled={loading}
-            className="w-full rounded-xl bg-[#1bd6d1] py-5 text-base font-semibold text-black transition hover:brightness-110 disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full rounded-xl bg-[#1bd6d1] py-5 text-base font-semibold text-black transition hover:brightness-110 disabled:opacity-50 flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#040816] outline-none cursor-pointer"
           >
             {loading ? (
               <>

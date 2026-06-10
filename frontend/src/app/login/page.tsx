@@ -67,7 +67,7 @@ export default function LoginPage() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-2 w-full rounded-xl border border-white/10 bg-[#0b1327] px-4 py-3"
+              className="mt-2 w-full rounded-xl border border-white/10 bg-[#0b1327] px-4 py-3 focus:border-cyan-500/50 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#071122] outline-none transition-all"
             />
           </div>
 
@@ -80,7 +80,7 @@ export default function LoginPage() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-2 w-full rounded-xl border border-white/10 bg-[#0b1327] px-4 py-3"
+              className="mt-2 w-full rounded-xl border border-white/10 bg-[#0b1327] px-4 py-3 focus:border-cyan-500/50 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#071122] outline-none transition-all"
             />
           </div>
 
@@ -93,7 +93,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-8 w-full rounded-xl bg-cyan-500 py-3 font-semibold text-black flex items-center justify-center gap-2 transition hover:brightness-110"
+            className="mt-8 w-full rounded-xl bg-cyan-500 py-3 font-semibold text-black flex items-center justify-center gap-2 transition hover:brightness-110 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#071122] outline-none cursor-pointer"
           >
             {loading ? (
               <>

@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import AppShell from "@/components/layout/AppShell";
 import useDecode from "@/hooks/useDecode";
 import Toast from "@/components/ui/Toast";
+import { UploadCloud, FileAudio, CheckCircle2 } from "lucide-react";
 
 export default function DecodePage() {
-  const [audioFile, setAudioFile] = useState<File | { name: string; fake: boolean } | null>(null);
+  const [audioFile, setAudioFile] = useState<File | { name: string; size?: number; fake: boolean } | null>(null);
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState("");
   const [showToast, setShowToast] = useState(false);
@@ -61,9 +62,28 @@ export default function DecodePage() {
     sessionStorage.setItem("steganoml_decode_password", val);
   };
 
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    if (e.dataTransfer.files?.[0]) {
+      handleFileChange(e.dataTransfer.files[0]);
+    }
+  };
+
   const handleFileChange = (file: File | null) => {
     if (file) {
-      const meta = { name: file.name, fake: false };
+      const meta = { name: file.name, size: file.size, fake: false };
       setAudioFile(file);
       sessionStorage.setItem("steganoml_decode_audio", JSON.stringify(meta));
     } else {
@@ -92,40 +112,116 @@ export default function DecodePage() {
           <div className="lg:col-span-8 space-y-6">
             {/* AUDIO FILE */}
 
-            <div className="rounded-3xl border border-white/10 bg-[#0b1327] overflow-hidden">
-              <div className="border-b border-white/10 px-8 py-6">
-                <label htmlFor="decode-audio" className="sr-only">Upload stego audio file</label>
-                <input
-                  id="decode-audio"
-                  type="file"
-                  accept=".wav"
-                  onChange={(e) => {
-                    if (e.target.files?.[0]) {
-                      handleFileChange(e.target.files[0]);
-                    }
-                  }}
-                  className="mb-5 w-full rounded-xl border border-white/10 bg-white/5 p-3"
-                />
+          <div className="rounded-[20px] border border-white/10 bg-[#0b1327] p-6 space-y-6">
+            <div>
+              <h2 className="font-semibold text-white">Stego audio file</h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                WAV formats only — max 50 MB
+              </p>
+            </div>
 
-                <h2 className="text-3xl font-semibold">Stego audio file</h2>
+            {/* HIDDEN INPUT */}
+            <input
+              id="decode-audio"
+              type="file"
+              accept=".wav"
+              onChange={(e) => {
+                if (e.target.files?.[0]) {
+                  handleFileChange(e.target.files[0]);
+                }
+              }}
+              className="sr-only"
+            />
 
-                <p className="mt-2 text-slate-500">Upload encoded WAV</p>
-              </div>
+            {/* UNIFIED SINGLE UPLOAD CARD */}
+            <div
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-8 transition-all duration-200 text-center ${
+                isDragOver
+                  ? "border-teal-400 bg-teal-500/10 shadow-[0_0_20px_rgba(20,184,166,0.15)] scale-[1.01]"
+                  : audioFile
+                    ? audioFile && 'fake' in audioFile
+                      ? "border-orange-500/30 bg-orange-500/5 hover:border-orange-500/50 hover:bg-orange-500/10"
+                      : "border-teal-500/30 bg-teal-500/5 hover:border-teal-500/50 hover:bg-teal-500/10"
+                    : "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]"
+              } focus-within:ring-2 focus-within:ring-cyan-400 focus-within:ring-offset-2 focus-within:ring-offset-[#0b1327]`}
+            >
+              <label htmlFor="decode-audio" className="absolute inset-0 cursor-pointer z-0" />
 
-              <div className="p-6 space-y-4">
-                <div className="rounded-2xl bg-white/5 p-6">
-                  <p className="font-semibold">
-                    {audioFile ? audioFile.name : "No file selected"}
-                  </p>
+              <div className="relative z-10 flex flex-col items-center">
+                {/* Upload Icon */}
+                <div
+                  className={`p-4 rounded-full mb-4 transition-all duration-300 ${
+                    isDragOver
+                      ? "bg-teal-500/20 text-teal-400 scale-110 animate-pulse"
+                      : audioFile
+                        ? audioFile && 'fake' in audioFile
+                          ? "bg-orange-500/20 text-orange-400"
+                          : "bg-teal-500/20 text-teal-400"
+                        : "bg-white/5 text-slate-500"
+                  }`}
+                >
+                  {audioFile ? <FileAudio size={32} /> : <UploadCloud size={32} />}
                 </div>
 
-                {audioFile && 'fake' in audioFile && (
-                  <div className="rounded-xl bg-orange-500/10 border border-orange-500/20 px-4 py-3 text-xs text-orange-400">
-                    Previous file: <strong className="font-semibold">{audioFile.name}</strong>. Please re-upload the file before running decode extraction.
+                {/* Selected filename / Drag message */}
+                <p className="text-sm font-semibold text-white max-w-[280px] truncate">
+                  {isDragOver
+                    ? "Drop stego WAV to upload"
+                    : audioFile
+                      ? audioFile.name
+                      : "Drag & drop stego WAV here or click to browse"}
+                </p>
+
+                {/* Subtext info */}
+                {audioFile ? (
+                  <div className="mt-2 flex flex-col items-center gap-1">
+                    <p className="text-xs text-slate-400">
+                      {audioFile.size ? `${(audioFile.size / (1024 * 1024)).toFixed(1)} MB` : "Size unknown"} · 44.1 kHz · Mono
+                    </p>
+                    {audioFile && 'fake' in audioFile ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-orange-500/10 text-orange-400 border border-orange-500/20 mt-1">
+                        ⚠️ Needs re-upload (session restored)
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-400 border border-teal-500/20 mt-1">
+                        ✓ Success: Ready to extract
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-500 mt-2">
+                    Supports WAV files up to 50MB
+                  </p>
+                )}
+
+                {/* Action buttons inside the card */}
+                {audioFile && (
+                  <div className="mt-5 flex items-center gap-3 relative z-20">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleFileChange(null);
+                      }}
+                      className="rounded-lg bg-white/5 border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400 transition focus-visible:ring-2 focus-visible:ring-red-400 outline-none min-h-[36px]"
+                    >
+                      Remove
+                    </button>
+                    <label
+                      htmlFor="decode-audio"
+                      className="rounded-lg bg-[#1bd6d1] px-3 py-1.5 text-xs font-semibold text-black hover:brightness-110 transition cursor-pointer flex items-center justify-center min-h-[36px] focus-visible:ring-2 focus-visible:ring-cyan-400 outline-none"
+                    >
+                      Change File
+                    </label>
                   </div>
                 )}
               </div>
             </div>
+          </div>
 
             {/* PASSWORD */}
 
@@ -143,7 +239,7 @@ export default function DecodePage() {
                   value={password}
                   onChange={(e) => handlePasswordChange(e.target.value)}
                   placeholder="Password"
-                  className="w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-4 outline-none"
+                  className="w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-4 outline-none focus:border-cyan-500/50 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1327] transition-all"
                 />
               </div>
             </div>
@@ -185,6 +281,7 @@ export default function DecodePage() {
                   sessionStorage.setItem("steganoml_decode_result", JSON.stringify(response));
                   sessionStorage.setItem("steganoml_decode_audio", JSON.stringify({
                     name: audioFile.name,
+                    size: 'size' in audioFile ? audioFile.size : undefined,
                     fake: true
                   }));
                   setShowToast(true);
@@ -194,7 +291,7 @@ export default function DecodePage() {
                   }, 3000);
                 }
               }}
-              className="h-16 w-full rounded-2xl bg-cyan-400 text-lg font-semibold text-black disabled:opacity-50 flex items-center justify-center gap-2 transition hover:brightness-110"
+              className="h-16 w-full rounded-2xl bg-cyan-400 text-lg font-semibold text-black disabled:opacity-50 flex items-center justify-center gap-2 transition hover:brightness-110 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#040816] outline-none cursor-pointer"
             >
               {loading ? (
                 <>

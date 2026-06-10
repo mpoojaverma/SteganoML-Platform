@@ -164,11 +164,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               <Link
                 key={item.label}
                 href={item.href}
-                className={`mb-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${
+                className={`mb-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-200 ${
                   active
-                    ? "bg-cyan-500/20 text-cyan-300"
-                    : "text-slate-300 hover:bg-white/5"
-                }`}
+                    ? "bg-cyan-500/20 text-cyan-300 border-l-2 border-cyan-400 pl-[14px]"
+                    : "text-slate-300 hover:bg-white/5 hover:translate-x-0.5"
+                } focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111f] outline-none`}
               >
                 <Icon size={18} />
                 {item.label}
@@ -196,11 +196,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               <Link
                 key={item.label}
                 href={item.href}
-                className={`mb-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${
+                className={`mb-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-200 ${
                   active
-                    ? "bg-cyan-500/20 text-cyan-300"
-                    : "text-slate-300 hover:bg-white/5"
-                }`}
+                    ? "bg-cyan-500/20 text-cyan-300 border-l-2 border-cyan-400 pl-[14px]"
+                    : "text-slate-300 hover:bg-white/5 hover:translate-x-0.5"
+                } focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111f] outline-none`}
               >
                 <Icon size={18} />
                 {item.label}
@@ -228,11 +228,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               <Link
                 key={item.label}
                 href={item.href}
-                className={`mb-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${
+                className={`mb-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-200 ${
                   active
-                    ? "bg-cyan-500/20 text-cyan-300"
-                    : "text-slate-300 hover:bg-white/5"
-                }`}
+                    ? "bg-cyan-500/20 text-cyan-300 border-l-2 border-cyan-400 pl-[14px]"
+                    : "text-slate-300 hover:bg-white/5 hover:translate-x-0.5"
+                } focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111f] outline-none`}
               >
                 <Icon size={18} />
                 {item.label}
