@@ -183,7 +183,7 @@ export default function HomePage() {
       {/* METRICS */}
 
       <section className="mx-auto mt-24 max-w-7xl px-8">
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {[
             ["94.69", "Average PSNR"],
             ["72.03", "Average SNR"],

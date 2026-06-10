@@ -27,15 +27,17 @@ export default function DecodePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* LEFT COLUMN */}
 
-          <div className="col-span-8 space-y-6">
+          <div className="lg:col-span-8 space-y-6">
             {/* AUDIO FILE */}
 
             <div className="rounded-3xl border border-white/10 bg-[#0b1327] overflow-hidden">
               <div className="border-b border-white/10 px-8 py-6">
+                <label htmlFor="decode-audio" className="sr-only">Upload stego audio file</label>
                 <input
+                  id="decode-audio"
                   type="file"
                   accept=".wav"
                   onChange={(e) => {
@@ -68,8 +70,11 @@ export default function DecodePage() {
               </div>
 
               <div className="p-6">
+                <label htmlFor="decode-password" className="sr-only">Password</label>
                 <input
+                  id="decode-password"
                   type="password"
+                  autoComplete="off"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
@@ -81,7 +86,7 @@ export default function DecodePage() {
             {/* LOCAL VALIDATION ERRORS */}
 
             {localError && (
-              <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-400">
+              <div role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-400">
                 {localError}
               </div>
             )}
@@ -121,14 +126,14 @@ export default function DecodePage() {
 
           {/* RIGHT COLUMN */}
 
-          <div className="col-span-4">
+          <div className="lg:col-span-4">
             <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-6">
               <h2 className="mb-5 text-xl font-semibold">Extracted payload</h2>
 
               {/* BACKEND ERRORS */}
 
               {error && (
-                <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-400">
+                <div role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-400">
                   {error}
                 </div>
               )}

@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const [loginError, setLoginError] = useState("");
 
   async function handleLogin() {
     try {
@@ -25,15 +26,14 @@ export default function LoginPage() {
       });
 
       if (error) {
-        alert(error.message);
+        setLoginError(error.message);
         return;
       }
 
       router.push("/dashboard");
     } catch (err) {
       console.error(err);
-
-      alert("Login Failed");
+      setLoginError("Login Failed");
     } finally {
       setLoading(false);
     }
@@ -53,9 +53,12 @@ export default function LoginPage() {
           </p>
 
           <div className="mt-8">
-            <label>Email</label>
+            <label htmlFor="login-email">Email</label>
 
             <input
+              id="login-email"
+              type="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="mt-2 w-full rounded-xl border border-white/10 bg-[#0b1327] px-4 py-3"
@@ -63,15 +66,23 @@ export default function LoginPage() {
           </div>
 
           <div className="mt-5">
-            <label>Password</label>
+            <label htmlFor="login-password">Password</label>
 
             <input
+              id="login-password"
               type="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="mt-2 w-full rounded-xl border border-white/10 bg-[#0b1327] px-4 py-3"
             />
           </div>
+
+          {loginError && (
+            <div role="alert" className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+              {loginError}
+            </div>
+          )}
 
           <button
             onClick={handleLogin}

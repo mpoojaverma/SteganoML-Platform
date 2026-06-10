@@ -21,6 +21,9 @@ export default function RegisterPage() {
   const [loading, setLoading] =
     useState(false);
 
+  const [registerError, setRegisterError] = useState("");
+  const [registerSuccess, setRegisterSuccess] = useState("");
+
   async function handleRegister() {
     try {
       setLoading(true);
@@ -38,19 +41,18 @@ export default function RegisterPage() {
       });
 
       if (error) {
-        alert(error.message);
+        setRegisterError(error.message);
         return;
       }
 
-      alert(
+      setRegisterSuccess(
         "Account created. Verify your email before logging in."
       );
 
       router.push("/login");
     } catch (err) {
       console.error(err);
-
-      alert(
+      setRegisterError(
         "Registration failed."
       );
     } finally {
@@ -79,11 +81,13 @@ export default function RegisterPage() {
 
           <div className="mt-8">
 
-            <label>
+            <label htmlFor="reg-name">
               Full Name
             </label>
 
             <input
+              id="reg-name"
+              autoComplete="name"
               value={name}
               onChange={(e) =>
                 setName(
@@ -97,11 +101,14 @@ export default function RegisterPage() {
 
           <div className="mt-5">
 
-            <label>
+            <label htmlFor="reg-email">
               Email
             </label>
 
             <input
+              id="reg-email"
+              type="email"
+              autoComplete="email"
               value={email}
               onChange={(e) =>
                 setEmail(
@@ -115,12 +122,14 @@ export default function RegisterPage() {
 
           <div className="mt-5">
 
-            <label>
+            <label htmlFor="reg-password">
               Password
             </label>
 
             <input
+              id="reg-password"
               type="password"
+              autoComplete="new-password"
               value={password}
               onChange={(e) =>
                 setPassword(
@@ -131,6 +140,18 @@ export default function RegisterPage() {
             />
 
           </div>
+
+          {registerError && (
+            <div role="alert" className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400">
+              {registerError}
+            </div>
+          )}
+
+          {registerSuccess && (
+            <div role="status" className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-400">
+              {registerSuccess}
+            </div>
+          )}
 
           <button
             onClick={handleRegister}

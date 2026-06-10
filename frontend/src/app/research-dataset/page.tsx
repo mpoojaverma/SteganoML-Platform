@@ -90,7 +90,7 @@ export default function ResearchDatasetPage() {
           Dataset Overview
         </h2>
 
-        <div className="grid grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
 
           <InfoCard
             title="Audio Samples"
@@ -160,7 +160,7 @@ export default function ResearchDatasetPage() {
           Extracted Audio Features
         </h2>
 
-        <div className="grid grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
 
           {features.map((feature) => (
             <div
@@ -189,7 +189,7 @@ export default function ResearchDatasetPage() {
           Feature Categories
         </h2>
 
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
           <CategoryCard
             title="Temporal Features"
@@ -228,7 +228,7 @@ export default function ResearchDatasetPage() {
           Dataset Preparation
         </h2>
 
-        <div className="grid grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
 
           <PrepCard title="Audio Normalization" />
           <PrepCard title="Frame Segmentation" />

@@ -173,7 +173,7 @@ export default function AnalyticsPage() {
 
         {!loading && (
           <>
-            <div className="grid grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">
 
               <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
                 <p className="text-xs uppercase text-slate-500">
@@ -231,7 +231,7 @@ export default function AnalyticsPage() {
 
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 
               <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
                 <h2 className="mb-5 font-semibold">
@@ -285,7 +285,7 @@ export default function AnalyticsPage() {
 
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 
               <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
                 <h2 className="mb-5 font-semibold">

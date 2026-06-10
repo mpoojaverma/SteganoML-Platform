@@ -26,7 +26,7 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-8 gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 xl:grid-cols-8">
 
           <MetricCard
             title="Total Jobs"
@@ -109,9 +109,9 @@ export default function DashboardPage() {
 
         </div>
 
-        <div className="grid grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
 
-          <div className="col-span-8 overflow-hidden rounded-3xl border border-white/10 bg-[#0b1327]">
+          <div className="xl:col-span-8 overflow-hidden rounded-3xl border border-white/10 bg-[#0b1327]">
 
             <div className="flex items-center justify-between border-b border-white/10 p-5">
 
@@ -231,7 +231,7 @@ export default function DashboardPage() {
 
           </div>
 
-          <div className="col-span-4 space-y-6">
+          <div className="xl:col-span-4 space-y-6">
 
             <StatusCard />
 
@@ -269,7 +269,7 @@ export default function DashboardPage() {
             Quick Actions
           </h2>
 
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
 
             <QuickLink
               href="/encode"

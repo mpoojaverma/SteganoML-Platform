@@ -102,7 +102,7 @@ export default function ModelInsightsPage() {
       <section className="mx-auto max-w-7xl px-8">
         <h2 className="mb-10 text-center text-4xl font-bold">Model Overview</h2>
 
-        <div className="grid grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <InfoCard title="Algorithm" value="CatBoost" />
 
           <InfoCard title="Learning Type" value="Supervised" />
@@ -120,7 +120,7 @@ export default function ModelInsightsPage() {
           Feature Importance
         </h2>
 
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {featureImportance.map((feature) => (
             <div
               key={feature.title}
@@ -143,7 +143,7 @@ export default function ModelInsightsPage() {
           Evaluation Metrics
         </h2>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {metrics.map((metric) => (
             <div
               key={metric.title}
@@ -168,7 +168,7 @@ export default function ModelInsightsPage() {
           Confusion Matrix Concept
         </h2>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <MatrixCard title="True Positive" />
           <MatrixCard title="False Positive" />
           <MatrixCard title="False Negative" />

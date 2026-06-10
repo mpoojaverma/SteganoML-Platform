@@ -15,11 +15,6 @@ export async function getJobs() {
     return [];
   }
 
-  console.log(
-    "Fetching jobs:",
-    `${API_BASE}/jobs/`
-  );
-
   const response =
     await axios.get(
       `${API_BASE}/jobs/`,

@@ -128,7 +128,7 @@ export default function AboutPage() {
           Encoding Pipeline
         </h2>
 
-        <div className="grid grid-cols-5 gap-5">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
 
           {encodeSteps.map((step, index) => (
             <div
@@ -161,7 +161,7 @@ export default function AboutPage() {
           Decoding Pipeline
         </h2>
 
-        <div className="grid grid-cols-5 gap-5">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
 
           {decodeSteps.map((step, index) => (
             <div

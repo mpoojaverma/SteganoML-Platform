@@ -31,15 +31,17 @@ export default function EncodePage() {
   return (
     <AppShell>
       <Toast show={showToast} message="✓ Encoding completed" />
-      <div className="grid grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* LEFT COLUMN */}
 
-        <div className="col-span-8 space-y-6">
+        <div className="lg:col-span-8 space-y-6">
           {/* AUDIO SOURCE */}
 
           <div className="rounded-[20px] border border-white/10 bg-[#0b1327] overflow-hidden">
             <div className="px-6 py-5 border-b border-white/5">
+              <label htmlFor="encode-audio" className="sr-only">Upload audio file</label>
               <input
+                id="encode-audio"
                 type="file"
                 accept=".wav,.mp3,.flac,.m4a"
                 onChange={(e) => {
@@ -100,9 +102,10 @@ export default function EncodePage() {
 
             <div className="p-4 space-y-4">
               <div>
-                <label className="text-xs text-slate-500">Secret message</label>
+                <label htmlFor="secret-message" className="text-xs text-slate-500">Secret message</label>
 
                 <textarea
+                  id="secret-message"
                   rows={4}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
@@ -111,12 +114,14 @@ export default function EncodePage() {
               </div>
 
               <div>
-                <label className="text-xs text-slate-500">
+                <label htmlFor="encode-password" className="text-xs text-slate-500">
                   Shared password (PBKDF2 key derivation)
                 </label>
 
                 <input
+                  id="encode-password"
                   type="password"
+                  autoComplete="off"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="mt-2 w-full rounded-xl border border-white/5 bg-white/5 p-4 outline-none"
@@ -172,7 +177,7 @@ export default function EncodePage() {
           </div>
 
           {localError && (
-            <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-400">
+            <div role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-400">
               {localError}
             </div>
           )}
@@ -219,7 +224,7 @@ export default function EncodePage() {
 
         {/* RIGHT COLUMN */}
 
-        <div className="col-span-4 space-y-5">
+        <div className="lg:col-span-4 space-y-5">
           {/* PIPELINE */}
 
           <div className="rounded-[20px] border border-white/10 bg-[#0b1327] overflow-hidden">
@@ -273,138 +278,127 @@ export default function EncodePage() {
                   </div>
                 </div>
               ))}
-                      </div>
-        </div>
-
-        {/* QUALITY REPORT */}
-
-        <div className="rounded-[20px] border border-white/10 bg-[#0b1327] overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
-
-          <div className="px-6 py-5 border-b border-white/5">
-            <h2 className="font-semibold">
-              Quality Report
-            </h2>
-
-            <p className="text-xs text-slate-500 mt-1">
-              Live metrics from the latest encode operation
-            </p>
+            </div>
           </div>
 
-          <div className="p-4">
+          {/* QUALITY REPORT */}
 
-            <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-[20px] border border-white/10 bg-[#0b1327] overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+            <div className="px-6 py-5 border-b border-white/5">
+              <h2 className="font-semibold">
+                Quality Report
+              </h2>
 
-              <div className="rounded-xl bg-white/5 p-5">
-                <p className="text-xs text-slate-500">
-                  PSNR
-                </p>
-
-                <h3 className="text-[42px] leading-none font-bold mt-2">
-                  {result?.details?.psnr
-                    ? Number(result.details.psnr).toFixed(2)
-                    : "--"}
-                </h3>
-              </div>
-
-              <div className="rounded-xl bg-white/5 p-5">
-                <p className="text-xs text-slate-500">
-                  SNR
-                </p>
-
-                <h3 className="text-[42px] leading-none font-bold mt-2">
-                  {result?.details?.snr
-                    ? Number(result.details.snr).toFixed(2)
-                    : "--"}
-                </h3>
-              </div>
-
-              <div className="rounded-xl bg-white/5 p-5">
-                <p className="text-xs text-slate-500">
-                  BER
-                </p>
-
-                <h3 className="text-[28px] font-bold mt-2">
-                  {result?.details?.ber ?? "--"}
-                </h3>
-              </div>
-
-              <div className="rounded-xl bg-white/5 p-5">
-                <p className="text-xs text-slate-500">
-                  NC
-                </p>
-
-                <h3 className="text-[28px] font-bold mt-2">
-                  {result?.details?.nc ?? "--"}
-                </h3>
-              </div>
-
+              <p className="text-xs text-slate-500 mt-1">
+                Live metrics from the latest encode operation
+              </p>
             </div>
 
-            {error && (
-              <div className="mt-4 rounded-xl bg-red-500/10 p-4 text-red-400">
-                {error}
+            <div className="p-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl bg-white/5 p-5">
+                  <p className="text-xs text-slate-500">
+                    PSNR
+                  </p>
+
+                  <h3 className="text-[42px] leading-none font-bold mt-2">
+                    {result?.details?.psnr
+                      ? Number(result.details.psnr).toFixed(2)
+                      : "--"}
+                  </h3>
+                </div>
+
+                <div className="rounded-xl bg-white/5 p-5">
+                  <p className="text-xs text-slate-500">
+                    SNR
+                  </p>
+
+                  <h3 className="text-[42px] leading-none font-bold mt-2">
+                    {result?.details?.snr
+                      ? Number(result.details.snr).toFixed(2)
+                      : "--"}
+                  </h3>
+                </div>
+
+                <div className="rounded-xl bg-white/5 p-5">
+                  <p className="text-xs text-slate-500">
+                    BER
+                  </p>
+
+                  <h3 className="text-[28px] font-bold mt-2">
+                    {result?.details?.ber ?? "--"}
+                  </h3>
+                </div>
+
+                <div className="rounded-xl bg-white/5 p-5">
+                  <p className="text-xs text-slate-500">
+                    NC
+                  </p>
+
+                  <h3 className="text-[28px] font-bold mt-2">
+                    {result?.details?.nc ?? "--"}
+                  </h3>
+                </div>
               </div>
-            )}
 
-            {result && (
-              <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4">
+              {error && (
+                <div role="alert" className="mt-4 rounded-xl bg-red-500/10 p-4 text-red-400">
+                  {error}
+                </div>
+              )}
 
-                <h3 className="font-semibold text-emerald-400">
-                  Encoding Successful
-                </h3>
+              {result && (
+                <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4">
+                  <h3 className="font-semibold text-emerald-400">
+                    Encoding Successful
+                  </h3>
 
-                <p className="mt-2 text-sm text-slate-300">
-                  Status: {result.status}
-                </p>
+                  <p className="mt-2 text-sm text-slate-300">
+                    Status: {result.status}
+                  </p>
 
-                <p className="mt-1 text-sm text-slate-300 break-all">
-                  Output: {result.output_file}
-                </p>
+                  <p className="mt-1 text-sm text-slate-300 break-all">
+                    Output: {result.output_file}
+                  </p>
 
-                <p className="mt-1 text-sm text-slate-300">
-                  Bits Embedded: {result?.details?.bits_embedded}
-                </p>
+                  <p className="mt-1 text-sm text-slate-300">
+                    Bits Embedded: {result?.details?.bits_embedded}
+                  </p>
+                </div>
+              )}
 
-              </div>
-            )}
-
-            {result?.output_file && (
-              <div className="mt-4 space-y-3">
-
-                <a
-                  href={getDownloadUrl(
-                    result.storage_url,
-                    result.output_file
-                  )}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block w-full rounded-xl border border-teal-400 bg-teal-500/10 py-3 text-center text-teal-300 hover:bg-teal-500/20 transition"
-                >
-                  Download Stego Audio
-                </a>
-
-                {result?.storage_url && (
-                  <button
-                    onClick={() =>
-                      navigator.clipboard.writeText(
-                        result.storage_url
-                      )
-                    }
-                    className="w-full rounded-xl border border-cyan-400 bg-cyan-500/10 py-3 text-cyan-300 hover:bg-cyan-500/20 transition"
+              {result?.output_file && (
+                <div className="mt-4 space-y-3">
+                  <a
+                    href={getDownloadUrl(
+                      result.storage_url,
+                      result.output_file
+                    )}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block w-full rounded-xl border border-teal-400 bg-teal-500/10 py-3 text-center text-teal-300 hover:bg-teal-500/20 transition"
                   >
-                    Copy Cloud URL
-                  </button>
-                )}
+                    Download Stego Audio
+                  </a>
 
-              </div>
-            )}
-
+                  {result?.storage_url && (
+                    <button
+                      onClick={() =>
+                        navigator.clipboard.writeText(
+                          result.storage_url
+                        )
+                      }
+                      className="w-full rounded-xl border border-cyan-400 bg-cyan-500/10 py-3 text-cyan-300 hover:bg-cyan-500/20 transition"
+                    >
+                      Copy Cloud URL
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-
         </div>
-
       </div>
-    </div>
-  </AppShell>
-);
+    </AppShell>
+  );
 }
