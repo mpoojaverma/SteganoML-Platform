@@ -13,6 +13,7 @@ import {
   Settings,
   FileCode,
   User,
+  Home,
 } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
@@ -49,6 +50,11 @@ const insights = [
 ];
 
 const system = [
+  {
+    label: "Home",
+    href: "/",
+    icon: Home,
+  },
   {
     label: "Profile",
     href: "/profile",
