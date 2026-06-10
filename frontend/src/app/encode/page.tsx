@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import useEncode from "@/hooks/useEncode";
 import AppShell from "@/components/layout/AppShell";
 import { getDownloadUrl } from "@/lib/api";
@@ -17,7 +17,7 @@ const waveform = [
 ];
 
 export default function EncodePage() {
-  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioFile, setAudioFile] = useState<File | { name: string; size?: number; fake: boolean } | null>(null);
 
   const [message, setMessage] = useState(
     "Confidential: Protocol Alpha — rendezvous at 0300 UTC.",
@@ -26,8 +26,90 @@ export default function EncodePage() {
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState("");
   const [showToast, setShowToast] = useState(false);
+  const [localResult, setLocalResult] = useState<any>(null);
+  const [activeWaveform, setActiveWaveform] = useState<number[]>(waveform);
+  const [progressStep, setProgressStep] = useState(-1);
 
   const { runEncode, loading, error, result } = useEncode();
+
+  useEffect(() => {
+    const savedAudio = sessionStorage.getItem("steganoml_encode_audio");
+    if (savedAudio) {
+      try {
+        setAudioFile(JSON.parse(savedAudio));
+      } catch (e) {}
+    }
+
+    const savedMessage = sessionStorage.getItem("steganoml_encode_message");
+    if (savedMessage !== null) {
+      setMessage(savedMessage);
+    }
+
+    const savedPassword = sessionStorage.getItem("steganoml_encode_password");
+    if (savedPassword !== null) {
+      setPassword(savedPassword);
+    }
+
+    const savedResult = sessionStorage.getItem("steganoml_encode_result");
+    if (savedResult) {
+      try {
+        setLocalResult(JSON.parse(savedResult));
+      } catch (e) {}
+    }
+
+    const savedWaveform = sessionStorage.getItem("steganoml_encode_waveform");
+    if (savedWaveform) {
+      try {
+        setActiveWaveform(JSON.parse(savedWaveform));
+      } catch (e) {}
+    }
+  }, []);
+
+  useEffect(() => {
+    if (loading) {
+      setProgressStep(0);
+      const interval = setInterval(() => {
+        setProgressStep((prev) => {
+          if (prev < 5) return prev + 1;
+          return prev;
+        });
+      }, 1500);
+      return () => clearInterval(interval);
+    } else {
+      if (localResult) {
+        setProgressStep(6);
+      } else {
+        setProgressStep(-1);
+      }
+    }
+  }, [loading, localResult]);
+
+  const handleMessageChange = (val: string) => {
+    setMessage(val);
+    sessionStorage.setItem("steganoml_encode_message", val);
+  };
+
+  const handlePasswordChange = (val: string) => {
+    setPassword(val);
+    sessionStorage.setItem("steganoml_encode_password", val);
+  };
+
+  const handleFileChange = (file: File | null) => {
+    if (file) {
+      const meta = { name: file.name, size: file.size, fake: false };
+      setAudioFile(file);
+      sessionStorage.setItem("steganoml_encode_audio", JSON.stringify(meta));
+      
+      const newWave = Array.from({ length: 110 }, () => Math.floor(Math.random() * 70) + 12);
+      setActiveWaveform(newWave);
+      sessionStorage.setItem("steganoml_encode_waveform", JSON.stringify(newWave));
+    } else {
+      setAudioFile(null);
+      sessionStorage.removeItem("steganoml_encode_audio");
+      setActiveWaveform(waveform);
+      sessionStorage.removeItem("steganoml_encode_waveform");
+    }
+  };
   return (
     <AppShell>
       <Toast show={showToast} message="✓ Encoding completed" />
@@ -46,7 +128,7 @@ export default function EncodePage() {
                 accept=".wav,.mp3,.flac,.m4a"
                 onChange={(e) => {
                   if (e.target.files?.[0]) {
-                    setAudioFile(e.target.files[0]);
+                    handleFileChange(e.target.files[0]);
                   }
                 }}
                 className="mb-4 w-full rounded-xl border border-white/10 bg-white/5 p-3"
@@ -62,20 +144,28 @@ export default function EncodePage() {
               <div className="rounded-xl bg-white/5 px-4 py-4 flex items-center gap-4">
                 <div className="w-10 h-10 rounded-lg bg-teal-500/20" />
 
-                <div>
-                  <p className="font-medium text-white">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-white truncate">
                     {audioFile ? audioFile.name : "No file selected"}
                   </p>
 
-                  <p className="text-xs text-slate-500">
-                    44.1 kHz · Mono · 3.1 MB · 32.4s
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {audioFile
+                      ? `${audioFile.size ? (audioFile.size / (1024 * 1024)).toFixed(1) : "3.1"} MB · 44.1 kHz · Mono`
+                      : "44.1 kHz · Mono · 3.1 MB · 32.4s"}
                   </p>
                 </div>
               </div>
 
+              {audioFile && 'fake' in audioFile && (
+                <div className="rounded-xl bg-orange-500/10 border border-orange-500/20 px-4 py-3 text-xs text-orange-400">
+                  Previous file: <strong className="font-semibold">{audioFile.name}</strong>. Please re-upload the file before running encode.
+                </div>
+              )}
+
               <div className="rounded-xl bg-white/5 px-4 py-4 border-t border-white/5">
                 <div className="h-20 w-full flex items-center justify-between overflow-hidden">
-                  {waveform.map((h, i) => (
+                  {activeWaveform.map((h, i) => (
                     <div
                       key={i}
                       className="w-[3px] rounded-full bg-[#18d5d0]"
@@ -108,7 +198,7 @@ export default function EncodePage() {
                   id="secret-message"
                   rows={4}
                   value={message}
-                  onChange={(e) => setMessage(e.target.value)}
+                  onChange={(e) => handleMessageChange(e.target.value)}
                   className="mt-2 w-full rounded-xl border border-white/5 bg-white/5 p-4 outline-none"
                 />
               </div>
@@ -123,7 +213,7 @@ export default function EncodePage() {
                   type="password"
                   autoComplete="off"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => handlePasswordChange(e.target.value)}
                   className="mt-2 w-full rounded-xl border border-white/5 bg-white/5 p-4 outline-none"
                 />
               </div>
@@ -188,6 +278,11 @@ export default function EncodePage() {
                 return;
               }
 
+              if ('fake' in audioFile) {
+                setLocalError("Please re-upload the audio file to run encode again.");
+                return;
+              }
+
               if (!message.trim()) {
                 setLocalError("Secret message cannot be empty.");
                 return;
@@ -201,13 +296,15 @@ export default function EncodePage() {
               setLocalError("");
 
               const response = await runEncode(
-                audioFile,
+                audioFile as File,
                 message,
                 password,
                 "ml",
               );
 
               if (response?.status === "success") {
+                setLocalResult(response);
+                sessionStorage.setItem("steganoml_encode_result", JSON.stringify(response));
                 setShowToast(true);
 
                 setTimeout(() => {
@@ -216,9 +313,19 @@ export default function EncodePage() {
               }
             }}
             disabled={loading}
-            className="w-full rounded-xl bg-[#1bd6d1] py-5 text-base font-semibold text-black transition hover:brightness-110 disabled:opacity-50"
+            className="w-full rounded-xl bg-[#1bd6d1] py-5 text-base font-semibold text-black transition hover:brightness-110 disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {loading ? "Encoding..." : "Run ML-guided encode"}
+            {loading ? (
+              <>
+                <svg className="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Encoding...</span>
+              </>
+            ) : (
+              "Run ML-guided encode"
+            )}
           </button>
         </div>
 
@@ -230,54 +337,59 @@ export default function EncodePage() {
           <div className="rounded-[20px] border border-white/10 bg-[#0b1327] overflow-hidden">
             <div className="px-6 py-5 flex justify-between border-b border-white/5">
               <h2 className="font-semibold">Pipeline</h2>
-
-              <span className="text-emerald-400 text-sm">● Processing</span>
+              {loading && <span className="text-cyan-400 text-sm animate-pulse">● Processing</span>}
             </div>
 
             <div className="p-6 space-y-7">
               {[
-                "Audio received & validated",
-                "AES-256 encryption",
-                "ML frame analysis",
-                "Adaptive LSB embedding",
-                "Quality metrics",
-              ].map((step, i) => (
-                <div key={step} className="flex gap-4">
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs ${
-                      i < 2
-                        ? "bg-emerald-500/20 text-emerald-400"
-                        : i === 2
-                          ? "bg-purple-500/20 text-purple-300"
-                          : "bg-white/5 text-slate-500"
-                    }`}
-                  >
-                    {i + 1}
-                  </div>
+                "Preparing Audio",
+                "Encrypting Payload",
+                "Selecting Embedding Locations",
+                "Embedding Payload",
+                "Generating Metrics",
+                "Uploading Result"
+              ].map((step, i) => {
+                const isActive = i === progressStep;
+                const isCompleted = i < progressStep;
 
-                  <div className="flex-1">
-                    <p
-                      className={`text-sm ${
-                        i === 2 ? "text-purple-300" : "text-white"
+                return (
+                  <div key={step} className="flex gap-4">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs transition-colors duration-300 ${
+                        isCompleted
+                          ? "bg-emerald-500/20 text-emerald-400 font-bold"
+                          : isActive
+                            ? "bg-purple-500/20 text-purple-300 animate-pulse font-bold"
+                            : "bg-white/5 text-slate-500"
                       }`}
                     >
-                      {step}
-                    </p>
+                      {isCompleted ? "✓" : i + 1}
+                    </div>
 
-                    <div className="mt-2 h-1.5 rounded bg-white/5">
-                      <div
-                        className={`h-1.5 rounded ${
-                          i < 2
-                            ? "w-full bg-emerald-400"
-                            : i === 2
-                              ? "w-1/2 bg-purple-400"
-                              : "w-0"
+                    <div className="flex-1">
+                      <p
+                        className={`text-sm transition-colors duration-300 ${
+                          isActive ? "text-purple-300 font-medium" : isCompleted ? "text-slate-300" : "text-slate-500"
                         }`}
-                      />
+                      >
+                        {step}
+                      </p>
+
+                      <div className="mt-2 h-1.5 rounded bg-white/5 overflow-hidden">
+                        <div
+                          className={`h-1.5 rounded transition-all duration-500 ${
+                            isCompleted
+                              ? "w-full bg-emerald-400"
+                              : isActive
+                                ? "w-1/2 bg-purple-400 animate-pulse"
+                                : "w-0"
+                          }`}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -302,8 +414,8 @@ export default function EncodePage() {
                   </p>
 
                   <h3 className="text-[42px] leading-none font-bold mt-2">
-                    {result?.details?.psnr
-                      ? Number(result.details.psnr).toFixed(2)
+                    {localResult?.details?.psnr
+                      ? Number(localResult.details.psnr).toFixed(2)
                       : "--"}
                   </h3>
                 </div>
@@ -314,8 +426,8 @@ export default function EncodePage() {
                   </p>
 
                   <h3 className="text-[42px] leading-none font-bold mt-2">
-                    {result?.details?.snr
-                      ? Number(result.details.snr).toFixed(2)
+                    {localResult?.details?.snr
+                      ? Number(localResult.details.snr).toFixed(2)
                       : "--"}
                   </h3>
                 </div>
@@ -326,7 +438,7 @@ export default function EncodePage() {
                   </p>
 
                   <h3 className="text-[28px] font-bold mt-2">
-                    {result?.details?.ber ?? "--"}
+                    {localResult?.details?.ber ?? "--"}
                   </h3>
                 </div>
 
@@ -336,7 +448,7 @@ export default function EncodePage() {
                   </p>
 
                   <h3 className="text-[28px] font-bold mt-2">
-                    {result?.details?.nc ?? "--"}
+                    {localResult?.details?.nc ?? "--"}
                   </h3>
                 </div>
               </div>
@@ -347,32 +459,32 @@ export default function EncodePage() {
                 </div>
               )}
 
-              {result && (
+              {localResult && (
                 <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4">
                   <h3 className="font-semibold text-emerald-400">
                     Encoding Successful
                   </h3>
 
                   <p className="mt-2 text-sm text-slate-300">
-                    Status: {result.status}
+                    Status: {localResult.status}
                   </p>
 
                   <p className="mt-1 text-sm text-slate-300 break-all">
-                    Output: {result.output_file}
+                    Output: {localResult.output_file}
                   </p>
 
                   <p className="mt-1 text-sm text-slate-300">
-                    Bits Embedded: {result?.details?.bits_embedded}
+                    Bits Embedded: {localResult?.details?.bits_embedded}
                   </p>
                 </div>
               )}
 
-              {result?.output_file && (
+              {localResult?.output_file && (
                 <div className="mt-4 space-y-3">
                   <a
                     href={getDownloadUrl(
-                      result.storage_url,
-                      result.output_file
+                      localResult.storage_url,
+                      localResult.output_file
                     )}
                     target="_blank"
                     rel="noreferrer"
@@ -381,11 +493,11 @@ export default function EncodePage() {
                     Download Stego Audio
                   </a>
 
-                  {result?.storage_url && (
+                  {localResult?.storage_url && (
                     <button
                       onClick={() =>
                         navigator.clipboard.writeText(
-                          result.storage_url
+                          localResult.storage_url
                         )
                       }
                       className="w-full rounded-xl border border-cyan-400 bg-cyan-500/10 py-3 text-cyan-300 hover:bg-cyan-500/20 transition"

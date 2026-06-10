@@ -1,8 +1,10 @@
 import Link from "next/link";
+import AuthRedirect from "@/components/auth/AuthRedirect";
 
 export default function HomePage() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#020817]">
+      <AuthRedirect />
       {/* BACKGROUND GLOW */}
 
       <div className="absolute left-[-200px] top-[-200px] h-[500px] w-[500px] rounded-full bg-cyan-500/10 blur-[140px]" />

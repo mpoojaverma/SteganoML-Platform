@@ -66,7 +66,12 @@ const system = [
   },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname();
 
   const [name, setName] =
@@ -74,6 +79,12 @@ export default function Sidebar() {
 
   const [email, setEmail] =
     useState("");
+
+  useEffect(() => {
+    if (onClose) {
+      onClose();
+    }
+  }, [pathname]);
 
   useEffect(() => {
     async function loadUser() {
@@ -98,7 +109,9 @@ export default function Sidebar() {
   }, []);
 
   return (
-    <aside className="flex min-h-screen w-[240px] flex-col border-r border-white/10 bg-[#07111f]">
+    <aside className={`fixed inset-y-0 left-0 z-50 flex h-full w-[240px] flex-col border-r border-white/10 bg-[#07111f] transition-transform duration-300 ease-in-out md:static md:flex md:translate-x-0 ${
+      isOpen ? "translate-x-0" : "-translate-x-full"
+    }`}>
 
       {/* LOGO */}
 

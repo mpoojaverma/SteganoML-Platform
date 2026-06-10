@@ -2,9 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Menu } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
-export default function Topbar() {
+interface TopbarProps {
+  onMenuClick?: () => void;
+}
+
+export default function Topbar({ onMenuClick }: TopbarProps) {
   const router = useRouter();
 
   const API_BASE =
@@ -70,9 +75,17 @@ export default function Topbar() {
     displayName.charAt(0).toUpperCase();
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-white/10 bg-[#08101f] px-8">
+    <header className="flex h-16 items-center justify-between border-b border-white/10 bg-[#08101f] px-4 md:px-8">
 
-      <div />
+      <button
+        onClick={onMenuClick}
+        className="mr-2 rounded-xl p-2 text-slate-400 hover:bg-white/5 hover:text-white md:hidden"
+        aria-label="Open sidebar"
+      >
+        <Menu size={20} />
+      </button>
+
+      <div className="hidden md:block" />
 
       <div className="flex items-center gap-3">
 

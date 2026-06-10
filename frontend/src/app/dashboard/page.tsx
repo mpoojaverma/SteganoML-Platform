@@ -6,10 +6,11 @@ import useStats from "@/hooks/useStats";
 import useJobs from "@/hooks/useJobs";
 
 export default function DashboardPage() {
-  const { stats, loading } =
+  const { stats, loading: statsLoading } =
     useStats();
 
-  const { jobs } = useJobs();
+  const { jobs, loading: jobsLoading } = useJobs();
+  const isLoading = statsLoading || jobsLoading;
 
   return (
     <AppShell>
@@ -30,81 +31,57 @@ export default function DashboardPage() {
 
           <MetricCard
             title="Total Jobs"
-            value={
-              loading
-                ? "-"
-                : stats.total_jobs
-            }
+            value={stats.total_jobs}
+            loading={isLoading}
           />
 
           <MetricCard
             title="Encodes"
-            value={
-              loading
-                ? "-"
-                : stats.encodes
-            }
+            value={stats.encodes}
+            loading={isLoading}
           />
 
           <MetricCard
             title="Decodes"
-            value={
-              loading
-                ? "-"
-                : stats.decodes
-            }
+            value={stats.decodes}
+            loading={isLoading}
           />
 
           <MetricCard
             title="Success Rate"
-            value={
-              loading
-                ? "-"
-                : `${stats.success_rate}%`
-            }
+            value={`${stats.success_rate}%`}
             color="text-emerald-400"
+            loading={isLoading}
           />
 
           <MetricCard
             title="Avg PSNR"
-            value={
-              loading
-                ? "-"
-                : stats.avg_psnr
-            }
+            value={stats.avg_psnr}
             color="text-cyan-400"
+            loading={isLoading}
           />
 
           <MetricCard
             title="Avg SNR"
-            value={
-              loading
-                ? "-"
-                : stats.avg_snr
-            }
+            value={stats.avg_snr}
             color="text-purple-400"
+            loading={isLoading}
           />
 
           <MetricCard
             title="Avg BER"
-            value={
-              loading
-                ? "-"
-                : Number(
-                    stats.avg_ber || 0
-                  ).toExponential(2)
-            }
+            value={Number(
+              stats.avg_ber || 0
+            ).toExponential(2)}
             color="text-orange-400"
+            loading={isLoading}
           />
 
           <MetricCard
             title="Avg NC"
-            value={
-              loading
-                ? "-"
-                : stats.avg_nc
-            }
+            value={stats.avg_nc}
             color="text-pink-400"
+            loading={isLoading}
           />
 
         </div>
@@ -157,71 +134,111 @@ export default function DashboardPage() {
 
                 <tbody>
 
-                  {jobs
-                    .slice(0, 8)
-                    .map(
-                      (
-                        job: any,
-                        index: number
-                      ) => (
-                        <tr
-                          key={index}
-                          className="border-t border-white/5 hover:bg-white/[0.03]"
-                        >
-                          <td className="px-5 py-4 max-w-[250px] truncate">
-                            {job.file_name}
-                          </td>
+                  {isLoading ? (
+                    Array.from({ length: 5 }).map((_, index) => (
+                      <tr
+                        key={index}
+                        className="border-t border-white/5"
+                      >
+                        <td className="px-5 py-4">
+                          <div className="h-4 w-28 rounded bg-white/5 animate-pulse" />
+                        </td>
+                        <td>
+                          <div className="h-4 w-12 rounded bg-white/5 animate-pulse" />
+                        </td>
+                        <td>
+                          <div className="h-4 w-12 rounded bg-white/5 animate-pulse" />
+                        </td>
+                        <td>
+                          <div className="h-6 w-16 rounded-full bg-white/5 animate-pulse" />
+                        </td>
+                        <td>
+                          <div className="h-4 w-10 rounded bg-white/5 animate-pulse" />
+                        </td>
+                        <td>
+                          <div className="h-4 w-10 rounded bg-white/5 animate-pulse" />
+                        </td>
+                        <td>
+                          <div className="h-4 w-10 rounded bg-white/5 animate-pulse" />
+                        </td>
+                        <td>
+                          <div className="h-4 w-10 rounded bg-white/5 animate-pulse" />
+                        </td>
+                      </tr>
+                    ))
+                  ) : jobs.length === 0 ? (
+                    <tr className="border-t border-white/5">
+                      <td colSpan={8} className="px-5 py-8 text-center text-slate-500">
+                        No recent jobs found.
+                      </td>
+                    </tr>
+                  ) : (
+                    jobs
+                      .slice(0, 8)
+                      .map(
+                        (
+                          job: any,
+                          index: number
+                        ) => (
+                          <tr
+                            key={index}
+                            className="border-t border-white/5 hover:bg-white/[0.03]"
+                          >
+                            <td className="px-5 py-4 max-w-[250px] truncate">
+                              {job.file_name}
+                            </td>
 
-                          <td className="capitalize">
-                            {job.type}
-                          </td>
+                            <td className="capitalize">
+                              {job.type}
+                            </td>
 
-                          <td>
-                            {job.method || "-"}
-                          </td>
+                            <td>
+                              {job.method || "-"}
+                            </td>
 
-                          <td>
+                            <td>
 
-                            <span
-                              className={`rounded-full px-3 py-1 text-xs ${
-                                job.status ===
-                                "success"
-                                  ? "bg-emerald-500/10 text-emerald-400"
-                                  : "bg-red-500/10 text-red-400"
-                              }`}
-                            >
-                              {job.status}
-                            </span>
+                              <span
+                                className={`rounded-full px-3 py-1 text-xs ${
+                                  job.status ===
+                                  "success"
+                                    ? "bg-emerald-500/10 text-emerald-400"
+                                    : "bg-red-500/10 text-red-400"
+                                }`}
+                              >
+                                {job.status}
+                              </span>
 
-                          </td>
+                            </td>
 
-                          <td>
-                            {job.psnr
-                              ? Number(
-                                  job.psnr
-                                ).toFixed(2)
-                              : "-"}
-                          </td>
+                            <td>
+                              {job.psnr
+                                ? Number(
+                                    job.psnr
+                                  ).toFixed(2)
+                                : "-"}
+                            </td>
 
-                          <td>
-                            {job.snr
-                              ? Number(
-                                  job.snr
-                                ).toFixed(2)
-                              : "-"}
-                          </td>
+                            <td>
+                              {job.snr
+                                ? Number(
+                                    job.snr
+                                  ).toFixed(2)
+                                : "-"}
+                            </td>
 
-                          <td>
-                            {job.ber ?? "-"}
-                          </td>
+                            <td>
+                              {job.ber ?? "-"}
+                            </td>
 
-                          <td>
-                            {job.nc ?? "-"}
-                          </td>
+                            <td>
+                              {job.nc ?? "-"}
+                            </td>
 
-                        </tr>
+                          </tr>
+                        )
                       )
-                    )}
+                  )}
 
                 </tbody>
 
@@ -257,6 +274,7 @@ export default function DashboardPage() {
               avgNC={
                 stats.avg_nc
               }
+              loading={isLoading}
             />
 
           </div>
@@ -304,6 +322,7 @@ function MetricCard({
   title,
   value,
   color = "",
+  loading = false,
 }: any) {
   return (
     <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
@@ -312,11 +331,15 @@ function MetricCard({
         {title}
       </p>
 
-      <h2
-        className={`mt-4 text-5xl font-bold ${color}`}
-      >
-        {value}
-      </h2>
+      {loading ? (
+        <div className="mt-4 h-12 w-2/3 rounded-xl bg-white/5 animate-pulse" />
+      ) : (
+        <h2
+          className={`mt-4 text-5xl font-bold ${color}`}
+        >
+          {value}
+        </h2>
+      )}
 
     </div>
   );
@@ -383,6 +406,7 @@ function MetricsCard({
   avgSNR,
   avgBER,
   avgNC,
+  loading = false,
 }: any) {
   return (
     <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
@@ -393,42 +417,53 @@ function MetricsCard({
 
       <div className="space-y-3 text-sm">
 
-        <MetricRow
-          label="Total Records"
-          value={total}
-        />
+        {loading ? (
+          Array.from({ length: 7 }).map((_, idx) => (
+            <div key={idx} className="flex justify-between items-center py-0.5 animate-pulse">
+              <div className="h-4 w-1/3 rounded bg-white/5" />
+              <div className="h-4 w-1/4 rounded bg-white/5" />
+            </div>
+          ))
+        ) : (
+          <>
+            <MetricRow
+              label="Total Records"
+              value={total}
+            />
 
-        <MetricRow
-          label="Encoded Files"
-          value={encodes}
-        />
+            <MetricRow
+              label="Encoded Files"
+              value={encodes}
+            />
 
-        <MetricRow
-          label="Decoded Files"
-          value={decodes}
-        />
+            <MetricRow
+              label="Decoded Files"
+              value={decodes}
+            />
 
-        <MetricRow
-          label="Average PSNR"
-          value={avgPSNR}
-        />
+            <MetricRow
+              label="Average PSNR"
+              value={avgPSNR}
+            />
 
-        <MetricRow
-          label="Average SNR"
-          value={avgSNR}
-        />
+            <MetricRow
+              label="Average SNR"
+              value={avgSNR}
+            />
 
-        <MetricRow
-          label="Average BER"
-          value={Number(
-            avgBER || 0
-          ).toExponential(2)}
-        />
+            <MetricRow
+              label="Average BER"
+              value={Number(
+                avgBER || 0
+              ).toExponential(2)}
+            />
 
-        <MetricRow
-          label="Average NC"
-          value={avgNC}
-        />
+            <MetricRow
+              label="Average NC"
+              value={avgNC}
+            />
+          </>
+        )}
 
       </div>
 
