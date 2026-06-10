@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import AppShell from "@/components/layout/AppShell";
 import useDecode from "@/hooks/useDecode";
 import Toast from "@/components/ui/Toast";
-import { UploadCloud, FileAudio, CheckCircle2 } from "lucide-react";
+import { UploadCloud, FileAudio, CheckCircle2, Eye, EyeOff } from "lucide-react";
 
 export default function DecodePage() {
   const [audioFile, setAudioFile] = useState<File | { name: string; size?: number; fake: boolean } | null>(null);
@@ -14,6 +14,7 @@ export default function DecodePage() {
   const [localResult, setLocalResult] = useState<any>(null);
   const [copied, setCopied] = useState(false);
   const [decodeStep, setDecodeStep] = useState(-1);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { runDecode, loading, error, result } = useDecode();
 
@@ -232,15 +233,25 @@ export default function DecodePage() {
 
               <div className="p-6">
                 <label htmlFor="decode-password" className="sr-only">Password</label>
-                <input
-                  id="decode-password"
-                  type="password"
-                  autoComplete="off"
-                  value={password}
-                  onChange={(e) => handlePasswordChange(e.target.value)}
-                  placeholder="Password"
-                  className="w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-4 outline-none focus:border-cyan-500/50 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1327] transition-all"
-                />
+                <div className="relative">
+                  <input
+                    id="decode-password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="off"
+                    value={password}
+                    onChange={(e) => handlePasswordChange(e.target.value)}
+                    placeholder="Password"
+                    className="w-full rounded-2xl border border-white/10 bg-white/5 pl-5 pr-12 py-4 outline-none focus:border-cyan-500/50 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1327] transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white transition focus-visible:text-white outline-none cursor-pointer"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
             </div>
 

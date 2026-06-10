@@ -5,7 +5,7 @@ import useEncode from "@/hooks/useEncode";
 import AppShell from "@/components/layout/AppShell";
 import { getDownloadUrl } from "@/lib/api";
 import Toast from "@/components/ui/Toast";
-import { UploadCloud, FileAudio, CheckCircle2 } from "lucide-react";
+import { UploadCloud, FileAudio, CheckCircle2, Eye, EyeOff } from "lucide-react";
 
 const waveform = [
   12, 18, 28, 42, 58, 74, 56, 38, 24, 18, 22, 34, 48, 66, 82, 62, 44, 26, 18,
@@ -30,6 +30,7 @@ export default function EncodePage() {
   const [localResult, setLocalResult] = useState<any>(null);
   const [activeWaveform, setActiveWaveform] = useState<number[]>(waveform);
   const [progressStep, setProgressStep] = useState(-1);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { runEncode, loading, error, result } = useEncode();
 
@@ -294,14 +295,24 @@ export default function EncodePage() {
                   Shared password (PBKDF2 key derivation)
                 </label>
 
-                <input
-                  id="encode-password"
-                  type="password"
-                  autoComplete="off"
-                  value={password}
-                  onChange={(e) => handlePasswordChange(e.target.value)}
-                  className="mt-2 w-full rounded-xl border border-white/5 bg-white/5 p-4 outline-none focus:border-cyan-500/50 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1327] transition-all"
-                />
+                <div className="relative mt-2">
+                  <input
+                    id="encode-password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="off"
+                    value={password}
+                    onChange={(e) => handlePasswordChange(e.target.value)}
+                    className="w-full rounded-xl border border-white/5 bg-white/5 pl-4 pr-12 py-4 outline-none focus:border-cyan-500/50 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1327] transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white transition focus-visible:text-white outline-none cursor-pointer"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
 
               <div className="rounded-xl bg-white/5 px-4 py-3 text-sm text-slate-400">

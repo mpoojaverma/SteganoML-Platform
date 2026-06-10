@@ -128,17 +128,41 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           className="flex items-center gap-3"
         >
 
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/20 font-bold text-cyan-400">
-            S
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 shrink-0">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]"
+            >
+              <rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor" fillOpacity="0.08" stroke="currentColor" strokeWidth="1.5" className="stroke-cyan-500/25" />
+              <path
+                d="M5 12c1.5-4 3.5-4 5 0s3.5 4 5 0 3.5-4 5 0"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="stroke-cyan-400"
+              />
+              <path
+                d="M7 12c1.2-2.5 2.8-2.5 4 0s2.8 2.5 4 0 2.8-2.5 4 0"
+                stroke="currentColor"
+                strokeWidth="1"
+                strokeDasharray="1.5 1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="stroke-cyan-300/50"
+              />
+            </svg>
           </div>
 
           <div>
 
-            <h1 className="text-xl font-bold text-white">
+            <h1 className="text-xl font-bold text-white leading-none">
               SteganoML
             </h1>
 
-            <p className="text-xs text-slate-500">
+            <p className="text-[10px] text-slate-500 mt-1">
               Audio Steganography
             </p>
 

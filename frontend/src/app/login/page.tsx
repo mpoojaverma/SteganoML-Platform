@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Shield, Cpu, Key, Activity, CheckCircle2, Lock, ArrowRight } from "lucide-react";
+import { Shield, Cpu, Key, Activity, CheckCircle2, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,6 +14,17 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [loginError, setLoginError] = useState("");
   const [activeStep, setActiveStep] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    async function checkSession() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.replace("/dashboard");
+      }
+    }
+    checkSession();
+  }, [router]);
 
   // Looping showcase pipeline steps
   useEffect(() => {
@@ -81,21 +92,45 @@ export default function LoginPage() {
   return (
     <main className="relative flex min-h-screen bg-[#020817] text-white flex-col lg:flex-row overflow-x-hidden">
       {/* LEFT PANEL: AUTH FORM */}
-      <div className="relative flex-1 flex flex-col justify-center items-center px-6 py-12 lg:px-16 xl:px-24 z-10 lg:max-w-[45%] xl:max-w-[40%] bg-[#020817] border-r border-white/5">
+      <div className="relative flex-1 flex flex-col justify-between items-center px-6 py-12 lg:px-16 xl:px-24 z-10 lg:max-w-[45%] xl:max-w-[40%] bg-[#020817] border-r border-white/5 min-h-screen">
         <div className="absolute left-[-150px] top-[-150px] h-[350px] w-[350px] rounded-full bg-cyan-500/10 blur-[100px]" />
         
         {/* LOGO LINK */}
-        <Link href="/" className="mb-12 flex items-center gap-3 group focus-visible:ring-2 focus-visible:ring-cyan-400 outline-none rounded-xl p-1">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/20 font-bold text-cyan-400 border border-cyan-500/10 transition group-hover:scale-105">
-            S
+        <Link href="/" className="flex items-center gap-3 group focus-visible:ring-2 focus-visible:ring-cyan-400 outline-none rounded-xl p-1 self-start mb-6 lg:mb-0">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 transition group-hover:scale-105 shrink-0">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]"
+            >
+              <rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor" fillOpacity="0.08" stroke="currentColor" strokeWidth="1.5" className="stroke-cyan-500/25" />
+              <path
+                d="M5 12c1.5-4 3.5-4 5 0s3.5 4 5 0 3.5-4 5 0"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="stroke-cyan-400"
+              />
+              <path
+                d="M7 12c1.2-2.5 2.8-2.5 4 0s2.8 2.5 4 0 2.8-2.5 4 0"
+                stroke="currentColor"
+                strokeWidth="1"
+                strokeDasharray="1.5 1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="stroke-cyan-300/50"
+              />
+            </svg>
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white tracking-wide">SteganoML</h1>
-            <p className="text-xs text-slate-500">Audio Steganography Platform</p>
+            <h1 className="text-xl font-bold text-white tracking-wide leading-none">SteganoML</h1>
+            <p className="text-[10px] text-slate-500 mt-1">Audio Steganography Platform</p>
           </div>
         </Link>
 
-        <div className="w-full max-w-sm">
+        <div className="w-full max-w-sm my-auto py-8">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -133,16 +168,26 @@ export default function LoginPage() {
                     Password
                   </label>
                 </div>
-                <input
-                  id="login-password"
-                  type="password"
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white focus:border-cyan-500/50 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#020817] outline-none transition-all duration-200"
-                  placeholder="••••••••"
-                  required
-                />
+                <div className="relative mt-2">
+                  <input
+                    id="login-password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-xl border border-white/10 bg-white/5 pl-4 pr-12 py-3 text-white focus:border-cyan-500/50 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#020817] outline-none transition-all duration-200"
+                    placeholder="••••••••"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white transition focus-visible:text-white outline-none cursor-pointer"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -180,6 +225,19 @@ export default function LoginPage() {
               </Link>
             </div>
           </form>
+        </div>
+
+        {/* SAAS FOOTER */}
+        <div className="w-full max-w-sm mt-auto pt-6 border-t border-white/5">
+          <p className="text-[10.5px] text-slate-500 font-mono tracking-tight text-center lg:text-left">
+            © {new Date().getFullYear()} SteganoML. All Rights Reserved.
+          </p>
+          <p className="text-[10px] text-slate-500 mt-1 text-center lg:text-left">
+            Developed as part of the SteganoML research project.
+          </p>
+          <p className="text-[9.5px] text-slate-600 font-mono mt-2 leading-relaxed text-center lg:text-left uppercase">
+            SECURE PROTOCOLS: AES-256 Encryption • PBKDF2 Key Derivation • CatBoost ML Analysis • Adaptive LSB Embedding
+          </p>
         </div>
       </div>
 

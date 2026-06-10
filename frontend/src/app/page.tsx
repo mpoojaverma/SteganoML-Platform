@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 import {
   Shield,
   Cpu,
@@ -23,6 +24,17 @@ export default function HomePage() {
   const [activeArchBlock, setActiveArchBlock] = useState(0);
   const [psnrCounter, setPsnrCounter] = useState(0);
   const [snrCounter, setSnrCounter] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    async function checkSession() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setIsLoggedIn(true);
+      }
+    }
+    checkSession();
+  }, []);
 
   // Hero showcase pipeline loop
   useEffect(() => {
@@ -168,8 +180,32 @@ export default function HomePage() {
       <nav className="relative z-30 border-b border-white/5 bg-[#020817]/60 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/20 font-bold text-cyan-400 border border-cyan-500/10">
-              S
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 shrink-0">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]"
+              >
+                <rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor" fillOpacity="0.08" stroke="currentColor" strokeWidth="1.5" className="stroke-cyan-500/25" />
+                <path
+                  d="M5 12c1.5-4 3.5-4 5 0s3.5 4 5 0 3.5-4 5 0"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="stroke-cyan-400"
+                />
+                <path
+                  d="M7 12c1.2-2.5 2.8-2.5 4 0s2.8 2.5 4 0 2.8-2.5 4 0"
+                  stroke="currentColor"
+                  strokeWidth="1"
+                  strokeDasharray="1.5 1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="stroke-cyan-300/50"
+                />
+              </svg>
             </div>
             <div>
               <h1 className="font-bold text-lg leading-none">SteganoML</h1>
@@ -179,17 +215,17 @@ export default function HomePage() {
 
           <div className="flex items-center gap-4">
             <Link
-              href="/login"
+              href={isLoggedIn ? "/dashboard" : "/login"}
               className="rounded-xl bg-cyan-500 px-5 py-2.5 text-xs font-semibold text-black transition-all duration-200 hover:brightness-110 hover:shadow-[0_0_15px_rgba(6,182,212,0.3)] focus-visible:ring-2 focus-visible:ring-cyan-400 outline-none cursor-pointer"
             >
-              Launch App
+              {isLoggedIn ? "Go to Dashboard" : "Launch App"}
             </Link>
           </div>
         </div>
       </nav>
 
       {/* HERO SECTION WITH INTERACTIVE PIPELINE */}
-      <section className="relative z-20 mx-auto max-w-7xl px-6 pt-20 pb-12 lg:pt-28">
+      <section className="relative z-20 mx-auto max-w-7xl px-6 pt-8 pb-12 lg:pt-14">
         <div className="grid items-center gap-12 lg:grid-cols-12">
           {/* LEFT: TEXT & CTA */}
           <div className="lg:col-span-6 space-y-8 text-center lg:text-left">
@@ -211,10 +247,10 @@ export default function HomePage() {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Link
-                href="/login"
+                href={isLoggedIn ? "/dashboard" : "/login"}
                 className="rounded-xl bg-cyan-500 px-8 py-4 font-semibold text-black transition-all duration-200 hover:brightness-110 hover:shadow-[0_0_20px_rgba(6,182,212,0.35)] flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-cyan-400 outline-none cursor-pointer"
               >
-                <span>Start Encoding</span>
+                <span>{isLoggedIn ? "Go to Dashboard" : "Start Encoding"}</span>
                 <ArrowRight size={16} />
               </Link>
 
