@@ -1,10 +1,126 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import AppShell from "@/components/layout/AppShell";
 import useDecode from "@/hooks/useDecode";
 import Toast from "@/components/ui/Toast";
-import { UploadCloud, FileAudio, CheckCircle2, Eye, EyeOff } from "lucide-react";
+import { UploadCloud, FileAudio, CheckCircle2, Eye, EyeOff, Play, Pause, Volume2, VolumeX } from "lucide-react";
+
+function CustomAudioPlayer({ src, title }: { src: string; title?: string }) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
+  const [volume, setVolume] = useState(0.8);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+  }, [src]);
+
+  const togglePlay = () => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleTimeUpdate = () => {
+    if (!audioRef.current) return;
+    setCurrentTime(audioRef.current.currentTime);
+  };
+
+  const handleLoadedMetadata = () => {
+    if (!audioRef.current) return;
+    setDuration(audioRef.current.duration);
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!audioRef.current) return;
+    const time = Number(e.target.value);
+    audioRef.current.currentTime = time;
+    setCurrentTime(time);
+  };
+
+  const toggleMute = () => {
+    if (!audioRef.current) return;
+    audioRef.current.muted = !isMuted;
+    setIsMuted(!isMuted);
+  };
+
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!audioRef.current) return;
+    const vol = Number(e.target.value);
+    audioRef.current.volume = vol;
+    setVolume(vol);
+    if (vol === 0) {
+      setIsMuted(true);
+    } else {
+      setIsMuted(false);
+    }
+  };
+
+  const formatTime = (time: number) => {
+    if (isNaN(time)) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  };
+
+  return (
+    <div className="rounded-xl border border-white/5 bg-[#020817] p-4 flex flex-col gap-2 glass">
+      {title && <p className="text-[10px] font-mono uppercase text-slate-500 tracking-wider font-bold">{title}</p>}
+      <audio
+        ref={audioRef}
+        src={src}
+        onTimeUpdate={handleTimeUpdate}
+        onLoadedMetadata={handleLoadedMetadata}
+        onEnded={() => setIsPlaying(false)}
+      />
+      <div className="flex items-center gap-3">
+        <button
+          onClick={togglePlay}
+          type="button"
+          className="h-8 w-8 rounded-full bg-cyan-500 text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shrink-0 cursor-pointer shadow-md shadow-cyan-500/10"
+        >
+          {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" className="ml-0.5" />}
+        </button>
+        <div className="flex-1 flex flex-col gap-1">
+          <input
+            type="range"
+            min="0"
+            max={duration || 100}
+            value={currentTime}
+            onChange={handleSeek}
+            className="w-full accent-cyan-500 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer"
+          />
+          <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+            <span>{formatTime(currentTime)}</span>
+            <span>{formatTime(duration)}</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={toggleMute} className="text-slate-400 hover:text-white transition cursor-pointer">
+            {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
+          </button>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={isMuted ? 0 : volume}
+            onChange={handleVolumeChange}
+            className="w-12 accent-cyan-500 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer hidden sm:block"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function DecodePage() {
   const [audioFile, setAudioFile] = useState<File | { name: string; size?: number; fake: boolean } | null>(null);
@@ -15,6 +131,51 @@ export default function DecodePage() {
   const [copied, setCopied] = useState(false);
   const [decodeStep, setDecodeStep] = useState(-1);
   const [showPassword, setShowPassword] = useState(false);
+
+  // New audio states
+  const [audioUrl, setAudioUrl] = useState<string>("");
+  const [audioDuration, setAudioDuration] = useState<number | null>(null);
+  const [audioFormat, setAudioFormat] = useState<string>("");
+
+  useEffect(() => {
+    if (audioFile && !('fake' in audioFile)) {
+      const file = audioFile as File;
+      const format = file.name.split(".").pop()?.toUpperCase() || "WAV";
+      setAudioFormat(format);
+      
+      const url = URL.createObjectURL(file);
+      setAudioUrl(url);
+      
+      const tempAudio = new Audio(url);
+      const handleMetadata = () => {
+        setAudioDuration(tempAudio.duration);
+      };
+      tempAudio.addEventListener("loadedmetadata", handleMetadata);
+      return () => {
+        tempAudio.removeEventListener("loadedmetadata", handleMetadata);
+        URL.revokeObjectURL(url);
+      };
+    } else {
+      setAudioUrl("");
+      setAudioDuration(null);
+      setAudioFormat("");
+    }
+  }, [audioFile]);
+
+  const audioSizeString = useMemo(() => {
+    if (!audioFile) return "";
+    if ('size' in audioFile && audioFile.size) {
+      return `${(audioFile.size / (1024 * 1024)).toFixed(2)} MB`;
+    }
+    return "Unknown size";
+  }, [audioFile]);
+
+  const formatDurationString = (dur: number | null) => {
+    if (dur === null) return "--:--";
+    const mins = Math.floor(dur / 60);
+    const secs = Math.floor(dur % 60);
+    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  };
 
   const { runDecode, loading, error, result } = useDecode();
 
@@ -222,6 +383,33 @@ export default function DecodePage() {
                 )}
               </div>
             </div>
+
+            {/* AUDIO PLAYER & METADATA */}
+            {audioFile && audioUrl && (
+              <div className="rounded-xl border border-white/5 bg-[#020817] p-5 space-y-4">
+                <div className="flex justify-between items-center border-b border-white/5 pb-3">
+                  <h3 className="font-semibold text-white text-sm">Stego Carrier Preview</h3>
+                  <span className="text-[10px] font-mono bg-purple-500/10 border border-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">
+                    {audioFormat}
+                  </span>
+                </div>
+                <CustomAudioPlayer src={audioUrl} title="Uploaded Stego Input" />
+                <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                  <div className="rounded-lg bg-white/5 p-2 border border-white/5">
+                    <p className="text-[9px] font-mono text-slate-500 uppercase tracking-wider">Format</p>
+                    <p className="font-bold text-white mt-1">{audioFormat}</p>
+                  </div>
+                  <div className="rounded-lg bg-white/5 p-2 border border-white/5">
+                    <p className="text-[9px] font-mono text-slate-500 uppercase tracking-wider">Duration</p>
+                    <p className="font-bold text-white mt-1">{formatDurationString(audioDuration)}</p>
+                  </div>
+                  <div className="rounded-lg bg-white/5 p-2 border border-white/5">
+                    <p className="text-[9px] font-mono text-slate-500 uppercase tracking-wider">File Size</p>
+                    <p className="font-bold text-white mt-1">{audioSizeString}</p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
             {/* PASSWORD */}

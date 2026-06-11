@@ -13,7 +13,11 @@ import {
   Settings,
   FileCode,
   User,
-  Home,
+  Globe,
+  Info,
+  Brain,
+  Database,
+  FileText,
 } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
@@ -49,11 +53,35 @@ const insights = [
   },
 ];
 
+const resources = [
+  {
+    label: "About SteganoML",
+    href: "/about",
+    icon: Info,
+  },
+  {
+    label: "Model Insights",
+    href: "/model-insights",
+    icon: Brain,
+  },
+  {
+    label: "Research Dataset",
+    href: "/research-dataset",
+    icon: Database,
+  },
+  {
+    label: "Research Paper",
+    href: "https://ieeexplore.ieee.org/document/11489464/",
+    icon: FileText,
+    external: true,
+  },
+];
+
 const system = [
   {
-    label: "Home",
+    label: "View Website",
     href: "/",
-    icon: Home,
+    icon: Globe,
   },
   {
     label: "Profile",
@@ -226,6 +254,40 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               <Link
                 key={item.label}
                 href={item.href}
+                className={`mb-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-200 ${
+                  active
+                    ? "bg-cyan-500/20 text-cyan-300 border-l-2 border-cyan-400 pl-[14px]"
+                    : "text-slate-300 hover:bg-white/5 hover:translate-x-0.5"
+                } focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111f] outline-none`}
+              >
+                <Icon size={18} />
+                {item.label}
+              </Link>
+            );
+          })}
+
+        </div>
+
+        {/* Resources */}
+
+        <div className="mb-8">
+
+          <p className="mb-3 text-xs uppercase tracking-wider text-slate-500">
+            Resources
+          </p>
+
+          {resources.map((item) => {
+            const Icon = item.icon;
+
+            const active =
+              pathname === item.href;
+
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                target={item.external ? "_blank" : undefined}
+                rel={item.external ? "noopener noreferrer" : undefined}
                 className={`mb-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-200 ${
                   active
                     ? "bg-cyan-500/20 text-cyan-300 border-l-2 border-cyan-400 pl-[14px]"

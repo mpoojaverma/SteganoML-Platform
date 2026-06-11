@@ -86,32 +86,32 @@ export default function HomePage() {
   };
 
   const steps = [
-    { title: "Audio Validation", desc: "Checking sample rates, audio bit depth, and constraints" },
-    { title: "AES-256 Encryption", desc: "Encrypting secret payload using PBKDF2 derived keys" },
-    { title: "ML Frame Analysis", desc: "Evaluating spectral centroids and frame stability" },
-    { title: "Adaptive Embedding", desc: "LSB-guided embedding on high capacity targets" },
-    { title: "Quality Verification", desc: "Running validation metrics (PSNR, SNR, BER, NC)" },
+    { title: "Carrier Validation", desc: "Verifying sample rates, audio bit depth, and spectral constraints" },
+    { title: "Cryptographic Envelope", desc: "Encrypting message payloads via AES-256 with PBKDF2 derived keys" },
+    { title: "ML Feature Mapping", desc: "Evaluating acoustic frame parameters using trained CatBoost models" },
+    { title: "Adaptive Masking", desc: "LSB-guided embedding on high capacity targets" },
+    { title: "Fidelity Verification", desc: "Running validation metrics (PSNR, SNR, BER, NC) for stego assurance" },
   ];
 
   const archBlocks = [
     {
       title: "Audio Segmentation",
       subtitle: "Pre-processing & Framing",
-      description: "Splits continuous audio carriers (e.g. WAV, MP3) into short 20ms frames. Localizes acoustic variations to ensure analyzed properties correspond to imperceptible hearing intervals.",
+      description: "Slices carrier audio streams (e.g. WAV, MP3) into precise 20ms frames to isolate temporal acoustic properties and secure localized hearing intervals.",
       icon: AudioWaveform,
       detail: "Supports 44.1kHz standard formats; handles float/integer bitstreams."
     },
     {
       title: "Feature Extraction",
       subtitle: "Acoustic Parameterization",
-      description: "Extracts multi-dimensional features from each segment, including Zero Crossing Rate, Spectral Centroid, Root Mean Square (RMS) energy, and Mel-Frequency Cepstral Coefficients (MFCCs).",
+      description: "Extracts multi-dimensional features from each segment, including Zero Crossing Rate, Spectral Centroid, RMS energy, and Mel-Frequency Cepstral Coefficients (MFCCs).",
       icon: Sliders,
       detail: "Creates robust high-dimensional feature vectors representing frame complexity."
     },
     {
       title: "ML Classification",
       subtitle: "Capacity & Stability Selection",
-      description: "Feeds extracted parameters into a trained CatBoost regression classifier. Evaluates and scores every frame based on its capacity to hide data without audible distortion.",
+      description: "Feeds extracted parameters into a trained CatBoost regressor. Evaluates and scores every frame based on its capacity to hide data without audible distortion or statistical anomalies.",
       icon: Cpu,
       detail: "Filters out high-risk regions; highlights acoustically masked frames."
     },
@@ -140,27 +140,27 @@ export default function HomePage() {
 
   const innovations = [
     {
-      title: "ML-Guided Embedding",
-      desc: "Advanced steganographic workflow incorporating CatBoost tree ensemble models to predict acoustic stability thresholds.",
+      title: "ML-Guided Stego Engine",
+      desc: "Advanced steganographic workflow incorporating CatBoost tree ensemble models to map acoustic stability thresholds and prevent automated detection.",
       badge: "01"
     },
     {
-      title: "Adaptive Frame Selection",
+      title: "Adaptive Masking",
       desc: "Dynamically identifies carrier frames capable of higher noise tolerances, completely avoiding flat-tone distortions.",
       badge: "02"
     },
     {
-      title: "Cryptographic Protection",
+      title: "Dual-Layer Rigid Security",
       desc: "Combines steganographic obscurity with PBKDF2 + AES-256 cryptographic rigidity, creating dual-layer authentication.",
       badge: "03"
     },
     {
-      title: "Hardware Deployment",
-      desc: "Optimized feature extraction and LSB embedding formulas designed for FPGA synthesis and hardware security modules.",
+      title: "FPGA-Ready Algorithms",
+      desc: "Optimized feature extraction and LSB embedding formulas designed for FPGA synthesis and hardware security modules (HSM).",
       badge: "04"
     },
     {
-      title: "Software Platform",
+      title: "Enterprise API Platform",
       desc: "Premium, responsive Next.js SaaS dashboard with integrated API triggers for high-throughput batch stego operations.",
       badge: "05"
     }
@@ -231,18 +231,18 @@ export default function HomePage() {
           <div className="lg:col-span-6 space-y-8 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-4 py-2 text-xs font-medium text-cyan-300 animate-pulse">
               <Shield size={12} />
-              <span>Published • Research Validated Model</span>
+              <span>Enterprise-Grade • AI-Secured Covert Channels</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl xl:text-6xl font-black leading-tight tracking-tight">
               Adaptive
-              <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.2)]"> ML-guided</span>
+              <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.2)]"> ML-driven</span>
               <br />
               Audio Steganography
             </h1>
 
             <p className="max-w-xl mx-auto lg:mx-0 text-base text-slate-400 leading-relaxed">
-              Securely embed encrypted messages inside audio files using adaptive machine-learning-based steganography. Engineered for secure communication workflows, research, and payload imperceptibility.
+              Enterprise-grade audio steganography platform powered by machine learning. Deploy cryptographically secure covert communication channels using trained tree boosting models, verified by peer-reviewed research standards.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -452,28 +452,28 @@ export default function HomePage() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {[
             {
-              title: "ML-guided Frame Selection",
-              description: "Uses machine learning to identify optimal audio regions for secure message embedding."
+              title: "ML-Guided Frame Selection",
+              description: "Employs peer-reviewed CatBoost classifiers to pinpoint structurally stable audio frames, optimizing payload imperceptibility."
             },
             {
-              title: "Adaptive LSB Embedding",
-              description: "Dynamically embeds encrypted data while minimizing perceptible audio distortion."
+              title: "Adaptive LSB Embedder",
+              description: "Modulates sample modifications based on local frame capacity analysis, eliminating audible anomalies and signal spikes."
             },
             {
-              title: "AES-256 Encryption",
-              description: "Encrypts message payloads before embedding to provide an additional security layer."
+              title: "AES-256 Cryptographic Envelope",
+              description: "Seals payloads using high-entropy keys derived from PBKDF2 iterations, assuring rigorous confidentiality."
             },
             {
-              title: "Live Quality Analytics",
-              description: "Tracks PSNR, SNR, BER and other quality metrics during encoding and decoding."
+              title: "Dynamic Quality Diagnostics",
+              description: "Exposes real-time objective metrics (PSNR, SNR, BER, NC) on stego signals to guarantee channel transparency."
             },
             {
-              title: "Real-time Pipeline Monitoring",
-              description: "Visualizes each processing stage from audio validation to message extraction."
+              title: "End-to-End Visual Pipeline",
+              description: "Maps processing phases step-by-step from initial acoustic framing down to cryptographic extraction."
             },
             {
-              title: "Noise Robustness Testing",
-              description: "Evaluates resilience against compression, noise injection and audio modifications."
+              title: "Covert Channel Hardening",
+              description: "Engineered to withstand audio filtering, downsampling channels, and compression modifications."
             }
           ].map((feature, idx) => (
             <div
