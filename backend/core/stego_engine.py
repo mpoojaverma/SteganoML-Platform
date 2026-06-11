@@ -146,24 +146,42 @@ def decode_message(
     flat_audio = flatten_audio(audio_data)
     audio_name = Path(audio_path).stem
 
+    # P0 Upload filename isolation fix: Strip the 32-character hex UUID prefix if present
+    parts = audio_name.split("_", 1)
+    if len(parts) > 1 and len(parts[0]) == 32:
+        try:
+            int(parts[0], 16)
+            audio_name = parts[1]
+        except ValueError:
+            pass
+
+    print(f"[DEBUG-DECODE] Stage 0: Loaded audio. Size: {len(flat_audio)} samples.")
+    print(f"[DEBUG-DECODE] Stage 1: Normalized audio_name for DB matching: {audio_name}")
+
     # Calculated placeholder length matching typical stego headers (32 bits size + 1024 baseline)
     estimated_bits = min(len(flat_audio), 32 + (256 * 8))
     
     positions = load_positions_from_db(audio_name)
     from_db = positions is not None
+    print(f"[DEBUG-DECODE] Stage 2: Database coordinate lookup? {from_db}. Position count: {len(positions) if from_db else 0}")
     
     if not from_db:
         # Fallback to local recalculation
         if method == "ml":
             try:
+                print("[DEBUG-DECODE] Stage 2.1: Running ML fallback feature extraction...")
                 positions = get_ml_guided_positions(audio_path, estimated_bits, password)
             except Exception as e:
-                print(f"[WARN] ML guided fallback failed: {str(e)}, utilizing deterministic random positions.")
+                print(f"[DEBUG-DECODE] Stage 2.1: ML guided fallback failed: {str(e)}")
                 positions = generate_deterministic_positions(len(flat_audio), estimated_bits, password)
         else:
+            print("[DEBUG-DECODE] Stage 2.2: Running deterministic Randomized-LSB position generation...")
             positions = generate_deterministic_positions(len(flat_audio), estimated_bits, password)
     
+    print(f"[DEBUG-DECODE] Stage 3: Position reconstruction complete. Coordinates count: {len(positions) if positions else 0}")
+
     if not positions:
+        print("[DEBUG-DECODE] Stage 3: Error - Position list is empty.")
         return {
             "status": "error",
             "error_type": "EXTRACTION_FAILURE",
@@ -174,25 +192,31 @@ def decode_message(
     for sample_idx in positions:
         if sample_idx < len(flat_audio):
             extracted_bits += str(flat_audio[sample_idx] & 1)
+    print(f"[DEBUG-DECODE] Stage 4: Bit extraction complete. Extracted bits count: {len(extracted_bits)}")
 
     try:
         extracted_bytes = bits_to_bytes(extracted_bits)
+        print(f"[DEBUG-DECODE] Stage 5: Payload assembly. Assembled raw bytes count: {len(extracted_bytes)}")
         if len(extracted_bytes) < 4:
             raise ValueError("No Embedded Payload Found")
             
         header_bytes = extracted_bytes[:4]
         payload_size = parse_payload_header(header_bytes)
+        print(f"[DEBUG-DECODE] Stage 6: Header parsing. Parsed payload size from header: {payload_size} bytes")
         
         # Sanity check: if payload size is obviously invalid or exceeds audio capacity, it's not a stego file
         if payload_size * 8 > len(flat_audio):
+            print(f"[DEBUG-DECODE] Stage 6: Error - Parsed payload size ({payload_size} bytes) exceeds capacity ({len(flat_audio) // 8} bytes)")
             raise ValueError("No Embedded Payload Found")
         
         if payload_size + 4 > len(extracted_bytes):
             if from_db:
+                print(f"[DEBUG-DECODE] Stage 7: Error - Payload size ({payload_size} + 4) exceeds DB positions length ({len(extracted_bytes)})")
                 raise ValueError("Payload size specified in header exceeds available DB coordinates.")
                 
             # Recalculate and scale up allocation mapping adaptively if header indicates larger stream
             adjusted_bits = 32 + (payload_size * 8)
+            print(f"[DEBUG-DECODE] Stage 7.1: Adaptive scaling required. Recalculating {adjusted_bits} positions...")
             if method == "ml":
                 try:
                     positions = get_ml_guided_positions(audio_path, adjusted_bits, password)
@@ -207,14 +231,17 @@ def decode_message(
         else:
             encrypted_payload = extracted_bytes[4 : 4 + payload_size]
 
+        print(f"[DEBUG-DECODE] Stage 8: Fernet decrypting payload of size {len(encrypted_payload)}...")
         decrypted_payload = decrypt_message(encrypted_payload, password)
         cleaned_payload = remove_delimiter(decrypted_payload)
+        print(f"[DEBUG-DECODE] Stage 9: Success! Delimiter removed. Decrypted message length: {len(cleaned_payload)}")
 
         return {
             "status": "success",
             "message": cleaned_payload.decode(errors="ignore"),
         }
     except InvalidToken as e:
+        print("[DEBUG-DECODE] Stage 8: Error - Fernet decrypt failed with InvalidToken.")
         return {
             "status": "error",
             "error_type": "WRONG_PASSWORD_OR_MODIFIED_AUDIO",
@@ -222,7 +249,7 @@ def decode_message(
             "details": repr(e),
         }
     except Exception as e:
-        print("DECODE ERROR:", str(e))
+        print("[DEBUG-DECODE] Stage 8/9: Decode error:", str(e))
         err_msg = str(e)
         error_type = "EXTRACTION_FAILURE"
         if "No Embedded Payload Found" in err_msg:
