@@ -126,6 +126,7 @@ export default function DecodePage() {
   const [audioFile, setAudioFile] = useState<File | { name: string; size?: number; fake: boolean } | null>(null);
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState("");
+  const [smartWarning, setSmartWarning] = useState("");
   const [showToast, setShowToast] = useState(false);
   const [localResult, setLocalResult] = useState<any>(null);
   const [copied, setCopied] = useState(false);
@@ -244,7 +245,42 @@ export default function DecodePage() {
   };
 
   const handleFileChange = (file: File | null) => {
+    // Clear stale outputs on file change/remove. Keep password value intact for usability!
+    setLocalResult(null);
+    sessionStorage.removeItem("steganoml_decode_result");
+    setLocalError("");
+    setSmartWarning("");
+
     if (file) {
+      // 1. Validate file extension
+      const ext = file.name.split(".").pop()?.toLowerCase() || "";
+      const supportedExts = ["wav", "mp3", "flac", "m4a", "ogg", "aac"];
+      if (!supportedExts.includes(ext)) {
+        setLocalError("This audio format is not supported.");
+        setAudioFile(null);
+        return;
+      }
+
+      // 2. Validate maximum file size (100MB)
+      const maxSizeBytes = 100 * 1024 * 1024;
+      if (file.size > maxSizeBytes) {
+        setLocalError("File exceeds the maximum supported size.");
+        setAudioFile(null);
+        return;
+      }
+
+      // 3. Validate empty files
+      if (file.size === 0) {
+        setLocalError("The selected audio file appears to be corrupted.");
+        setAudioFile(null);
+        return;
+      }
+
+      // 4. Large file warnings (> 30MB)
+      if (file.size > 30 * 1024 * 1024) {
+        setSmartWarning("This audio file is large and may take longer to analyze.");
+      }
+
       const meta = { name: file.name, size: file.size, fake: false };
       setAudioFile(file);
       sessionStorage.setItem("steganoml_decode_audio", JSON.stringify(meta));
@@ -258,14 +294,24 @@ export default function DecodePage() {
     <AppShell>
       <Toast show={showToast} message="✓ Decode successful" />
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-4 mb-2">
           <div>
-            <h1 className="text-5xl font-bold">Decode studio</h1>
-
-            <p className="mt-3 text-slate-400">
-              Extract hidden payload from stego audio
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">Decode studio</h1>
+            <p className="mt-2 text-slate-400 text-sm">
+              Extract hidden payload from stego audio carriers
             </p>
           </div>
+          <button
+            type="button"
+            onClick={() => {
+              handleFileChange(null);
+              setPassword("");
+              sessionStorage.removeItem("steganoml_decode_password");
+            }}
+            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white hover:border-white/20 transition active:scale-95 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+          >
+            Reset Workflow
+          </button>
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
@@ -286,7 +332,7 @@ export default function DecodePage() {
             <input
               id="decode-audio"
               type="file"
-              accept=".wav"
+              accept=".wav,.mp3,.flac,.m4a,.ogg,.aac"
               onChange={(e) => {
                 if (e.target.files?.[0]) {
                   handleFileChange(e.target.files[0]);
@@ -354,9 +400,14 @@ export default function DecodePage() {
                     )}
                   </div>
                 ) : (
-                  <p className="text-xs text-slate-500 mt-2">
-                    Supports WAV files up to 50MB
-                  </p>
+                  <div className="text-xs text-slate-500 mt-3 space-y-1.5 max-w-sm">
+                    <p className="font-semibold text-slate-400">Supported Audio Formats</p>
+                    <p>WAV, MP3, FLAC, M4A, OGG, AAC</p>
+                    <p>Large audio files supported (up to 100MB).</p>
+                    <p className="text-[10px] text-slate-650 leading-normal">
+                      Characteristics: Mono or Stereo. Higher duration carrier files improve fallback extraction.
+                    </p>
+                  </div>
                 )}
 
                 {/* Action buttons inside the card */}
@@ -434,7 +485,7 @@ export default function DecodePage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white transition focus-visible:text-white outline-none cursor-pointer"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white focus:text-white transition outline-none cursor-pointer"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -444,6 +495,16 @@ export default function DecodePage() {
             </div>
 
             {/* LOCAL VALIDATION ERRORS */}
+
+            {smartWarning && (
+              <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm text-amber-400 flex items-start gap-3 transition-all duration-300">
+                <AlertTriangle size={18} className="shrink-0 mt-0.5 text-amber-400" />
+                <div className="flex-1">
+                  <p className="font-semibold">Large File Notice</p>
+                  <p className="mt-1 text-xs text-amber-450/80">{smartWarning}</p>
+                </div>
+              </div>
+            )}
 
             {localError && (
               <div
@@ -497,30 +558,28 @@ export default function DecodePage() {
                     setShowToast(false);
                   }, 3000);
                 } else if (response?.status === "error") {
+                  const errorType = response.error_type || "";
                   const errorMsg = response.message || "";
-                  const details = response.details || "";
                   
-                  if (
-                    errorMsg.toLowerCase().includes("padding") ||
-                    errorMsg.toLowerCase().includes("token") || 
-                    errorMsg.toLowerCase().includes("mac") ||
-                    errorMsg.toLowerCase().includes("decrypt") ||
-                    details.toLowerCase().includes("invalidtoken")
-                  ) {
+                  if (errorType === "WRONG_PASSWORD_OR_MODIFIED_AUDIO") {
                     setLocalError(
-                      "Unable to decrypt payload. The supplied password is incorrect or the stego audio has been modified."
+                      "Unable to decrypt payload. The supplied password is incorrect, or the uploaded audio appears to have been modified after encoding."
                     );
-                  } else if (
-                    errorMsg.toLowerCase().includes("coordinate") ||
-                    errorMsg.toLowerCase().includes("delimiter") ||
-                    errorMsg.toLowerCase().includes("integrity")
-                  ) {
+                  } else if (errorType === "NO_EMBEDDED_PAYLOAD") {
                     setLocalError(
-                      "Payload integrity verification failed. The embedded data may have been corrupted, altered, or extracted using an incorrect password."
+                      "No valid hidden payload was detected. The selected carrier contains no embedded data or was encrypted with a different key."
+                    );
+                  } else if (errorType === "UNSUPPORTED_AUDIO_FORMAT") {
+                    setLocalError(
+                      "This audio format is not supported or the file is corrupted."
+                    );
+                  } else if (errorType === "DATABASE_MAPPING_MISSING") {
+                    setLocalError(
+                      "The database coordinates for this file are missing, and fallback extraction failed."
                     );
                   } else {
                     setLocalError(
-                      `Extraction failed: ${errorMsg || "An unknown extraction error occurred. Ensure the carrier is a valid WAV audio file generated by SteganoML."}`
+                      `Extraction failed: ${errorMsg || "An unknown extraction error occurred."}`
                     );
                   }
                 }

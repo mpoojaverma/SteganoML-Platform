@@ -72,3 +72,9 @@ body {
 .animate-shake {
   animation: shake 0.2s ease-in-out 2;
 }
+
+/* Remove default password visibility toggle and clear icons in Edge/IE */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}

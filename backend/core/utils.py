@@ -98,12 +98,24 @@ def generate_deterministic_positions(
 
     rng = random.Random(seed)
 
-    positions = rng.sample(
-        range(total_samples),
-        required_bits
-    )
+    # Use total_samples as the single decision factor to guarantee that both
+    # encoder and decoder choose the exact same generation strategy.
+    if total_samples < 200000:
+        positions = list(range(total_samples))
+        rng.shuffle(positions)
+        return positions[:required_bits]
+
+    # Prefix-stable unique random loop
+    positions = []
+    used = set()
+    while len(positions) < required_bits:
+        pos = rng.randint(0, total_samples - 1)
+        if pos not in used:
+            used.add(pos)
+            positions.append(pos)
 
     return positions
+
 
 
 # =========================================================

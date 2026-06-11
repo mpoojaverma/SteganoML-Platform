@@ -163,6 +163,7 @@ export default function EncodePage() {
 
   const [password, setPassword] = useState("");
   const [localError, setLocalError] = useState("");
+  const [smartWarning, setSmartWarning] = useState("");
   const [showToast, setShowToast] = useState(false);
   const [localResult, setLocalResult] = useState<any>(null);
   const [activeWaveform, setActiveWaveform] = useState<number[]>(waveform);
@@ -425,7 +426,45 @@ export default function EncodePage() {
   };
 
   const handleFileChange = async (file: File | null) => {
+    // Clear stale outputs on file change/remove. Keep password value intact for usability!
+    setLocalResult(null);
+    sessionStorage.removeItem("steganoml_encode_result");
+    setLocalError("");
+    setSmartWarning("");
+
     if (file) {
+      // 1. Validate file extension
+      const ext = file.name.split(".").pop()?.toLowerCase() || "";
+      const supportedExts = ["wav", "mp3", "flac", "m4a", "ogg", "aac"];
+      if (!supportedExts.includes(ext)) {
+        setLocalError("This audio format is not supported.");
+        setAudioFile(null);
+        setTotalSamples(null);
+        return;
+      }
+
+      // 2. Validate maximum file size (100MB)
+      const maxSizeBytes = 100 * 1024 * 1024;
+      if (file.size > maxSizeBytes) {
+        setLocalError("File exceeds the maximum supported size.");
+        setAudioFile(null);
+        setTotalSamples(null);
+        return;
+      }
+
+      // 3. Validate empty files
+      if (file.size === 0) {
+        setLocalError("The selected audio file appears to be corrupted.");
+        setAudioFile(null);
+        setTotalSamples(null);
+        return;
+      }
+
+      // 4. Large file warnings (> 30MB)
+      if (file.size > 30 * 1024 * 1024) {
+        setSmartWarning("This audio file is large and may take longer to analyze.");
+      }
+
       const meta = { name: file.name, size: file.size, fake: false };
       setAudioFile(file);
       sessionStorage.setItem("steganoml_encode_audio", JSON.stringify(meta));
@@ -435,7 +474,17 @@ export default function EncodePage() {
         const arrayBuffer = await file.arrayBuffer();
         const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
         const tempCtx = new AudioContextClass();
-        const audioBuffer = await tempCtx.decodeAudioData(arrayBuffer);
+        
+        let audioBuffer;
+        try {
+          audioBuffer = await tempCtx.decodeAudioData(arrayBuffer);
+        } catch (decodeErr) {
+          setLocalError("The selected audio file appears to be corrupted.");
+          setAudioFile(null);
+          setTotalSamples(null);
+          await tempCtx.close();
+          return;
+        }
         
         const channelsCount = audioBuffer.numberOfChannels;
         const samplesCount = audioBuffer.length * channelsCount;
@@ -567,6 +616,25 @@ export default function EncodePage() {
     <AppShell>
       <Toast show={showToast} message="✓ Encoding completed" />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        <div className="lg:col-span-12 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-4 mb-2">
+          <div>
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">Encode studio</h1>
+            <p className="mt-2 text-slate-400 text-sm">
+              Embed secure encrypted payloads into audio carriers with SOTA ML guidance
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              handleFileChange(null);
+              setPassword("");
+              sessionStorage.removeItem("steganoml_encode_password");
+            }}
+            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white hover:border-white/20 transition active:scale-95 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+          >
+            Reset Workflow
+          </button>
+        </div>
         {/* LEFT COLUMN */}
 
         <div className="lg:col-span-8 space-y-6">
@@ -621,7 +689,7 @@ export default function EncodePage() {
                 <input
                   id="encode-audio"
                   type="file"
-                  accept=".wav,.mp3,.flac,.m4a"
+                  accept=".wav,.mp3,.flac,.m4a,.ogg,.aac"
                   onChange={(e) => {
                     if (e.target.files?.[0]) {
                       handleFileChange(e.target.files[0]);
@@ -692,9 +760,14 @@ export default function EncodePage() {
                           )}
                         </div>
                       ) : (
-                        <p className="text-xs text-slate-500 mt-2">
-                          Supports WAV, MP3, FLAC, M4A up to 50MB
-                        </p>
+                        <div className="text-xs text-slate-500 mt-3 space-y-1.5 max-w-sm">
+                          <p className="font-semibold text-slate-400">Supported Audio Formats</p>
+                          <p>WAV, MP3, FLAC, M4A, OGG, AAC</p>
+                          <p>Large audio files supported (up to 100MB).</p>
+                          <p className="text-[10px] text-slate-600 leading-normal">
+                            Characteristics: Mono or Stereo. Clear speech preferred. Higher audio duration provides greater payload capacity.
+                          </p>
+                        </div>
                       )}
 
                       {audioFile && (
@@ -1049,6 +1122,16 @@ export default function EncodePage() {
                         </div>
                       </div>
                     )}
+
+                    {smartWarning && (
+                      <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 flex items-start gap-2.5 text-xs text-amber-400 mt-2">
+                        <Info size={16} className="shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="font-semibold text-sm">Large File Notice</p>
+                          <p className="mt-1 leading-normal text-amber-400/80">{smartWarning}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -1070,7 +1153,7 @@ export default function EncodePage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white transition focus-visible:text-white outline-none cursor-pointer"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white focus:text-white transition outline-none cursor-pointer"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
