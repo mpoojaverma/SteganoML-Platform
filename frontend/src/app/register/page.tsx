@@ -267,9 +267,6 @@ export default function RegisterPage() {
         <p className="text-[10px] text-slate-500 mt-1">
           Developed as part of the SteganoML research project.
         </p>
-        <p className="text-[9.5px] text-slate-600 font-mono mt-2 leading-relaxed uppercase">
-          SECURE PROTOCOLS: AES-256 Encryption • PBKDF2 Key Derivation • CatBoost ML Analysis • Adaptive LSB Embedding
-        </p>
       </div>
     </main>
   );

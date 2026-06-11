@@ -141,28 +141,28 @@ export default function HomePage() {
   const innovations = [
     {
       title: "ML-Guided Embedding",
-      desc: "First steganographic workflow incorporating CatBoost tree ensemble models to predict acoustic thresholds.",
-      badge: "Innovation I"
+      desc: "Advanced steganographic workflow incorporating CatBoost tree ensemble models to predict acoustic stability thresholds.",
+      badge: "01"
     },
     {
       title: "Adaptive Frame Selection",
       desc: "Dynamically identifies carrier frames capable of higher noise tolerances, completely avoiding flat-tone distortions.",
-      badge: "Innovation II"
+      badge: "02"
     },
     {
       title: "Cryptographic Protection",
       desc: "Combines steganographic obscurity with PBKDF2 + AES-256 cryptographic rigidity, creating dual-layer authentication.",
-      badge: "Innovation III"
+      badge: "03"
     },
     {
-      title: "Hardware Embodiment",
-      desc: "Engineered feature extraction and LSB embedding formulas optimized for FPGA synthesis and HSM security modules.",
-      badge: "Innovation IV"
+      title: "Hardware Deployment",
+      desc: "Optimized feature extraction and LSB embedding formulas designed for FPGA synthesis and hardware security modules.",
+      badge: "04"
     },
     {
-      title: "Software Embodiment",
-      desc: "Premium, responsive Next.js SaaS dashboard dashboard with integrated REST API triggers for high-throughput batch runs.",
-      badge: "Innovation V"
+      title: "Software Platform",
+      desc: "Premium, responsive Next.js SaaS dashboard with integrated API triggers for high-throughput batch stego operations.",
+      badge: "05"
     }
   ];
 
@@ -566,13 +566,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* PREMIUM PATENT & INNOVATION SHOWCASE SECTION */}
+      {/* WHAT MAKES STEGANOML DIFFERENT SECTION */}
       <section className="relative z-20 mx-auto mt-28 max-w-7xl px-6 py-16 border-t border-white/5">
         <div className="text-center mb-16">
-          <h2 className="text-xs uppercase tracking-widest text-cyan-400 font-bold">Security Disclosures</h2>
-          <h3 className="text-3xl sm:text-4xl font-bold mt-2">Patent & Innovation Showcase</h3>
+          <h2 className="text-xs uppercase tracking-widest text-cyan-400 font-bold">Platform Advantages</h2>
+          <h3 className="text-3xl sm:text-4xl font-bold mt-2">What Makes SteganoML Different</h3>
           <p className="text-slate-400 mt-3 max-w-lg mx-auto text-sm">
-            Core steganographic techniques engineered and protected as unique scientific disclosures.
+            Core steganographic techniques engineered to provide maximum payload security and audio imperceptibility.
           </p>
         </div>
 
@@ -591,7 +591,7 @@ export default function HomePage() {
               </div>
               
               <div className="mt-6 border-t border-white/5 pt-4 text-xs text-slate-600 font-mono">
-                SteganoML Secure Encryptor
+                SteganoML Core Feature
               </div>
             </div>
           ))}
@@ -634,6 +634,18 @@ export default function HomePage() {
           </Link>
         </div>
       </section>
+
+      {/* MINIMAL LANDING FOOTER */}
+      <footer className="relative z-30 border-t border-white/5 bg-[#020817] py-8 mt-12">
+        <div className="mx-auto max-w-7xl px-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+          <span>© 2026 SteganoML. All Rights Reserved.</span>
+          <div className="flex gap-6">
+            <Link href="/about" className="hover:text-cyan-400 transition">About</Link>
+            <Link href="/model-insights" className="hover:text-cyan-400 transition">Model Insights</Link>
+            <Link href="/research-dataset" className="hover:text-cyan-400 transition">Dataset</Link>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
