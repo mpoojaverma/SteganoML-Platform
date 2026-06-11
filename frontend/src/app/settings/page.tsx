@@ -237,7 +237,7 @@ export default function SettingsPage() {
               <div className="flex gap-2 mt-4">
                 <button
                   onClick={() => handleToggleEmbed("ml")}
-                  className={`flex-1 rounded-xl py-2.5 px-3 min-h-[44px] text-xs font-semibold flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer ${
+                  className={`flex-1 rounded-xl py-2.5 px-3 min-h-[44px] lg:min-h-0 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer ${
                     embedMethod === "ml"
                       ? "bg-cyan-500 text-black shadow-md shadow-cyan-500/10"
                       : "bg-white/5 text-slate-400 hover:text-white"
@@ -248,7 +248,7 @@ export default function SettingsPage() {
                 </button>
                 <button
                   onClick={() => handleToggleEmbed("random")}
-                  className={`flex-1 rounded-xl py-2.5 px-3 min-h-[44px] text-xs font-semibold flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer ${
+                  className={`flex-1 rounded-xl py-2.5 px-3 min-h-[44px] lg:min-h-0 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer ${
                     embedMethod === "random"
                       ? "bg-purple-600 text-white shadow-md shadow-purple-500/10"
                       : "bg-white/5 text-slate-400 hover:text-white"
@@ -272,7 +272,7 @@ export default function SettingsPage() {
                 <span className="text-xs font-medium text-slate-400">Status: {autoDownload ? "Enabled" : "Disabled"}</span>
                 <button
                   onClick={() => handleToggleAutoDownload(!autoDownload)}
-                  className={`rounded-full px-4 py-2.5 min-h-[44px] flex items-center justify-center text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                  className={`rounded-full px-4 py-2.5 min-h-[44px] lg:min-h-0 flex items-center justify-center text-xs font-semibold transition-all duration-200 cursor-pointer ${
                     autoDownload
                       ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
                       : "bg-white/5 text-slate-400 border border-transparent"
@@ -295,7 +295,7 @@ export default function SettingsPage() {
                 <span className="text-xs font-medium text-slate-400">Status: {rememberFiles ? "Enabled" : "Disabled"}</span>
                 <button
                   onClick={() => handleToggleRemember(!rememberFiles)}
-                  className={`rounded-full px-4 py-2.5 min-h-[44px] flex items-center justify-center text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                  className={`rounded-full px-4 py-2.5 min-h-[44px] lg:min-h-0 flex items-center justify-center text-xs font-semibold transition-all duration-200 cursor-pointer ${
                     rememberFiles
                       ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
                       : "bg-white/5 text-slate-400 border border-transparent"
@@ -317,7 +317,7 @@ export default function SettingsPage() {
               <div className="flex gap-2 mt-4">
                 <button
                   onClick={() => handleToggleLayout("grid")}
-                  className={`flex-1 rounded-xl py-2.5 px-3 min-h-[44px] text-xs font-semibold flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer ${
+                  className={`flex-1 rounded-xl py-2.5 px-3 min-h-[44px] lg:min-h-0 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer ${
                     layoutPref === "grid"
                       ? "bg-cyan-500 text-black shadow-md shadow-cyan-500/10"
                       : "bg-white/5 text-slate-400 hover:text-white"
@@ -328,7 +328,7 @@ export default function SettingsPage() {
                 </button>
                 <button
                   onClick={() => handleToggleLayout("list")}
-                  className={`flex-1 rounded-xl py-2.5 px-3 min-h-[44px] text-xs font-semibold flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer ${
+                  className={`flex-1 rounded-xl py-2.5 px-3 min-h-[44px] lg:min-h-0 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer ${
                     layoutPref === "list"
                       ? "bg-cyan-500 text-black shadow-md shadow-cyan-500/10"
                       : "bg-white/5 text-slate-400 hover:text-white"
@@ -431,7 +431,7 @@ export default function SettingsPage() {
                 <Laptop size={18} className="text-cyan-400 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <p className="text-xs text-slate-500 font-mono">CLIENT OPERATING SYSTEM</p>
-                  <p className="text-sm font-semibold text-white truncate break-words max-w-full" title={clientSessionInfo.os}>{clientSessionInfo.os}</p>
+                  <p className="text-sm font-semibold text-white truncate lg:overflow-visible lg:whitespace-normal lg:break-normal break-words max-w-full lg:max-w-none" title={clientSessionInfo.os}>{clientSessionInfo.os}</p>
                 </div>
               </div>
 
@@ -439,7 +439,7 @@ export default function SettingsPage() {
                 <Globe size={18} className="text-purple-400 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <p className="text-xs text-slate-500 font-mono">ACTIVE BROWSER AGENT</p>
-                  <p className="text-sm font-semibold text-white truncate break-words max-w-full" title={clientSessionInfo.browser}>{clientSessionInfo.browser}</p>
+                  <p className="text-sm font-semibold text-white truncate lg:overflow-visible lg:whitespace-normal lg:break-normal break-words max-w-full lg:max-w-none" title={clientSessionInfo.browser}>{clientSessionInfo.browser}</p>
                 </div>
               </div>
 
@@ -447,7 +447,7 @@ export default function SettingsPage() {
                 <History size={18} className="text-emerald-400 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <p className="text-xs text-slate-500 font-mono">LAST LOGIN TIMESTEP</p>
-                  <p className="text-sm font-semibold text-white truncate break-words max-w-full font-mono text-xs" title={lastLogin}>{lastLogin}</p>
+                  <p className="text-sm font-semibold text-white truncate lg:overflow-visible lg:whitespace-normal lg:break-normal break-words max-w-full lg:max-w-none font-mono text-xs" title={lastLogin}>{lastLogin}</p>
                 </div>
               </div>
             </div>

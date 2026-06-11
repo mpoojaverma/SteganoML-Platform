@@ -556,7 +556,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="relative z-10 mt-8 pt-6 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-500 gap-3">
+            <div className="relative z-10 mt-8 pt-6 border-t border-white/5 flex flex-col sm:flex-row lg:flex-row sm:items-center lg:items-center justify-between text-xs text-slate-500 gap-3 lg:gap-0">
               <span className="font-semibold text-slate-400">Specifications:</span>
               <span className="font-mono text-cyan-400/80 bg-cyan-500/5 px-3 py-1.5 rounded-lg border border-cyan-500/10 text-left sm:text-right break-words max-w-full">
                 {archBlocks[activeArchBlock].detail}

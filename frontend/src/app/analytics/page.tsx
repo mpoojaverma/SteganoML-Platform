@@ -206,7 +206,8 @@ export default function AnalyticsPage() {
               <div className="border-b border-white/10 p-5">
                 <div className="h-5 w-32 bg-white/5 animate-pulse rounded" />
               </div>
-              <div className="overflow-x-auto w-full min-w-0">
+              {/* Desktop Loading Skeleton Table */}
+              <div className="hidden md:block overflow-x-auto w-full min-w-0">
                 <table className="w-full">
                   <thead>
                     <tr className="text-left text-xs text-slate-500">
@@ -232,6 +233,23 @@ export default function AnalyticsPage() {
                   </tbody>
                 </table>
               </div>
+
+              {/* Mobile Loading Skeleton Cards */}
+              <div className="block md:hidden divide-y divide-white/5">
+                {Array.from({ length: 5 }).map((_, idx) => (
+                  <div key={idx} className="p-5 space-y-4 animate-pulse">
+                    <div className="flex justify-between items-center">
+                      <div className="h-4 w-2/3 rounded bg-white/5" />
+                      <div className="h-4 w-12 rounded bg-white/5" />
+                    </div>
+                    <div className="grid grid-cols-4 gap-2 pt-2">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="h-8 rounded bg-white/5" />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </>
         ) : jobs.length === 0 ? (
@@ -255,62 +273,63 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">
 
               <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5 min-w-0">
-                <p className="text-xs uppercase text-slate-500 truncate" title="Encodes">
+                <p className="text-xs uppercase text-slate-500 truncate lg:overflow-visible lg:whitespace-normal" title="Encodes">
                   Encodes
                 </p>
-                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold truncate break-words">
+                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold truncate lg:overflow-visible lg:whitespace-normal lg:break-normal break-words">
                   {encodeJobs.length}
                 </h2>
               </div>
 
               <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5 min-w-0">
-                <p className="text-xs uppercase text-slate-500 truncate" title="Decodes">
+                <p className="text-xs uppercase text-slate-500 truncate lg:overflow-visible lg:whitespace-normal" title="Decodes">
                   Decodes
                 </p>
-                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold truncate break-words">
+                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold truncate lg:overflow-visible lg:whitespace-normal lg:break-normal break-words">
                   {decodeJobs.length}
                 </h2>
               </div>
 
               <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5 min-w-0">
-                <p className="text-xs uppercase text-slate-500 truncate" title="Avg PSNR">
+                <p className="text-xs uppercase text-slate-500 truncate lg:overflow-visible lg:whitespace-normal" title="Avg PSNR">
                   Avg PSNR
                 </p>
-                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold truncate break-words">
+                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold truncate lg:overflow-visible lg:whitespace-normal lg:break-normal break-words">
                   {avgPSNR}
                 </h2>
               </div>
 
               <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5 min-w-0">
-                <p className="text-xs uppercase text-slate-500 truncate" title="Avg SNR">
+                <p className="text-xs uppercase text-slate-500 truncate lg:overflow-visible lg:whitespace-normal" title="Avg SNR">
                   Avg SNR
                 </p>
-                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold truncate break-words">
+                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold truncate lg:overflow-visible lg:whitespace-normal lg:break-normal break-words">
                   {avgSNR}
                 </h2>
               </div>
 
               <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5 min-w-0">
-                <p className="text-xs uppercase text-slate-500 truncate" title="Avg BER">
+                <p className="text-xs uppercase text-slate-500 truncate lg:overflow-visible lg:whitespace-normal" title="Avg BER">
                   Avg BER
                 </p>
-                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold truncate break-words">
+                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold truncate lg:overflow-visible lg:whitespace-normal lg:break-normal break-words">
                   {avgBER}
                 </h2>
               </div>
 
               <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5 min-w-0">
-                <p className="text-xs uppercase text-slate-500 truncate" title="Avg NC">
+                <p className="text-xs uppercase text-slate-500 truncate lg:overflow-visible lg:whitespace-normal" title="Avg NC">
                   Avg NC
                 </p>
-                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold truncate break-words">
+                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold truncate lg:overflow-visible lg:whitespace-normal lg:break-normal break-words">
                   {avgNC}
                 </h2>
               </div>
 
             </div>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {/* Desktop View (>= md) */}
+            <div className="hidden md:grid grid-cols-2 gap-6">
 
               <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
                 <h2 className="mb-5 font-semibold">
@@ -364,7 +383,63 @@ export default function AnalyticsPage() {
 
             </div>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {/* Mobile View (< md) */}
+            <div className="block md:hidden space-y-6">
+
+              <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
+                <h2 className="mb-5 font-semibold">
+                  PSNR Trend
+                </h2>
+
+                <ResponsiveContainer
+                  width="100%"
+                  height={220}
+                >
+                  <LineChart
+                    data={psnrData}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="job" tick={{ fontSize: 9 }} tickLine={false} axisLine={false} />
+                    <YAxis tick={{ fontSize: 9 }} tickLine={false} axisLine={false} />
+                    <Tooltip />
+                    <Line
+                      type="monotone"
+                      dataKey="psnr"
+                      stroke="#06b6d4"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
+                <h2 className="mb-5 font-semibold">
+                  SNR Trend
+                </h2>
+
+                <ResponsiveContainer
+                  width="100%"
+                  height={220}
+                >
+                  <LineChart
+                    data={snrData}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="job" tick={{ fontSize: 9 }} tickLine={false} axisLine={false} />
+                    <YAxis tick={{ fontSize: 9 }} tickLine={false} axisLine={false} />
+                    <Tooltip />
+                    <Line
+                      type="monotone"
+                      dataKey="snr"
+                      stroke="#8b5cf6"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
+            </div>
+
+            {/* Desktop View (>= md) */}
+            <div className="hidden md:grid grid-cols-2 gap-6">
 
               <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
                 <h2 className="mb-5 font-semibold">
@@ -433,6 +508,79 @@ export default function AnalyticsPage() {
 
             </div>
 
+            {/* Mobile View (< md) */}
+            <div className="block md:hidden space-y-6">
+
+              <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
+                <h2 className="mb-5 font-semibold">
+                  Encode vs Decode
+                </h2>
+
+                <ResponsiveContainer
+                  width="100%"
+                  height={220}
+                >
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      dataKey="value"
+                      outerRadius={75}
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    >
+                      <Cell fill="#06b6d4" />
+                      <Cell fill="#8b5cf6" />
+                    </Pie>
+                    <Tooltip />
+                    <Legend verticalAlign="bottom" align="center" iconSize={10} wrapperStyle={{ fontSize: 10 }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
+                <h2 className="mb-5 font-semibold">
+                  Research Summary
+                </h2>
+
+                <div className="space-y-4">
+
+                  <div className="rounded-xl bg-white/5 p-4">
+                    <p className="text-sm text-slate-400">
+                      Best PSNR File
+                    </p>
+
+                    <p className="mt-2 font-medium break-all">
+                      {bestPSNR?.file_name ||
+                        "N/A"}
+                    </p>
+
+                    <p className="text-cyan-400">
+                      {bestPSNR?.psnr ||
+                        "-"}
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl bg-white/5 p-4">
+                    <p className="text-sm text-slate-400">
+                      Best SNR File
+                    </p>
+
+                    <p className="mt-2 font-medium break-all">
+                      {bestSNR?.file_name ||
+                        "N/A"}
+                    </p>
+
+                    <p className="text-purple-400">
+                      {bestSNR?.snr ||
+                        "-"}
+                    </p>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+
             <div className="rounded-3xl border border-white/10 bg-[#0b1327] overflow-hidden">
 
               <div className="border-b border-white/10 p-5">
@@ -441,7 +589,8 @@ export default function AnalyticsPage() {
                 </h2>
               </div>
 
-              <div className="overflow-x-auto w-full min-w-0">
+              {/* Desktop View (>= md) */}
+              <div className="hidden md:block overflow-x-auto w-full min-w-0">
                 <table className="w-full">
 
                   <thead>
@@ -505,6 +654,63 @@ export default function AnalyticsPage() {
                   </tbody>
 
                 </table>
+              </div>
+
+              {/* Mobile Cards View */}
+              <div className="block md:hidden divide-y divide-white/5">
+                {encodeJobs.map((job, index) => (
+                  <div key={index} className="p-5 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm font-medium text-white break-all" title={job.file_name}>
+                            {job.file_name}
+                          </span>
+                          <button
+                            onClick={() => navigator.clipboard.writeText(job.file_name)}
+                            className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white transition shrink-0 outline-none cursor-pointer"
+                            title="Copy filename"
+                            aria-label="Copy filename"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                          </button>
+                        </div>
+                        <div className="mt-1 text-xs text-slate-400 capitalize">
+                          Method: {job.method || "-"}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-2 text-center">
+                      <div className="rounded-lg bg-white/5 p-2">
+                        <div className="text-[10px] uppercase text-slate-500">PSNR</div>
+                        <div className="text-xs font-semibold text-slate-300 mt-0.5">
+                          {job.psnr ?? "-"}
+                        </div>
+                      </div>
+                      <div className="rounded-lg bg-white/5 p-2">
+                        <div className="text-[10px] uppercase text-slate-500">SNR</div>
+                        <div className="text-xs font-semibold text-slate-300 mt-0.5">
+                          {job.snr ?? "-"}
+                        </div>
+                      </div>
+                      <div className="rounded-lg bg-white/5 p-2">
+                        <div className="text-[10px] uppercase text-slate-500">BER</div>
+                        <div className="text-xs font-semibold text-slate-300 mt-0.5">
+                          {job.ber ?? "-"}
+                        </div>
+                      </div>
+                      <div className="rounded-lg bg-white/5 p-2">
+                        <div className="text-[10px] uppercase text-slate-500">NC</div>
+                        <div className="text-xs font-semibold text-slate-300 mt-0.5">
+                          {job.nc ?? "-"}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
 
             </div>

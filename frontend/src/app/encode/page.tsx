@@ -630,7 +630,7 @@ export default function EncodePage() {
               setPassword("");
               sessionStorage.removeItem("steganoml_encode_password");
             }}
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-semibold text-slate-400 hover:text-white hover:border-white/20 transition active:scale-95 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 min-h-[44px] flex items-center justify-center"
+            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-semibold text-slate-400 hover:text-white hover:border-white/20 transition active:scale-95 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 min-h-[44px] lg:min-h-0 flex items-center justify-center"
           >
             Reset Workflow
           </button>
@@ -657,7 +657,7 @@ export default function EncodePage() {
                       handleDiscardRecording();
                     }
                   }}
-                  className={`px-4 py-2.5 text-xs font-semibold rounded-lg transition-all duration-200 cursor-pointer min-h-[44px] flex items-center justify-center ${
+                  className={`px-4 py-2.5 text-xs font-semibold rounded-lg transition-all duration-200 cursor-pointer min-h-[44px] lg:min-h-0 flex items-center justify-center ${
                     activeTab === "upload"
                       ? "bg-[#1bd6d1] text-black shadow-md shadow-cyan-500/10"
                       : "text-slate-400 hover:text-white"
@@ -668,7 +668,7 @@ export default function EncodePage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab("record")}
-                  className={`px-4 py-2.5 text-xs font-semibold rounded-lg transition-all duration-200 cursor-pointer flex items-center gap-1.5 min-h-[44px] justify-center ${
+                  className={`px-4 py-2.5 text-xs font-semibold rounded-lg transition-all duration-200 cursor-pointer flex items-center gap-1.5 min-h-[44px] lg:min-h-0 justify-center ${
                     activeTab === "record"
                       ? "bg-[#1bd6d1] text-black shadow-md shadow-cyan-500/10"
                       : "text-slate-400 hover:text-white"
@@ -763,8 +763,8 @@ export default function EncodePage() {
                         <div className="text-xs text-slate-500 mt-3 space-y-1.5 max-w-sm">
                           <p className="font-semibold text-slate-400">Supported Audio Formats</p>
                           <p>WAV, MP3, FLAC, M4A, OGG, AAC</p>
-                          <p className="hidden sm:block">Large audio files supported (up to 100MB).</p>
-                          <p className="text-[10px] text-slate-650 leading-normal hidden sm:block">
+                          <p className="hidden md:block">Large audio files supported (up to 100MB).</p>
+                          <p className="text-[10px] text-slate-650 leading-normal hidden md:block">
                             Characteristics: Mono or Stereo. Clear speech preferred. Higher audio duration provides greater payload capacity.
                           </p>
                         </div>
@@ -779,13 +779,13 @@ export default function EncodePage() {
                               e.stopPropagation();
                               handleFileChange(null);
                             }}
-                            className="rounded-lg bg-white/5 border border-white/10 px-4 py-2.5 text-xs font-semibold text-slate-300 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400 transition active:scale-95 cursor-pointer outline-none min-h-[44px] flex items-center justify-center"
+                            className="rounded-lg bg-white/5 border border-white/10 px-4 py-2.5 text-xs font-semibold text-slate-300 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400 transition active:scale-95 cursor-pointer outline-none min-h-[44px] lg:min-h-0 flex items-center justify-center"
                           >
                             Remove
                           </button>
                           <label
                             htmlFor="encode-audio"
-                            className="rounded-lg bg-[#1bd6d1] px-4 py-2.5 text-xs font-semibold text-black hover:brightness-110 transition cursor-pointer flex items-center justify-center min-h-[44px]"
+                            className="rounded-lg bg-[#1bd6d1] px-4 py-2.5 text-xs font-semibold text-black hover:brightness-110 transition cursor-pointer flex items-center justify-center min-h-[44px] lg:min-h-0"
                           >
                             Change File
                           </label>
@@ -831,7 +831,7 @@ export default function EncodePage() {
                     <button
                       type="button"
                       onClick={handleStartRecording}
-                      className="mt-2 text-xs font-semibold bg-white/10 hover:bg-white/20 text-white rounded-lg px-4 py-2.5 transition cursor-pointer min-h-[44px] flex items-center justify-center"
+                      className="mt-2 text-xs font-semibold bg-white/10 hover:bg-white/20 text-white rounded-lg px-4 py-2.5 transition cursor-pointer min-h-[44px] lg:min-h-0 flex items-center justify-center"
                     >
                       Try Again
                     </button>
@@ -868,7 +868,7 @@ export default function EncodePage() {
                     <button
                       type="button"
                       onClick={handleStartRecording}
-                      className="mt-5 bg-[#1bd6d1] text-black font-semibold text-xs rounded-xl px-5 py-2.5 hover:brightness-110 active:scale-95 transition shadow-lg shadow-cyan-500/10 cursor-pointer min-h-[44px] flex items-center justify-center"
+                      className="mt-5 bg-[#1bd6d1] text-black font-semibold text-xs rounded-xl px-5 py-2.5 hover:brightness-110 active:scale-95 transition shadow-lg shadow-cyan-500/10 cursor-pointer min-h-[44px] lg:min-h-0 flex items-center justify-center"
                     >
                       Start Recording
                     </button>
@@ -908,7 +908,7 @@ export default function EncodePage() {
                       <button
                         type="button"
                         onClick={handlePauseRecording}
-                        className="flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-semibold px-4 py-2.5 transition active:scale-95 cursor-pointer min-h-[44px]"
+                        className="flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-semibold px-4 py-2.5 transition active:scale-95 cursor-pointer min-h-[44px] lg:min-h-0"
                       >
                         <Pause size={14} />
                         <span>Pause</span>
@@ -916,7 +916,7 @@ export default function EncodePage() {
                       <button
                         type="button"
                         onClick={handleStopRecording}
-                        className="flex items-center justify-center gap-1.5 rounded-xl bg-red-500 text-white text-xs font-bold px-5 py-2.5 hover:bg-red-600 transition active:scale-95 shadow-md shadow-red-500/10 cursor-pointer min-h-[44px]"
+                        className="flex items-center justify-center gap-1.5 rounded-xl bg-red-500 text-white text-xs font-bold px-5 py-2.5 hover:bg-red-600 transition active:scale-95 shadow-md shadow-red-500/10 cursor-pointer min-h-[44px] lg:min-h-0"
                       >
                         <Square size={14} fill="currentColor" />
                         <span>Stop</span>
@@ -924,7 +924,7 @@ export default function EncodePage() {
                       <button
                         type="button"
                         onClick={handleDiscardRecording}
-                        className="flex items-center justify-center gap-1.5 rounded-xl border border-white/10 hover:border-red-500/20 hover:bg-red-500/5 text-xs text-slate-400 hover:text-red-400 px-4 py-2.5 transition active:scale-95 cursor-pointer min-h-[44px]"
+                        className="flex items-center justify-center gap-1.5 rounded-xl border border-white/10 hover:border-red-500/20 hover:bg-red-500/5 text-xs text-slate-400 hover:text-red-400 px-4 py-2.5 transition active:scale-95 cursor-pointer min-h-[44px] lg:min-h-0"
                       >
                         <Trash2 size={14} />
                         <span>Discard</span>
@@ -959,7 +959,7 @@ export default function EncodePage() {
                       <button
                         type="button"
                         onClick={handleResumeRecording}
-                        className="flex items-center justify-center gap-1.5 rounded-xl bg-[#1bd6d1] text-black text-xs font-semibold px-5 py-2.5 hover:brightness-110 transition active:scale-95 cursor-pointer min-h-[44px]"
+                        className="flex items-center justify-center gap-1.5 rounded-xl bg-[#1bd6d1] text-black text-xs font-semibold px-5 py-2.5 hover:brightness-110 transition active:scale-95 cursor-pointer min-h-[44px] lg:min-h-0"
                       >
                         <Play size={14} fill="currentColor" />
                         <span>Resume</span>
@@ -967,7 +967,7 @@ export default function EncodePage() {
                       <button
                         type="button"
                         onClick={handleStopRecording}
-                        className="flex items-center justify-center gap-1.5 rounded-xl bg-red-500 text-white text-xs font-bold px-5 py-2.5 hover:bg-red-600 transition active:scale-95 shadow-md shadow-red-500/10 cursor-pointer min-h-[44px]"
+                        className="flex items-center justify-center gap-1.5 rounded-xl bg-red-500 text-white text-xs font-bold px-5 py-2.5 hover:bg-red-600 transition active:scale-95 shadow-md shadow-red-500/10 cursor-pointer min-h-[44px] lg:min-h-0"
                       >
                         <Square size={14} fill="currentColor" />
                         <span>Stop</span>
@@ -975,7 +975,7 @@ export default function EncodePage() {
                       <button
                         type="button"
                         onClick={handleDiscardRecording}
-                        className="flex items-center justify-center gap-1.5 rounded-xl border border-white/10 hover:border-red-500/20 hover:bg-red-500/5 text-xs text-slate-400 hover:text-red-400 px-4 py-2.5 transition active:scale-95 cursor-pointer min-h-[44px]"
+                        className="flex items-center justify-center gap-1.5 rounded-xl border border-white/10 hover:border-red-500/20 hover:bg-red-500/5 text-xs text-slate-400 hover:text-red-400 px-4 py-2.5 transition active:scale-95 cursor-pointer min-h-[44px] lg:min-h-0"
                       >
                         <Trash2 size={14} />
                         <span>Discard</span>
@@ -1021,7 +1021,7 @@ export default function EncodePage() {
                       <button
                         type="button"
                         onClick={handleDiscardRecording}
-                        className="rounded-lg bg-white/5 border border-white/10 px-4 py-2.5 text-xs font-semibold text-slate-300 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400 transition cursor-pointer min-h-[44px] flex items-center justify-center"
+                        className="rounded-lg bg-white/5 border border-white/10 px-4 py-2.5 text-xs font-semibold text-slate-300 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400 transition cursor-pointer min-h-[44px] lg:min-h-0 flex items-center justify-center"
                       >
                         Re-record
                       </button>
@@ -1030,7 +1030,7 @@ export default function EncodePage() {
                         onClick={() => {
                           document.getElementById("secret-payload-section")?.scrollIntoView({ behavior: "smooth" });
                         }}
-                        className="rounded-lg bg-[#1bd6d1] px-4 py-2.5 text-xs font-semibold text-black hover:brightness-110 transition cursor-pointer min-h-[44px] flex items-center justify-center"
+                        className="rounded-lg bg-[#1bd6d1] px-4 py-2.5 text-xs font-semibold text-black hover:brightness-110 transition cursor-pointer min-h-[44px] lg:min-h-0 flex items-center justify-center"
                       >
                         Continue to Encrypt
                       </button>

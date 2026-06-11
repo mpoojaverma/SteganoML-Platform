@@ -91,13 +91,13 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
       <div className="flex items-center gap-3">
         <button
           onClick={() => router.push("/encode")}
-          className="hidden sm:flex rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-medium text-black focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#08101f] outline-none min-h-[44px] items-center justify-center transition hover:brightness-110 cursor-pointer"
+          className="hidden md:flex rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-medium text-black focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#08101f] outline-none min-h-[44px] lg:min-h-0 items-center justify-center transition hover:brightness-110 cursor-pointer"
         >
           New Encode Job
         </button>
 
         <span
-          className={`hidden sm:inline-block rounded-full px-3 py-1 text-xs ${
+          className={`hidden md:inline-block rounded-full px-3 py-1 text-xs ${
             online
               ? "bg-emerald-500/20 text-emerald-400"
               : "bg-red-500/20 text-red-400"
@@ -106,11 +106,11 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
           {online ? "API Online" : "API Offline"}
         </span>
 
-        <span className="hidden sm:inline-block rounded-full bg-cyan-500/20 px-3 py-1 text-xs text-cyan-400">
+        <span className="hidden md:inline-block rounded-full bg-cyan-500/20 px-3 py-1 text-xs text-cyan-400">
           ML Active
         </span>
 
-        <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 min-h-[44px]">
+        <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 min-h-[44px] lg:min-h-0">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-500 font-semibold text-black">
             {initial}
           </div>
@@ -123,7 +123,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
 
         <button
           onClick={() => setIsLogoutModalOpen(true)}
-          className="rounded-xl border border-red-500/30 px-4 py-2.5 text-sm text-red-400 transition hover:bg-red-500/10 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#08101f] outline-none min-h-[44px] flex items-center justify-center cursor-pointer"
+          className="rounded-xl border border-red-500/30 px-4 py-2.5 text-sm text-red-400 transition hover:bg-red-500/10 focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#08101f] outline-none min-h-[44px] lg:min-h-0 flex items-center justify-center cursor-pointer"
         >
           Logout
         </button>

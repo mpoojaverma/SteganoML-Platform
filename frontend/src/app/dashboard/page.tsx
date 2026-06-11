@@ -102,7 +102,8 @@ export default function DashboardPage() {
 
             </div>
 
-            <div className="overflow-x-auto">
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
 
               <table className="w-full">
 
@@ -266,6 +267,107 @@ export default function DashboardPage() {
 
             </div>
 
+            {/* Mobile Cards View */}
+            <div className="block md:hidden divide-y divide-white/5">
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, index) => (
+                  <div key={index} className="p-5 space-y-4 animate-pulse">
+                    <div className="flex justify-between items-center">
+                      <div className="h-4 w-2/3 rounded bg-white/5" />
+                      <div className="h-6 w-16 rounded-full bg-white/5" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="h-3 w-1/2 rounded bg-white/5" />
+                      <div className="h-3 w-1/3 rounded bg-white/5" />
+                    </div>
+                    <div className="grid grid-cols-4 gap-2 pt-2">
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="h-8 rounded bg-white/5" />
+                      ))}
+                    </div>
+                  </div>
+                ))
+              ) : jobs.length === 0 ? (
+                <div className="p-8 text-center text-slate-500">
+                  <svg className="w-12 h-12 text-slate-600 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  <p className="text-sm font-medium text-slate-300">No recent jobs found</p>
+                  <p className="text-xs text-slate-500 mt-1">Run an encode or decode job to see live activity here.</p>
+                </div>
+              ) : (
+                jobs.slice(0, 8).map((job: any, index: number) => (
+                  <div key={index} className="p-5 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-sm font-medium text-white break-all" title={job.file_name}>
+                            {job.file_name}
+                          </span>
+                          <button
+                            onClick={() => navigator.clipboard.writeText(job.file_name)}
+                            className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white transition shrink-0 outline-none cursor-pointer"
+                            title="Copy filename"
+                            aria-label="Copy filename"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-slate-400 capitalize">
+                          <span>Type: {job.type}</span>
+                          <span>•</span>
+                          <span>Method: {job.method || "-"}</span>
+                          {job.created_at && (
+                            <>
+                              <span>•</span>
+                              <span>{new Date(job.created_at).toLocaleDateString()}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-xs font-medium shrink-0 capitalize ${
+                          job.status === "success"
+                            ? "bg-emerald-500/10 text-emerald-400"
+                            : "bg-red-500/10 text-red-400"
+                        }`}
+                      >
+                        {job.status}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-4 gap-2 text-center">
+                      <div className="rounded-lg bg-white/5 p-2">
+                        <div className="text-[10px] uppercase text-slate-500">PSNR</div>
+                        <div className="text-xs font-semibold text-slate-300 mt-0.5">
+                          {job.psnr ? Number(job.psnr).toFixed(2) : "-"}
+                        </div>
+                      </div>
+                      <div className="rounded-lg bg-white/5 p-2">
+                        <div className="text-[10px] uppercase text-slate-500">SNR</div>
+                        <div className="text-xs font-semibold text-slate-300 mt-0.5">
+                          {job.snr ? Number(job.snr).toFixed(2) : "-"}
+                        </div>
+                      </div>
+                      <div className="rounded-lg bg-white/5 p-2">
+                        <div className="text-[10px] uppercase text-slate-500">BER</div>
+                        <div className="text-xs font-semibold text-slate-300 mt-0.5">
+                          {job.ber ?? "-"}
+                        </div>
+                      </div>
+                      <div className="rounded-lg bg-white/5 p-2">
+                        <div className="text-[10px] uppercase text-slate-500">NC</div>
+                        <div className="text-xs font-semibold text-slate-300 mt-0.5">
+                          {job.nc ?? "-"}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+
           </div>
 
           <div className="xl:col-span-4 space-y-6">
@@ -345,17 +447,17 @@ function MetricCard({
   loading = false,
 }: any) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-4 sm:p-5 min-w-0">
+    <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-4 sm:p-5 lg:p-5 min-w-0 lg:min-w-fit">
 
-      <p className="text-xs uppercase text-slate-500 truncate" title={title}>
+      <p className="text-xs uppercase text-slate-500 truncate lg:overflow-visible lg:whitespace-normal" title={title}>
         {title}
       </p>
 
       {loading ? (
-        <div className="mt-4 h-8 sm:h-12 w-2/3 rounded-xl bg-white/5 animate-pulse" />
+        <div className="mt-4 h-8 sm:h-12 lg:h-12 w-2/3 rounded-xl bg-white/5 animate-pulse" />
       ) : (
         <h2
-          className={`mt-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold truncate break-words ${color}`}
+          className={`mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold truncate lg:overflow-visible lg:whitespace-normal lg:break-normal break-words ${color}`}
           title={value}
         >
           {value}
