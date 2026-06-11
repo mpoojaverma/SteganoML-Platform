@@ -7,15 +7,12 @@ import {
   Shield,
   Cpu,
   Lock,
-  Activity,
   CheckCircle2,
   ChevronRight,
-  Sliders,
   Zap,
   Check,
   X,
   FileText,
-  HelpCircle,
   Sparkles
 } from "lucide-react";
 

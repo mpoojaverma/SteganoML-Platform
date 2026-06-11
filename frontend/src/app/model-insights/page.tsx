@@ -5,12 +5,9 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import {
   Cpu,
-  Award,
   Sparkles,
-  ChevronRight,
   TrendingUp,
   Sliders,
-  Activity,
   AlertTriangle,
   CheckCircle2,
   Lock

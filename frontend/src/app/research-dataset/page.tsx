@@ -10,10 +10,7 @@ import {
   Check,
   Copy,
   ExternalLink,
-  Sparkles,
-  ChevronRight,
   Sliders,
-  Play,
   Award,
   Zap
 } from "lucide-react";
