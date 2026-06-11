@@ -8,8 +8,6 @@ import { getJobs } from "@/lib/jobs";
 
 import {
   ResponsiveContainer,
-  BarChart,
-  Bar,
   LineChart,
   Line,
   XAxis,
@@ -527,7 +525,7 @@ export default function AnalyticsPage() {
                       dataKey="value"
                       outerRadius={75}
                       labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
                     >
                       <Cell fill="#06b6d4" />
                       <Cell fill="#8b5cf6" />

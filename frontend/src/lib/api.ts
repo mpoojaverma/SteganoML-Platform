@@ -62,7 +62,7 @@ export function getDownloadUrl(
     const filename =
       outputFile
         .split("\\")
-        .pop();
+        .pop() ?? "";
 
     return `${API_BASE}/encode/download/${filename}`;
   }
