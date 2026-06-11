@@ -94,7 +94,8 @@ def generate_deterministic_positions(
             "Payload too large."
         )
 
-    seed = sum(ord(c) for c in password)
+    import hashlib
+    seed = int.from_bytes(hashlib.sha256(password.encode()).digest(), 'big')
 
     rng = random.Random(seed)
 

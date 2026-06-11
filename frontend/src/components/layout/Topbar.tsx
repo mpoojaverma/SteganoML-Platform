@@ -48,6 +48,15 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
 
   async function handleConfirmLogout() {
     setIsLogoutModalOpen(false);
+    
+    if (typeof window !== "undefined") {
+      Object.keys(sessionStorage).forEach((key) => {
+        if (key.startsWith("steganoml_")) {
+          sessionStorage.removeItem(key);
+        }
+      });
+    }
+
     await supabase.auth.signOut();
     router.push("/login");
   }
