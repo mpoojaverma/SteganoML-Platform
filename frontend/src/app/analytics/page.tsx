@@ -15,6 +15,7 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  Legend,
   PieChart,
   Pie,
   Cell,
