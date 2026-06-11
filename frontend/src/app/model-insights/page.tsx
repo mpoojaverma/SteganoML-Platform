@@ -329,7 +329,7 @@ export default function ModelInsightsPage() {
               {/* True Positive */}
               <button
                 onClick={() => setActiveCell("tp")}
-                className={`aspect-video rounded-3xl border p-6 text-left transition-all outline-none cursor-pointer flex flex-col justify-between ${
+                className={`aspect-auto sm:aspect-video min-h-[120px] sm:min-h-0 rounded-3xl border p-4 sm:p-6 text-left transition-all outline-none cursor-pointer flex flex-col justify-between ${
                   activeCell === "tp"
                     ? "border-emerald-500 bg-emerald-500/5 shadow-[0_0_15px_rgba(16,185,129,0.1)]"
                     : "border-white/5 bg-[#050b16]/60 hover:border-white/15"
@@ -345,7 +345,7 @@ export default function ModelInsightsPage() {
               {/* False Positive */}
               <button
                 onClick={() => setActiveCell("fp")}
-                className={`aspect-video rounded-3xl border p-6 text-left transition-all outline-none cursor-pointer flex flex-col justify-between ${
+                className={`aspect-auto sm:aspect-video min-h-[120px] sm:min-h-0 rounded-3xl border p-4 sm:p-6 text-left transition-all outline-none cursor-pointer flex flex-col justify-between ${
                   activeCell === "fp"
                     ? "border-amber-500 bg-amber-500/5 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
                     : "border-white/5 bg-[#050b16]/60 hover:border-white/15"
@@ -361,7 +361,7 @@ export default function ModelInsightsPage() {
               {/* False Negative */}
               <button
                 onClick={() => setActiveCell("fn")}
-                className={`aspect-video rounded-3xl border p-6 text-left transition-all outline-none cursor-pointer flex flex-col justify-between ${
+                className={`aspect-auto sm:aspect-video min-h-[120px] sm:min-h-0 rounded-3xl border p-4 sm:p-6 text-left transition-all outline-none cursor-pointer flex flex-col justify-between ${
                   activeCell === "fn"
                     ? "border-blue-500 bg-blue-500/5 shadow-[0_0_15px_rgba(59,130,246,0.1)]"
                     : "border-white/5 bg-[#050b16]/60 hover:border-white/15"
@@ -377,7 +377,7 @@ export default function ModelInsightsPage() {
               {/* True Negative */}
               <button
                 onClick={() => setActiveCell("tn")}
-                className={`aspect-video rounded-3xl border p-6 text-left transition-all outline-none cursor-pointer flex flex-col justify-between ${
+                className={`aspect-auto sm:aspect-video min-h-[120px] sm:min-h-0 rounded-3xl border p-4 sm:p-6 text-left transition-all outline-none cursor-pointer flex flex-col justify-between ${
                   activeCell === "tn"
                     ? "border-cyan-500 bg-cyan-500/5 shadow-[0_0_15px_rgba(6,182,212,0.1)]"
                     : "border-white/5 bg-[#050b16]/60 hover:border-white/15"

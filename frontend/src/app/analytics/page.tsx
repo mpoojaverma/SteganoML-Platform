@@ -206,30 +206,32 @@ export default function AnalyticsPage() {
               <div className="border-b border-white/10 p-5">
                 <div className="h-5 w-32 bg-white/5 animate-pulse rounded" />
               </div>
-              <table className="w-full">
-                <thead>
-                  <tr className="text-left text-xs text-slate-500">
-                    <th className="px-5 py-4">File</th>
-                    <th>Method</th>
-                    <th>PSNR</th>
-                    <th>SNR</th>
-                    <th>BER</th>
-                    <th>NC</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Array.from({ length: 5 }).map((_, idx) => (
-                    <tr key={idx} className="border-t border-white/5">
-                      <td className="px-5 py-4"><div className="h-4 w-28 bg-white/5 animate-pulse rounded" /></td>
-                      <td><div className="h-4 w-12 bg-white/5 animate-pulse rounded" /></td>
-                      <td><div className="h-4 w-10 bg-white/5 animate-pulse rounded" /></td>
-                      <td><div className="h-4 w-10 bg-white/5 animate-pulse rounded" /></td>
-                      <td><div className="h-4 w-10 bg-white/5 animate-pulse rounded" /></td>
-                      <td><div className="h-4 w-10 bg-white/5 animate-pulse rounded" /></td>
+              <div className="overflow-x-auto w-full min-w-0">
+                <table className="w-full">
+                  <thead>
+                    <tr className="text-left text-xs text-slate-500">
+                      <th className="px-5 py-4">File</th>
+                      <th>Method</th>
+                      <th>PSNR</th>
+                      <th>SNR</th>
+                      <th>BER</th>
+                      <th>NC</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {Array.from({ length: 5 }).map((_, idx) => (
+                      <tr key={idx} className="border-t border-white/5">
+                        <td className="px-5 py-4"><div className="h-4 w-28 bg-white/5 animate-pulse rounded" /></td>
+                        <td><div className="h-4 w-12 bg-white/5 animate-pulse rounded" /></td>
+                        <td><div className="h-4 w-10 bg-white/5 animate-pulse rounded" /></td>
+                        <td><div className="h-4 w-10 bg-white/5 animate-pulse rounded" /></td>
+                        <td><div className="h-4 w-10 bg-white/5 animate-pulse rounded" /></td>
+                        <td><div className="h-4 w-10 bg-white/5 animate-pulse rounded" /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </>
         ) : jobs.length === 0 ? (
@@ -250,58 +252,58 @@ export default function AnalyticsPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-6">
 
-              <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
-                <p className="text-xs uppercase text-slate-500">
+              <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5 min-w-0">
+                <p className="text-xs uppercase text-slate-500 truncate" title="Encodes">
                   Encodes
                 </p>
-                <h2 className="mt-4 text-5xl font-bold">
+                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold truncate break-words">
                   {encodeJobs.length}
                 </h2>
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
-                <p className="text-xs uppercase text-slate-500">
+              <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5 min-w-0">
+                <p className="text-xs uppercase text-slate-500 truncate" title="Decodes">
                   Decodes
                 </p>
-                <h2 className="mt-4 text-5xl font-bold">
+                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold truncate break-words">
                   {decodeJobs.length}
                 </h2>
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
-                <p className="text-xs uppercase text-slate-500">
+              <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5 min-w-0">
+                <p className="text-xs uppercase text-slate-500 truncate" title="Avg PSNR">
                   Avg PSNR
                 </p>
-                <h2 className="mt-4 text-5xl font-bold">
+                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold truncate break-words">
                   {avgPSNR}
                 </h2>
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
-                <p className="text-xs uppercase text-slate-500">
+              <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5 min-w-0">
+                <p className="text-xs uppercase text-slate-500 truncate" title="Avg SNR">
                   Avg SNR
                 </p>
-                <h2 className="mt-4 text-5xl font-bold">
+                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold truncate break-words">
                   {avgSNR}
                 </h2>
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
-                <p className="text-xs uppercase text-slate-500">
+              <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5 min-w-0">
+                <p className="text-xs uppercase text-slate-500 truncate" title="Avg BER">
                   Avg BER
                 </p>
-                <h2 className="mt-4 text-3xl font-bold">
+                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold truncate break-words">
                   {avgBER}
                 </h2>
               </div>
 
-              <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
-                <p className="text-xs uppercase text-slate-500">
+              <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5 min-w-0">
+                <p className="text-xs uppercase text-slate-500 truncate" title="Avg NC">
                   Avg NC
                 </p>
-                <h2 className="mt-4 text-5xl font-bold">
+                <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold truncate break-words">
                   {avgNC}
                 </h2>
               </div>
@@ -439,69 +441,71 @@ export default function AnalyticsPage() {
                 </h2>
               </div>
 
-              <table className="w-full">
+              <div className="overflow-x-auto w-full min-w-0">
+                <table className="w-full">
 
-                <thead>
-                  <tr className="text-left text-xs text-slate-500">
-                    <th className="px-5 py-4">
-                      File
-                    </th>
-                    <th>Method</th>
-                    <th>PSNR</th>
-                    <th>SNR</th>
-                    <th>BER</th>
-                    <th>NC</th>
-                  </tr>
-                </thead>
+                  <thead>
+                    <tr className="text-left text-xs text-slate-500">
+                      <th className="px-5 py-4">
+                        File
+                      </th>
+                      <th>Method</th>
+                      <th>PSNR</th>
+                      <th>SNR</th>
+                      <th>BER</th>
+                      <th>NC</th>
+                    </tr>
+                  </thead>
 
-                <tbody>
-                  {encodeJobs.map(
-                    (
-                      job,
-                      index
-                    ) => (
-                      <tr
-                        key={index}
-                        className="border-t border-white/5 hover:bg-white/[0.02]"
-                      >
-                        <td className="px-5 py-4 group">
-                          <div className="flex items-center gap-2">
-                            <span className="truncate" title={job.file_name}>{job.file_name}</span>
-                            <button
-                              onClick={() => {
-                                navigator.clipboard.writeText(job.file_name);
-                              }}
-                              className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white transition shrink-0 focus-visible:opacity-100 outline-none cursor-pointer"
-                              title="Copy filename"
-                              aria-label="Copy filename"
-                            >
-                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                              </svg>
-                            </button>
-                          </div>
-                        </td>
-                        <td>
-                          {job.method}
-                        </td>
-                        <td>
-                          {job.psnr}
-                        </td>
-                        <td>
-                          {job.snr}
-                        </td>
-                        <td>
-                          {job.ber}
-                        </td>
-                        <td>
-                          {job.nc}
-                        </td>
-                      </tr>
-                    )
-                  )}
-                </tbody>
+                  <tbody>
+                    {encodeJobs.map(
+                      (
+                        job,
+                        index
+                      ) => (
+                        <tr
+                          key={index}
+                          className="border-t border-white/5 hover:bg-white/[0.02]"
+                        >
+                          <td className="px-5 py-4 group">
+                            <div className="flex items-center gap-2">
+                              <span className="truncate" title={job.file_name}>{job.file_name}</span>
+                              <button
+                                onClick={() => {
+                                  navigator.clipboard.writeText(job.file_name);
+                                }}
+                                className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white transition shrink-0 focus-visible:opacity-100 outline-none cursor-pointer"
+                                title="Copy filename"
+                                aria-label="Copy filename"
+                              >
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                                </svg>
+                              </button>
+                            </div>
+                          </td>
+                          <td>
+                            {job.method}
+                          </td>
+                          <td>
+                            {job.psnr}
+                          </td>
+                          <td>
+                            {job.snr}
+                          </td>
+                          <td>
+                            {job.ber}
+                          </td>
+                          <td>
+                            {job.nc}
+                          </td>
+                        </tr>
+                      )
+                    )}
+                  </tbody>
 
-              </table>
+                </table>
+              </div>
 
             </div>
 

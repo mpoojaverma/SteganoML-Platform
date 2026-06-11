@@ -91,13 +91,13 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
       <div className="flex items-center gap-3">
         <button
           onClick={() => router.push("/encode")}
-          className="rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-medium text-black focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#08101f] outline-none min-h-[44px] flex items-center justify-center transition hover:brightness-110 cursor-pointer"
+          className="hidden sm:flex rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-medium text-black focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#08101f] outline-none min-h-[44px] items-center justify-center transition hover:brightness-110 cursor-pointer"
         >
           New Encode Job
         </button>
 
         <span
-          className={`rounded-full px-3 py-1 text-xs ${
+          className={`hidden sm:inline-block rounded-full px-3 py-1 text-xs ${
             online
               ? "bg-emerald-500/20 text-emerald-400"
               : "bg-red-500/20 text-red-400"
@@ -106,7 +106,7 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
           {online ? "API Online" : "API Offline"}
         </span>
 
-        <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs text-cyan-400">
+        <span className="hidden sm:inline-block rounded-full bg-cyan-500/20 px-3 py-1 text-xs text-cyan-400">
           ML Active
         </span>
 

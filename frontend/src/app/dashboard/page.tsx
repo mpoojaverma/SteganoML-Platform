@@ -345,17 +345,18 @@ function MetricCard({
   loading = false,
 }: any) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
+    <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-4 sm:p-5 min-w-0">
 
-      <p className="text-xs uppercase text-slate-500">
+      <p className="text-xs uppercase text-slate-500 truncate" title={title}>
         {title}
       </p>
 
       {loading ? (
-        <div className="mt-4 h-12 w-2/3 rounded-xl bg-white/5 animate-pulse" />
+        <div className="mt-4 h-8 sm:h-12 w-2/3 rounded-xl bg-white/5 animate-pulse" />
       ) : (
         <h2
-          className={`mt-4 text-5xl font-bold ${color}`}
+          className={`mt-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold truncate break-words ${color}`}
+          title={value}
         >
           {value}
         </h2>

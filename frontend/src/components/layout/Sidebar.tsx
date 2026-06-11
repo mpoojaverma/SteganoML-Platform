@@ -143,7 +143,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   }, []);
 
   return (
-    <aside className={`fixed inset-y-0 left-0 z-50 flex h-full w-[240px] flex-col border-r border-white/10 bg-[#07111f] transition-transform duration-300 ease-in-out md:static md:flex md:translate-x-0 ${
+    <aside className={`fixed inset-y-0 left-0 z-50 flex h-full w-[240px] max-w-[85vw] flex-col border-r border-white/10 bg-[#07111f] transition-transform duration-300 ease-in-out md:static md:flex md:translate-x-0 ${
       isOpen ? "translate-x-0" : "-translate-x-full"
     }`}>
 
@@ -202,7 +202,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
       {/* NAVIGATION */}
 
-      <div className="flex-1 px-4">
+      <div className="flex-1 px-4 overflow-y-auto">
 
         {/* Workspace */}
 

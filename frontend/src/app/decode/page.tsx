@@ -308,7 +308,7 @@ export default function DecodePage() {
               setPassword("");
               sessionStorage.removeItem("steganoml_decode_password");
             }}
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white hover:border-white/20 transition active:scale-95 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-semibold text-slate-400 hover:text-white hover:border-white/20 transition active:scale-95 cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 min-h-[44px] flex items-center justify-center"
           >
             Reset Workflow
           </button>
@@ -403,8 +403,8 @@ export default function DecodePage() {
                   <div className="text-xs text-slate-500 mt-3 space-y-1.5 max-w-sm">
                     <p className="font-semibold text-slate-400">Supported Audio Formats</p>
                     <p>WAV, MP3, FLAC, M4A, OGG, AAC</p>
-                    <p>Large audio files supported (up to 100MB).</p>
-                    <p className="text-[10px] text-slate-650 leading-normal">
+                    <p className="hidden sm:block">Large audio files supported (up to 100MB).</p>
+                    <p className="text-[10px] text-slate-650 leading-normal hidden sm:block">
                       Characteristics: Mono or Stereo. Higher duration carrier files improve fallback extraction.
                     </p>
                   </div>
@@ -420,13 +420,13 @@ export default function DecodePage() {
                         e.stopPropagation();
                         handleFileChange(null);
                       }}
-                      className="rounded-lg bg-white/5 border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400 transition focus-visible:ring-2 focus-visible:ring-red-400 outline-none min-h-[36px]"
+                      className="rounded-lg bg-white/5 border border-white/10 px-4 py-2.5 text-xs font-semibold text-slate-300 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400 transition focus-visible:ring-2 focus-visible:ring-red-400 outline-none min-h-[44px] flex items-center justify-center"
                     >
                       Remove
                     </button>
                     <label
                       htmlFor="decode-audio"
-                      className="rounded-lg bg-[#1bd6d1] px-3 py-1.5 text-xs font-semibold text-black hover:brightness-110 transition cursor-pointer flex items-center justify-center min-h-[36px] focus-visible:ring-2 focus-visible:ring-cyan-400 outline-none"
+                      className="rounded-lg bg-[#1bd6d1] px-4 py-2.5 text-xs font-semibold text-black hover:brightness-110 transition cursor-pointer flex items-center justify-center min-h-[44px] focus-visible:ring-2 focus-visible:ring-cyan-400 outline-none"
                     >
                       Change File
                     </label>

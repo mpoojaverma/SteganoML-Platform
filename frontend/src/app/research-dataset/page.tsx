@@ -270,7 +270,7 @@ export default function ResearchDatasetPage() {
               <span className={`text-[10px] font-mono font-bold ${
                 activeCreationStep === idx ? "text-cyan-400" : "text-slate-500"
               }`}>Step 0{idx + 1}</span>
-              <h4 className="text-xs sm:text-sm font-bold text-white mt-1 truncate">{step.title}</h4>
+              <h4 className="text-xs sm:text-sm font-bold text-white mt-1 break-words max-w-full">{step.title}</h4>
             </button>
           ))}
         </div>
@@ -392,7 +392,7 @@ export default function ResearchDatasetPage() {
               <span className={`text-[10px] font-mono font-bold ${
                 activeWorkflowStage === idx ? "text-purple-400" : "text-slate-500"
               }`}>Stage 0{idx + 1}</span>
-              <h4 className="text-xs sm:text-sm font-bold text-white mt-1 truncate">{stage.stage}</h4>
+              <h4 className="text-xs sm:text-sm font-bold text-white mt-1 break-words max-w-full">{stage.stage}</h4>
             </button>
           ))}
         </div>

@@ -363,7 +363,7 @@ export default function HomePage() {
               </div>
 
               {/* LIVE QUALITY METRICS */}
-              <div className="mt-6 grid grid-cols-4 gap-3 text-center">
+              <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
                 <div className="rounded-xl bg-white/5 p-3">
                   <span className="text-[9px] uppercase tracking-wider text-slate-500">PSNR</span>
                   <p className="text-base font-bold text-cyan-400 mt-1">94.69 dB</p>
@@ -556,9 +556,9 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="relative z-10 mt-8 pt-6 border-t border-white/5 flex items-center justify-between text-xs text-slate-500">
+            <div className="relative z-10 mt-8 pt-6 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-500 gap-3">
               <span className="font-semibold text-slate-400">Specifications:</span>
-              <span className="font-mono text-cyan-400/80 bg-cyan-500/5 px-3 py-1.5 rounded-lg border border-cyan-500/10">
+              <span className="font-mono text-cyan-400/80 bg-cyan-500/5 px-3 py-1.5 rounded-lg border border-cyan-500/10 text-left sm:text-right break-words max-w-full">
                 {archBlocks[activeArchBlock].detail}
               </span>
             </div>
