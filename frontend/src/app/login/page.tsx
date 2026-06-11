@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Shield, Cpu, Key, Activity, CheckCircle2, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Shield, Cpu, Key, Activity, CheckCircle2, Lock, ArrowRight, Eye, EyeOff, AlertTriangle } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -246,8 +246,15 @@ export default function LoginPage() {
             </div>
 
             {loginError && (
-              <div role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 p-3.5 text-sm text-red-400">
-                {loginError}
+              <div
+                role="alert"
+                className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-400 flex items-start gap-3 transition-all duration-300"
+              >
+                <AlertTriangle size={18} className="shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="font-semibold">Authentication Failed</p>
+                  <p className="mt-1 text-xs text-red-400/80">{loginError}</p>
+                </div>
               </div>
             )}
 

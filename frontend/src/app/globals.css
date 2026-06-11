@@ -62,3 +62,13 @@ body {
     0 0 30px rgba(139,92,246,0.18),
     0 0 80px rgba(139,92,246,0.08);
 }
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.animate-shake {
+  animation: shake 0.2s ease-in-out 2;
+}

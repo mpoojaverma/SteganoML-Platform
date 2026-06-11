@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 export default function RegisterPage() {
@@ -275,14 +275,28 @@ export default function RegisterPage() {
             </div>
 
             {registerError && (
-              <div role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 p-3.5 text-sm text-red-400">
-                {registerError}
+              <div
+                role="alert"
+                className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-400 flex items-start gap-3 transition-all duration-300"
+              >
+                <AlertTriangle size={18} className="shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="font-semibold">Registration Failed</p>
+                  <p className="mt-1 text-xs text-red-400/80">{registerError}</p>
+                </div>
               </div>
             )}
 
             {registerSuccess && (
-              <div role="status" className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 text-sm text-emerald-400">
-                {registerSuccess}
+              <div
+                role="status"
+                className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-400 flex items-start gap-3 transition-all duration-300"
+              >
+                <CheckCircle2 size={18} className="shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="font-semibold">Registration Successful</p>
+                  <p className="mt-1 text-xs text-emerald-400/80">{registerSuccess}</p>
+                </div>
               </div>
             )}
 

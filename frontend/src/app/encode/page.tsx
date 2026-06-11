@@ -5,7 +5,28 @@ import useEncode from "@/hooks/useEncode";
 import AppShell from "@/components/layout/AppShell";
 import { getDownloadUrl } from "@/lib/api";
 import Toast from "@/components/ui/Toast";
-import { UploadCloud, FileAudio, CheckCircle2, Eye, EyeOff, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { 
+  UploadCloud, 
+  FileAudio, 
+  CheckCircle2, 
+  Eye, 
+  EyeOff, 
+  Play, 
+  Pause, 
+  Volume2, 
+  VolumeX,
+  Mic,
+  MicOff,
+  Square,
+  RefreshCw,
+  AlertTriangle,
+  Info,
+  Lock,
+  Trash2,
+  Check,
+  ArrowRight
+} from "lucide-react";
+import { AudioRecorder } from "@/lib/audioRecorder";
 
 function CustomAudioPlayer({ src, title }: { src: string; title?: string }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -153,6 +174,59 @@ export default function EncodePage() {
   const [audioDuration, setAudioDuration] = useState<number | null>(null);
   const [audioFormat, setAudioFormat] = useState<string>("");
 
+  // Tab & Recording UX states
+  const [activeTab, setActiveTab] = useState<"upload" | "record">("upload");
+  const [recordingState, setRecordingState] = useState<
+    "idle" | "ready" | "recording" | "paused" | "finished" | "error" | "no_mic" | "unsupported_origin" | "permissions_loading" | "permission_denied"
+  >("idle");
+  const [recordingDuration, setRecordingDuration] = useState(0);
+  const [micVolume, setMicVolume] = useState(0);
+  const [liveWaveformHistory, setLiveWaveformHistory] = useState<number[]>([]);
+  const [isDecodingWaveform, setIsDecodingWaveform] = useState(false);
+  const [totalSamples, setTotalSamples] = useState<number | null>(null);
+  const [channels, setChannels] = useState(1);
+  const [sampleRate, setSampleRate] = useState(44100);
+
+  const recorderRef = useRef<AudioRecorder | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Secure context checking on mount
+  useEffect(() => {
+    if (activeTab === "record") {
+      if (!window.isSecureContext) {
+        setRecordingState("unsupported_origin");
+      } else {
+        if (recordingState === "idle" || recordingState === "unsupported_origin") {
+          setRecordingState("ready");
+        }
+      }
+    }
+  }, [activeTab]);
+
+  // Recording timer
+  useEffect(() => {
+    if (recordingState === "recording") {
+      timerRef.current = setInterval(() => {
+        setRecordingDuration((prev) => {
+          if (prev >= 180) {
+            handleStopRecording();
+            return 180;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [recordingState]);
+
+  // Audio object URL & metadata hooks
   useEffect(() => {
     if (audioFile && !('fake' in audioFile)) {
       const file = audioFile as File;
@@ -165,12 +239,16 @@ export default function EncodePage() {
       const tempAudio = new Audio(url);
       const handleMetadata = () => {
         setAudioDuration(tempAudio.duration);
+        sessionStorage.setItem("steganoml_encode_duration", tempAudio.duration.toString());
       };
       tempAudio.addEventListener("loadedmetadata", handleMetadata);
       return () => {
         tempAudio.removeEventListener("loadedmetadata", handleMetadata);
         URL.revokeObjectURL(url);
       };
+    } else if (audioFile && 'fake' in audioFile) {
+      setAudioFormat("WAV");
+      setAudioUrl("");
     } else {
       setAudioUrl("");
       setAudioDuration(null);
@@ -193,6 +271,41 @@ export default function EncodePage() {
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
+  // Capacity calculations
+  const maxMessageLength = useMemo(() => {
+    if (!totalSamples) return 0;
+    const maxBytes = Math.floor(totalSamples / 8);
+    if (maxBytes < 93) return 0;
+    const maxCiphertextLen = Math.floor((maxBytes - 77) / 16) * 16;
+    return Math.max(0, maxCiphertextLen - 10);
+  }, [totalSamples]);
+
+  const payloadSizeInBits = useMemo(() => {
+    const encoder = new TextEncoder();
+    const messageBytes = encoder.encode(message).length;
+    const paddedMsg = messageBytes + 9;
+    const ciphertextLen = (Math.floor(paddedMsg / 16) + 1) * 16;
+    const requiredBytes = 77 + ciphertextLen;
+    return requiredBytes * 8;
+  }, [message]);
+
+  const capacityPercent = useMemo(() => {
+    if (!totalSamples) return 0;
+    return Math.min(100, (payloadSizeInBits / totalSamples) * 100);
+  }, [payloadSizeInBits, totalSamples]);
+
+  const isCapacityExceeded = useMemo(() => {
+    if (!totalSamples) return false;
+    return payloadSizeInBits > totalSamples;
+  }, [payloadSizeInBits, totalSamples]);
+
+  const recommendedReduction = useMemo(() => {
+    if (!isCapacityExceeded || !totalSamples) return 0;
+    const currentBytes = new TextEncoder().encode(message).length;
+    // Calculate difference
+    return Math.max(1, currentBytes - maxMessageLength);
+  }, [isCapacityExceeded, totalSamples, message, maxMessageLength]);
+
   const stegoWaveform = useMemo(() => {
     if (!localResult) return [];
     return activeWaveform.map((val, idx) => {
@@ -203,6 +316,14 @@ export default function EncodePage() {
       return val;
     });
   }, [activeWaveform, localResult]);
+
+  const diffWaveform = useMemo(() => {
+    if (!localResult) return [];
+    return activeWaveform.map((val, idx) => {
+      const diff = Math.abs(stegoWaveform[idx] - val);
+      return Math.max(2, diff * 12); // amplify 12x for display
+    });
+  }, [activeWaveform, stegoWaveform, localResult]);
 
   const handleScrollToCompare = () => {
     const el = document.getElementById("waveform-comparison");
@@ -243,6 +364,15 @@ export default function EncodePage() {
       try {
         setActiveWaveform(JSON.parse(savedWaveform));
       } catch (e) {}
+    }
+
+    const savedSamples = sessionStorage.getItem("steganoml_encode_samples");
+    if (savedSamples) {
+      setTotalSamples(parseInt(savedSamples, 10));
+    }
+    const savedDuration = sessionStorage.getItem("steganoml_encode_duration");
+    if (savedDuration) {
+      setAudioDuration(parseFloat(savedDuration));
     }
   }, []);
 
@@ -294,21 +424,144 @@ export default function EncodePage() {
     }
   };
 
-  const handleFileChange = (file: File | null) => {
+  const handleFileChange = async (file: File | null) => {
     if (file) {
       const meta = { name: file.name, size: file.size, fake: false };
       setAudioFile(file);
       sessionStorage.setItem("steganoml_encode_audio", JSON.stringify(meta));
       
-      const newWave = Array.from({ length: 110 }, () => Math.floor(Math.random() * 70) + 12);
-      setActiveWaveform(newWave);
-      sessionStorage.setItem("steganoml_encode_waveform", JSON.stringify(newWave));
+      setIsDecodingWaveform(true);
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        const tempCtx = new AudioContextClass();
+        const audioBuffer = await tempCtx.decodeAudioData(arrayBuffer);
+        
+        const channelsCount = audioBuffer.numberOfChannels;
+        const samplesCount = audioBuffer.length * channelsCount;
+        setTotalSamples(samplesCount);
+        setSampleRate(audioBuffer.sampleRate);
+        setChannels(channelsCount);
+        sessionStorage.setItem("steganoml_encode_samples", samplesCount.toString());
+
+        // Downsample visual waveform preview
+        const channelData = audioBuffer.getChannelData(0);
+        const numPoints = 80;
+        const step = Math.ceil(channelData.length / numPoints);
+        const points: number[] = [];
+        for (let i = 0; i < numPoints; i++) {
+          let max = 0;
+          for (let j = 0; j < step; j++) {
+            const val = Math.abs(channelData[i * step + j] || 0);
+            if (val > max) max = val;
+          }
+          points.push(max);
+        }
+        
+        const maxVal = Math.max(...points) || 1;
+        const newWave = points.map(p => Math.floor((p / maxVal) * 70) + 12);
+        
+        setActiveWaveform(newWave);
+        sessionStorage.setItem("steganoml_encode_waveform", JSON.stringify(newWave));
+        await tempCtx.close();
+      } catch (err) {
+        console.error("Error decoding audio for waveform:", err);
+        const newWave = Array.from({ length: 80 }, () => Math.floor(Math.random() * 70) + 12);
+        setActiveWaveform(newWave);
+        setTotalSamples(Math.floor((audioDuration || 5) * 44100 * 1));
+      } finally {
+        setIsDecodingWaveform(false);
+      }
     } else {
       setAudioFile(null);
+      setTotalSamples(null);
       sessionStorage.removeItem("steganoml_encode_audio");
+      sessionStorage.removeItem("steganoml_encode_samples");
+      sessionStorage.removeItem("steganoml_encode_duration");
       setActiveWaveform(waveform);
       sessionStorage.removeItem("steganoml_encode_waveform");
     }
+  };
+
+  // Recording controls
+  const handleStartRecording = async () => {
+    try {
+      if (!window.isSecureContext) {
+        setRecordingState("unsupported_origin");
+        return;
+      }
+      setRecordingState("permissions_loading");
+      setLocalError("");
+      
+      const recorder = new AudioRecorder({
+        onProcess: (vol) => {
+          setMicVolume(vol);
+          setLiveWaveformHistory((prev) => {
+            const next = [...prev, vol];
+            if (next.length > 40) next.shift();
+            return next;
+          });
+        }
+      });
+      
+      recorderRef.current = recorder;
+      await recorder.start();
+      setRecordingDuration(0);
+      setLiveWaveformHistory([]);
+      setRecordingState("recording");
+    } catch (err: any) {
+      console.error("Microphone capture failed:", err);
+      if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+        setRecordingState("permission_denied");
+      } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
+        setRecordingState("no_mic");
+      } else {
+        setRecordingState("error");
+      }
+    }
+  };
+
+  const handlePauseRecording = async () => {
+    if (recordingState !== "recording" || !recorderRef.current) return;
+    await recorderRef.current.pause();
+    setRecordingState("paused");
+  };
+
+  const handleResumeRecording = async () => {
+    if (recordingState !== "paused" || !recorderRef.current) return;
+    await recorderRef.current.resume();
+    setRecordingState("recording");
+  };
+
+  const handleStopRecording = async () => {
+    if ((recordingState !== "recording" && recordingState !== "paused") || !recorderRef.current) return;
+    try {
+      const recorder = recorderRef.current;
+      setRecordingState("idle");
+      const { blob, duration, size } = await recorder.stop();
+      
+      const file = new File([blob], `mic_recording_${Date.now()}.wav`, { type: "audio/wav" });
+      await handleFileChange(file);
+      setRecordingState("finished");
+    } catch (err) {
+      console.error("Stop recording failed:", err);
+      setRecordingState("error");
+    }
+  };
+
+  const handleDiscardRecording = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    if (recorderRef.current) {
+      recorderRef.current.stop().catch(() => {});
+      recorderRef.current = null;
+    }
+    setRecordingDuration(0);
+    setLiveWaveformHistory([]);
+    setRecordingState("ready");
+    handleFileChange(null);
   };
   return (
     <AppShell>
@@ -320,125 +573,357 @@ export default function EncodePage() {
           {/* AUDIO SOURCE */}
 
           <div className="rounded-[20px] border border-white/10 bg-[#0b1327] p-6 space-y-6">
-            <div>
-              <h2 className="font-semibold text-white">Audio source</h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                WAV, MP3, FLAC, M4A — max 50 MB
-              </p>
-            </div>
-
-            {/* HIDDEN INPUT */}
-            <input
-              id="encode-audio"
-              type="file"
-              accept=".wav,.mp3,.flac,.m4a"
-              onChange={(e) => {
-                if (e.target.files?.[0]) {
-                  handleFileChange(e.target.files[0]);
-                }
-              }}
-              className="sr-only"
-            />
-
-            {/* UNIFIED SINGLE UPLOAD CARD */}
-            <div
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-8 transition-all duration-200 text-center ${
-                isDragOver
-                  ? "border-teal-400 bg-teal-500/10 shadow-[0_0_20px_rgba(20,184,166,0.15)] scale-[1.01]"
-                  : audioFile
-                    ? audioFile && 'fake' in audioFile
-                      ? "border-orange-500/30 bg-orange-500/5 hover:border-orange-500/50 hover:bg-orange-500/10"
-                      : "border-teal-500/30 bg-teal-500/5 hover:border-teal-500/50 hover:bg-teal-500/10"
-                    : "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]"
-              } focus-within:ring-2 focus-within:ring-cyan-400 focus-within:ring-offset-2 focus-within:ring-offset-[#0b1327]`}
-            >
-              <label htmlFor="encode-audio" className="absolute inset-0 cursor-pointer z-0" />
-
-              <div className="relative z-10 flex flex-col items-center">
-                {/* Upload Icon */}
-                <div
-                  className={`p-4 rounded-full mb-4 transition-all duration-300 ${
-                    isDragOver
-                      ? "bg-teal-500/20 text-teal-400 scale-110 animate-pulse"
-                      : audioFile
-                        ? audioFile && 'fake' in audioFile
-                          ? "bg-orange-500/20 text-orange-400"
-                          : "bg-teal-500/20 text-teal-400"
-                        : "bg-white/5 text-slate-500"
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-4">
+              <div>
+                <h2 className="font-semibold text-white">Audio source</h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Select a carrier audio file or record live from microphone
+                </p>
+              </div>
+              <div className="flex bg-white/5 border border-white/10 rounded-xl p-1 shrink-0 select-none transition-all duration-200">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab("upload");
+                    if (recordingState === "recording" || recordingState === "paused") {
+                      handleDiscardRecording();
+                    }
+                  }}
+                  className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+                    activeTab === "upload"
+                      ? "bg-[#1bd6d1] text-black shadow-md shadow-cyan-500/10"
+                      : "text-slate-400 hover:text-white"
                   }`}
                 >
-                  {audioFile ? <FileAudio size={32} /> : <UploadCloud size={32} />}
-                </div>
+                  Upload File
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("record")}
+                  className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+                    activeTab === "record"
+                      ? "bg-[#1bd6d1] text-black shadow-md shadow-cyan-500/10"
+                      : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  Record Live
+                  {recordingState === "recording" && (
+                    <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+                  )}
+                </button>
+              </div>
+            </div>
 
-                {/* Selected filename / Drag message */}
-                <p className="text-sm font-semibold text-white max-w-[280px] truncate">
-                  {isDragOver
-                    ? "Drop file to upload"
-                    : audioFile
-                      ? audioFile.name
-                      : "Drag & drop audio here or click to browse"}
-                </p>
+            {/* TAB CONTENT 1: UPLOAD FILE */}
+            {activeTab === "upload" && (
+              <>
+                {/* HIDDEN INPUT */}
+                <input
+                  id="encode-audio"
+                  type="file"
+                  accept=".wav,.mp3,.flac,.m4a"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      handleFileChange(e.target.files[0]);
+                    }
+                  }}
+                  className="sr-only"
+                />
 
-                {/* Subtext info */}
-                {audioFile ? (
-                  <div className="mt-2 flex flex-col items-center gap-1">
-                    <p className="text-xs text-slate-400">
-                      {audioFile.size ? `${(audioFile.size / (1024 * 1024)).toFixed(1)} MB` : "Size unknown"} · 44.1 kHz · Mono
-                    </p>
-                    {audioFile && 'fake' in audioFile ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-orange-500/10 text-orange-400 border border-orange-500/20 mt-1">
-                        ⚠️ Needs re-upload (session restored)
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-400 border border-teal-500/20 mt-1">
-                        ✓ Success: Ready to encode
-                      </span>
-                    )}
+                {isDecodingWaveform ? (
+                  <div className="border-2 border-dashed border-white/10 rounded-2xl p-8 bg-white/[0.01] flex flex-col items-center justify-center min-h-[180px]">
+                    <RefreshCw size={32} className="text-cyan-400 animate-spin mb-4" />
+                    <p className="text-sm text-slate-300 font-semibold animate-pulse">Analyzing carrier audio & generating waveform...</p>
+                    <p className="text-xs text-slate-500 mt-1">Decoding sample buffers client-side</p>
                   </div>
                 ) : (
-                  <p className="text-xs text-slate-500 mt-2">
-                    Supports WAV, MP3, FLAC, M4A up to 50MB
-                  </p>
+                  <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-2xl p-8 transition-all duration-200 text-center ${
+                      isDragOver
+                        ? "border-teal-400 bg-teal-500/10 shadow-[0_0_20px_rgba(20,184,166,0.15)] scale-[1.01]"
+                        : audioFile
+                          ? audioFile && 'fake' in audioFile
+                            ? "border-orange-500/30 bg-orange-500/5 hover:border-orange-500/50 hover:bg-orange-500/10"
+                            : "border-teal-500/30 bg-teal-500/5 hover:border-teal-500/50 hover:bg-teal-500/10"
+                          : "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]"
+                    } focus-within:ring-2 focus-within:ring-cyan-400 focus-within:ring-offset-2 focus-within:ring-offset-[#0b1327]`}
+                  >
+                    <label htmlFor="encode-audio" className="absolute inset-0 cursor-pointer z-0" />
+
+                    <div className="relative z-10 flex flex-col items-center">
+                      <div
+                        className={`p-4 rounded-full mb-4 transition-all duration-300 ${
+                          isDragOver
+                            ? "bg-teal-500/20 text-teal-400 scale-110 animate-pulse"
+                            : audioFile
+                              ? audioFile && 'fake' in audioFile
+                                ? "bg-orange-500/20 text-orange-400"
+                                : "bg-teal-500/20 text-teal-400"
+                              : "bg-white/5 text-slate-500"
+                        }`}
+                      >
+                        {audioFile ? <FileAudio size={32} /> : <UploadCloud size={32} />}
+                      </div>
+
+                      <p className="text-sm font-semibold text-white max-w-[280px] truncate">
+                        {isDragOver
+                          ? "Drop file to upload"
+                          : audioFile
+                            ? audioFile.name
+                            : "Drag & drop audio here or click to browse"}
+                      </p>
+
+                      {audioFile ? (
+                        <div className="mt-2 flex flex-col items-center gap-1">
+                          <p className="text-xs text-slate-400">
+                            {audioFile.size ? `${(audioFile.size / (1024 * 1024)).toFixed(1)} MB` : "Size unknown"} · {sampleRate ? `${(sampleRate/1000).toFixed(1)} kHz` : "44.1 kHz"} · {channels === 1 ? "Mono" : "Stereo"}
+                          </p>
+                          {audioFile && 'fake' in audioFile ? (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-orange-500/10 text-orange-400 border border-orange-500/20 mt-1">
+                              ⚠️ Needs re-upload (session restored)
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-teal-500/10 text-teal-400 border border-teal-500/20 mt-1">
+                              ✓ Success: Ready to encode
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-slate-500 mt-2">
+                          Supports WAV, MP3, FLAC, M4A up to 50MB
+                        </p>
+                      )}
+
+                      {audioFile && (
+                        <div className="mt-5 flex items-center gap-3 relative z-20">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleFileChange(null);
+                            }}
+                            className="rounded-lg bg-white/5 border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400 transition active:scale-95 cursor-pointer outline-none min-h-[36px]"
+                          >
+                            Remove
+                          </button>
+                          <label
+                            htmlFor="encode-audio"
+                            className="rounded-lg bg-[#1bd6d1] px-3 py-1.5 text-xs font-semibold text-black hover:brightness-110 transition cursor-pointer flex items-center justify-center min-h-[36px]"
+                          >
+                            Change File
+                          </label>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* TAB CONTENT 2: RECORD AUDIO */}
+            {activeTab === "record" && (
+              <div className="space-y-4">
+                {recordingState === "unsupported_origin" && (
+                  <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-6 text-center space-y-3">
+                    <AlertTriangle size={36} className="text-red-400 mx-auto" />
+                    <h3 className="font-semibold text-white">Secure Context Required</h3>
+                    <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
+                      Microphone recording requires a secure connection (HTTPS or localhost) due to browser policies. Please upload a file instead.
+                    </p>
+                  </div>
                 )}
 
-                {/* Action buttons inside the card */}
-                {audioFile && (
-                  <div className="mt-5 flex items-center gap-3 relative z-20">
+                {recordingState === "permissions_loading" && (
+                  <div className="border border-white/5 bg-white/[0.01] rounded-2xl p-8 text-center flex flex-col items-center justify-center min-h-[180px]">
+                    <div className="relative mb-4">
+                      <Mic size={32} className="text-cyan-400 animate-pulse" />
+                      <div className="absolute inset-0 bg-cyan-400/20 rounded-full blur-md animate-ping" />
+                    </div>
+                    <h3 className="font-semibold text-white text-sm">Requesting Microphone Access</h3>
+                    <p className="text-xs text-slate-500 mt-1">Please approve the microphone permission prompt in your browser.</p>
+                  </div>
+                )}
+
+                {recordingState === "permission_denied" && (
+                  <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-6 text-center space-y-3">
+                    <MicOff size={36} className="text-red-400 mx-auto" />
+                    <h3 className="font-semibold text-white">Microphone Access Blocked</h3>
+                    <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
+                      SteganoML was denied access to your microphone. Please update your browser site configuration to allow microphone permission.
+                    </p>
                     <button
                       type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleFileChange(null);
-                      }}
-                      className="rounded-lg bg-white/5 border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400 transition focus-visible:ring-2 focus-visible:ring-red-400 outline-none min-h-[36px]"
+                      onClick={handleStartRecording}
+                      className="mt-2 text-xs font-semibold bg-white/10 hover:bg-white/20 text-white rounded-lg px-3 py-1.5 transition cursor-pointer"
                     >
-                      Remove
+                      Try Again
                     </button>
-                    <label
-                      htmlFor="encode-audio"
-                      className="rounded-lg bg-[#1bd6d1] px-3 py-1.5 text-xs font-semibold text-black hover:brightness-110 transition cursor-pointer flex items-center justify-center min-h-[36px] focus-visible:ring-2 focus-visible:ring-cyan-400 outline-none"
+                  </div>
+                )}
+
+                {recordingState === "no_mic" && (
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.01] p-6 text-center space-y-3">
+                    <MicOff size={36} className="text-slate-400 mx-auto" />
+                    <h3 className="font-semibold text-white">No Microphone Detected</h3>
+                    <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">
+                      No audio input devices were detected on your system. Please connect a microphone and try again, or upload a pre-recorded file.
+                    </p>
+                  </div>
+                )}
+
+                {recordingState === "error" && (
+                  <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-6 text-center space-y-3">
+                    <AlertTriangle size={36} className="text-red-400 mx-auto" />
+                    <h3 className="font-semibold text-white">Recording Initialization Failed</h3>
+                    <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
+                      An unexpected error occurred while setting up microphone stream captures.
+                    </p>
+                  </div>
+                )}
+
+                {(recordingState === "idle" || recordingState === "ready") && !audioFile && (
+                  <div className="border border-white/5 bg-white/[0.01] rounded-2xl p-8 text-center flex flex-col items-center justify-center min-h-[180px]">
+                    <div className="p-4 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 mb-4 transition hover:scale-105">
+                      <Mic size={32} />
+                    </div>
+                    <h3 className="font-semibold text-white">Ready to Record</h3>
+                    <p className="text-xs text-slate-500 mt-1">Click start to record carrier audio directly from your microphone.</p>
+                    <button
+                      type="button"
+                      onClick={handleStartRecording}
+                      className="mt-5 bg-[#1bd6d1] text-black font-semibold text-xs rounded-xl px-5 py-2.5 hover:brightness-110 active:scale-95 transition shadow-lg shadow-cyan-500/10 cursor-pointer"
                     >
-                      Change File
-                    </label>
+                      Start Recording
+                    </button>
+                  </div>
+                )}
+
+                {recordingState === "recording" && (
+                  <div className="border border-white/5 bg-[#020817] rounded-2xl p-6 space-y-5">
+                    <div className="flex justify-between items-center border-b border-white/5 pb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="h-2.5 w-2.5 rounded-full bg-red-500 animate-ping shrink-0" />
+                        <span className="text-xs font-bold text-red-500 uppercase tracking-wider">● Recording Live</span>
+                      </div>
+                      <span className="text-xs font-mono text-slate-500">
+                        {formatDurationString(recordingDuration)} / 03:00
+                      </span>
+                    </div>
+
+                    {/* Speech reactive visualizer bars */}
+                    <div className="h-16 w-full flex items-center justify-center gap-[3px] bg-white/[0.02] border border-white/5 rounded-xl px-4 py-2 overflow-hidden">
+                      {liveWaveformHistory.length === 0 ? (
+                        Array.from({ length: 45 }).map((_, i) => (
+                          <div key={i} className="w-[3px] h-1.5 rounded-full bg-white/10" />
+                        ))
+                      ) : (
+                        liveWaveformHistory.slice(-45).map((vol, idx) => (
+                          <div
+                            key={idx}
+                            className="w-[3px] rounded-full bg-cyan-400/80 transition-all duration-150 shadow-[0_0_6px_rgba(34,211,238,0.2)]"
+                            style={{ height: `${Math.max(8, vol)}%` }}
+                          />
+                        ))
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-center gap-3">
+                      <button
+                        type="button"
+                        onClick={handlePauseRecording}
+                        className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-semibold px-4 py-2.5 transition active:scale-95 cursor-pointer"
+                      >
+                        <Pause size={14} />
+                        <span>Pause</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleStopRecording}
+                        className="flex items-center gap-1.5 rounded-xl bg-red-500 text-white text-xs font-bold px-5 py-2.5 hover:bg-red-600 transition active:scale-95 shadow-md shadow-red-500/10 cursor-pointer"
+                      >
+                        <Square size={14} fill="currentColor" />
+                        <span>Stop</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleDiscardRecording}
+                        className="flex items-center gap-1.5 rounded-xl border border-white/10 hover:border-red-500/20 hover:bg-red-500/5 text-xs text-slate-400 hover:text-red-400 px-4 py-2.5 transition active:scale-95 cursor-pointer"
+                      >
+                        <Trash2 size={14} />
+                        <span>Discard</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {recordingState === "paused" && (
+                  <div className="border border-white/5 bg-[#020817] rounded-2xl p-6 space-y-5">
+                    <div className="flex justify-between items-center border-b border-white/5 pb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full bg-slate-500 shrink-0" />
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Recording Paused</span>
+                      </div>
+                      <span className="text-xs font-mono text-slate-400">
+                        {formatDurationString(recordingDuration)} / 03:00
+                      </span>
+                    </div>
+
+                    <div className="h-16 w-full flex items-center justify-center gap-[3px] bg-white/[0.01] border border-white/5 rounded-xl px-4 py-2 overflow-hidden opacity-60">
+                      {liveWaveformHistory.slice(-45).map((vol, idx) => (
+                        <div
+                          key={idx}
+                          className="w-[3px] rounded-full bg-slate-500"
+                          style={{ height: `${Math.max(8, vol)}%` }}
+                        />
+                      ))}
+                    </div>
+
+                    <div className="flex items-center justify-center gap-3">
+                      <button
+                        type="button"
+                        onClick={handleResumeRecording}
+                        className="flex items-center gap-1.5 rounded-xl bg-[#1bd6d1] text-black text-xs font-semibold px-5 py-2.5 hover:brightness-110 transition active:scale-95 cursor-pointer"
+                      >
+                        <Play size={14} fill="currentColor" />
+                        <span>Resume</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleStopRecording}
+                        className="flex items-center gap-1.5 rounded-xl bg-red-500 text-white text-xs font-bold px-5 py-2.5 hover:bg-red-600 transition active:scale-95 shadow-md shadow-red-500/10 cursor-pointer"
+                      >
+                        <Square size={14} fill="currentColor" />
+                        <span>Stop</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleDiscardRecording}
+                        className="flex items-center gap-1.5 rounded-xl border border-white/10 hover:border-red-500/20 hover:bg-red-500/5 text-xs text-slate-400 hover:text-red-400 px-4 py-2.5 transition active:scale-95 cursor-pointer"
+                      >
+                        <Trash2 size={14} />
+                        <span>Discard</span>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
-            </div>
+            )}
 
             {/* AUDIO PLAYER & METADATA */}
             {audioFile && audioUrl && (
               <div className="rounded-xl border border-white/5 bg-[#020817] p-5 space-y-4">
                 <div className="flex justify-between items-center border-b border-white/5 pb-3">
                   <h3 className="font-semibold text-white text-sm">Carrier Audio Preview</h3>
-                  <span className="text-[10px] font-mono bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">
+                  <span className="text-[10px] font-mono bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold animate-pulse">
                     {audioFormat}
                   </span>
                 </div>
-                <CustomAudioPlayer src={audioUrl} title="Original Carrier Input" />
+                <CustomAudioPlayer src={audioUrl} title={activeTab === "record" ? "Recorded Carrier Input" : "Original Carrier Input"} />
+                
                 <div className="grid grid-cols-3 gap-2 text-center text-xs">
                   <div className="rounded-lg bg-white/5 p-2 border border-white/5">
                     <p className="text-[9px] font-mono text-slate-500 uppercase tracking-wider">Format</p>
@@ -453,28 +938,56 @@ export default function EncodePage() {
                     <p className="font-bold text-white mt-1">{audioSizeString}</p>
                   </div>
                 </div>
+
+                {activeTab === "record" && recordingState === "finished" && (
+                  <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-4">
+                    <span className="text-[10px] uppercase font-mono text-emerald-400 font-bold flex items-center gap-1">
+                      <Check size={12} /> Recording Saved
+                    </span>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={handleDiscardRecording}
+                        className="rounded-lg bg-white/5 border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400 transition cursor-pointer"
+                      >
+                        Re-record
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          document.getElementById("secret-payload-section")?.scrollIntoView({ behavior: "smooth" });
+                        }}
+                        className="rounded-lg bg-[#1bd6d1] px-3 py-1.5 text-xs font-semibold text-black hover:brightness-110 transition cursor-pointer"
+                      >
+                        Continue to Encrypt
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
-            {/* WAVEFORM */}
-            <div className="rounded-xl bg-white/5 px-4 py-4 border border-white/5">
-              <div className="h-20 w-full flex items-center justify-between overflow-hidden">
-                {activeWaveform.map((h, i) => (
-                  <div
-                    key={i}
-                    className="w-[3px] rounded-full bg-[#18d5d0] shrink-0"
-                    style={{
-                      height: `${h}px`,
-                    }}
-                  />
-                ))}
+            {/* STATIC WAVEFORM VISUALIZER */}
+            {audioFile && (
+              <div className="rounded-xl bg-white/5 px-4 py-4 border border-white/5">
+                <div className="h-20 w-full flex items-center justify-between overflow-hidden gap-[2px]">
+                  {activeWaveform.map((h, i) => (
+                    <div
+                      key={i}
+                      className="w-[3px] rounded-full bg-[#18d5d0]/80 transition-all duration-300 hover:bg-cyan-300"
+                      style={{
+                        height: `${h}px`,
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* SECRET PAYLOAD */}
 
-          <div className="rounded-[20px] border border-white/10 bg-[#0b1327] overflow-hidden">
+          <div id="secret-payload-section" className="rounded-[20px] border border-white/10 bg-[#0b1327] overflow-hidden scroll-mt-6">
             <div className="px-6 py-5 border-b border-white/5">
               <h2 className="font-semibold">Secret payload</h2>
 
@@ -494,6 +1007,50 @@ export default function EncodePage() {
                   onChange={(e) => handleMessageChange(e.target.value)}
                   className="mt-2 w-full rounded-xl border border-white/5 bg-white/5 p-4 outline-none focus:border-cyan-500/50 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1327] transition-all"
                 />
+
+                {/* CAPACITY GAUGE */}
+                {audioFile && (
+                  <div className="mt-3 space-y-2">
+                    <div className="flex justify-between items-center text-xs">
+                      <span className="font-medium text-slate-400">Capacity Usage</span>
+                      <span className={`font-mono font-bold ${
+                        isCapacityExceeded 
+                          ? "text-red-400" 
+                          : capacityPercent >= 80 
+                            ? "text-amber-400" 
+                            : "text-emerald-400"
+                      }`}>
+                        {message.length} / {maxMessageLength} characters ({capacityPercent.toFixed(1)}%)
+                      </span>
+                    </div>
+
+                    <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden border border-white/5">
+                      <div
+                        className={`h-full rounded-full transition-all duration-300 ${
+                          isCapacityExceeded
+                            ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]"
+                            : capacityPercent >= 80
+                              ? "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]"
+                              : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"
+                        }`}
+                        style={{ width: `${capacityPercent}%` }}
+                      />
+                    </div>
+
+                    {isCapacityExceeded && (
+                      <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-3 flex items-start gap-2.5 text-xs text-red-400">
+                        <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="font-semibold text-sm">Capacity Limit Exceeded</p>
+                          <p className="mt-1 leading-normal text-red-400/80">
+                            The encrypted message structure requires more bits than the carrier audio contains. 
+                            Please reduce your secret message by at least <strong className="font-bold text-white underline">{recommendedReduction}</strong> character(s), or upload/record a longer carrier file.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div>
@@ -570,8 +1127,15 @@ export default function EncodePage() {
           </div>
 
           {localError && (
-            <div role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-400">
-              {localError}
+            <div
+              role="alert"
+              className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-400 flex items-start gap-3 transition-all duration-300"
+            >
+              <AlertTriangle size={18} className="shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="font-semibold">Encoding Error</p>
+                <p className="mt-1 text-xs text-red-400/80">{localError}</p>
+              </div>
             </div>
           )}
           <button
@@ -591,12 +1155,18 @@ export default function EncodePage() {
                 return;
               }
 
+              if (isCapacityExceeded) {
+                setLocalError("Secret message exceeds capacity of the loaded audio.");
+                return;
+              }
+
               if (!password.trim()) {
                 setLocalError("Password is required.");
                 return;
               }
 
               setLocalError("");
+              setLocalResult(null);
 
               const response = await runEncode(
                 audioFile as File,
@@ -615,8 +1185,8 @@ export default function EncodePage() {
                 }, 3000);
               }
             }}
-            disabled={loading}
-            className="w-full rounded-xl bg-[#1bd6d1] py-5 text-base font-semibold text-black transition hover:brightness-110 disabled:opacity-50 flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#040816] outline-none cursor-pointer"
+            disabled={loading || isCapacityExceeded || !audioFile}
+            className="w-full rounded-xl bg-[#1bd6d1] py-5 text-base font-semibold text-black transition hover:brightness-110 disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#040816] outline-none cursor-pointer"
           >
             {loading ? (
               <>
@@ -757,30 +1327,35 @@ export default function EncodePage() {
               </div>
 
               {error && (
-                <div role="alert" className="mt-4 rounded-xl bg-red-500/10 p-4 text-red-400">
-                  {error}
+                <div role="alert" className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-400 flex items-start gap-3 transition-all duration-300">
+                  <AlertTriangle size={18} className="shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm">Encoding Failed</p>
+                    <p className="mt-1 text-xs text-red-400/80">{error}</p>
+                  </div>
                 </div>
               )}
 
               {localResult && (
-                <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4">
-                  <h3 className="font-semibold text-emerald-400">
-                    Encoding Successful
-                  </h3>
-
-                  <p className="mt-2 text-sm text-slate-300">
-                    Status: {localResult.status}
-                  </p>
-
-                  <p className="mt-1 text-sm text-slate-300 break-all">
-                    Output: {localResult.output_file}
-                  </p>
-
-                  <p className="mt-1 text-sm text-slate-300">
-                    Bits Embedded: {localResult?.details?.bits_embedded}
-                  </p>
+                <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 flex items-start gap-3 transition-all duration-300">
+                  <CheckCircle2 size={18} className="shrink-0 mt-0.5 text-emerald-400 animate-bounce" />
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-emerald-400 text-sm">
+                      Encoding Complete
+                    </h3>
+                    <p className="mt-1 text-xs text-slate-350">
+                      Status: {localResult.status}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-300 break-all">
+                      File: {localResult.output_file}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-400">
+                      Bits Embedded: {localResult?.details?.bits_embedded}
+                    </p>
+                  </div>
                 </div>
               )}
+
 
               {localResult?.output_file && (
                 <div className="mt-4 space-y-3 border-t border-white/5 pt-4">
@@ -898,16 +1473,15 @@ export default function EncodePage() {
               </div>
               <div className="h-24 flex items-center justify-between gap-[2px] bg-white/[0.02] rounded-lg px-3 py-2 border border-white/5 relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-t from-amber-500/5 to-transparent pointer-events-none" />
-                {activeWaveform.slice(0, 70).map((h, i) => {
-                  const hasDiff = i % 7 === 0;
-                  const diffHeight = hasDiff ? Math.max(8, Math.floor(Math.random() * 20) + 6) : 2;
+                {diffWaveform.slice(0, 70).map((h, i) => {
+                  const hasDiff = h > 2;
                   return (
                     <div
                       key={i}
                       className={`w-[3px] rounded-full transition-all duration-300 ${
                         hasDiff ? "bg-amber-400 shadow-[0_0_4px_rgba(245,158,11,0.4)]" : "bg-slate-800"
                       }`}
-                      style={{ height: `${diffHeight}%` }}
+                      style={{ height: `${h}%` }}
                     />
                   );
                 })}
