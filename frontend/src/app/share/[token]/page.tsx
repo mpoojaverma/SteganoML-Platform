@@ -41,12 +41,9 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
     setPasswordError(null);
 
     try {
-      const payload: any = {};
-      if (verifyPassword) {
-        payload.password = verifyPassword;
-      }
-
-      const response = await axios.post(`${API_BASE}/share/info/${token}`, payload);
+      const response = verifyPassword
+        ? await axios.post(`${API_BASE}/share/info/${token}`, { password: verifyPassword })
+        : await axios.post(`${API_BASE}/share/info/${token}`);
       const data = response.data;
 
       if (data.status === "password_protected") {

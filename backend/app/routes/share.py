@@ -21,7 +21,7 @@ class ShareCreateRequest(BaseModel):
     user_email: EmailStr
 
 class PasswordVerifyRequest(BaseModel):
-    password: str
+    password: Optional[str] = None
 
 def parse_expiration(exp_str: str) -> datetime:
     now = datetime.now(timezone.utc)
