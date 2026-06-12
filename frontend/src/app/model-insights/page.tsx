@@ -472,7 +472,9 @@ export default function ModelInsightsPage() {
           <div className="flex gap-6">
             <Link href="/" className="hover:text-cyan-400 transition">Home</Link>
             <Link href="/about" className="hover:text-cyan-400 transition">About</Link>
-            <Link href="/research-dataset" className="hover:text-cyan-400 transition">Dataset</Link>
+            <Link href="/model-insights" className="hover:text-cyan-400 transition">Model Insights</Link>
+            <Link href="/research-dataset" className="hover:text-cyan-400 transition">Research Dataset</Link>
+            <Link href="/research-dataset#publication" className="hover:text-cyan-400 transition">Publication</Link>
           </div>
         </div>
       </footer>

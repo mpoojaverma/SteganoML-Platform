@@ -20,49 +20,57 @@ const features = [
     title: "MFCC Features",
     category: "cepstral",
     description: "Mel-Frequency Cepstral Coefficients model perceptual human voice pitch characteristics. They capture spectral envelope peaks accurately.",
-    formula: "DCT(log(FilterBank(FFT(x))))"
+    formula: "DCT(log(FilterBank(FFT(x))))",
+    descriptor: "Acoustic Feature Descriptor"
   },
   {
     title: "RMS Energy",
     category: "temporal",
     description: "Measures overall wave energy amplitude per frame, identifying silence zones or quiet sections prone to audible noise distortions.",
-    formula: "sqrt(1/N * sum(x^2))"
+    formula: "sqrt(1/N * sum(x^2))",
+    descriptor: "Stability Predictor Input"
   },
   {
     title: "Spectral Centroid",
     category: "spectral",
     description: "Represents the center of spectral mass, identifying whether a frame consists mostly of lower bass tones or higher treble noise.",
-    formula: "sum(f * X(f)) / sum(X(f))"
+    formula: "sum(f * X(f)) / sum(X(f))",
+    descriptor: "Classification Signal Metric"
   },
   {
     title: "Spectral Bandwidth",
     category: "spectral",
     description: "Measures the spread of frequencies around the centroid, reflecting spectral variation and frame complexity.",
-    formula: "sqrt(sum((f - Centroid)^2 * X(f)) / sum(X(f)))"
+    formula: "sqrt(sum((f - Centroid)^2 * X(f)) / sum(X(f)))",
+    descriptor: "Training Feature Component"
   },
   {
     title: "Zero Crossing Rate",
     category: "temporal",
     description: "Measures how frequently the time-domain signal crosses zero. Higher values denote high-frequency tone lines or pure white noise.",
-    formula: "1/(2N) * sum(|sign(x_n) - sign(x_n-1)|)"
+    formula: "1/(2N) * sum(|sign(x_n) - sign(x_n-1)|)",
+    descriptor: "Acoustic Feature Descriptor"
   },
   {
     title: "Chroma Features",
     category: "chroma",
     description: "Project spectral energy onto twelve pitch classes. Helps evaluate underlying harmonic complexity and note structures.",
-    formula: "12-element Pitch Class Profile"
+    formula: "12-element Pitch Class Profile",
+    descriptor: "Stability Predictor Input"
   },
   {
     title: "Spectral Contrast",
     category: "spectral",
     description: "Evaluates the differences between spectral peaks and valleys across frequency sub-bands, capturing audio texture richness.",
-    formula: "Peak_Energy - Valley_Energy"
+    formula: "Peak_Energy - Valley_Energy",
+    descriptor: "Classification Signal Metric"
   },
   {
     title: "Roll-off Frequency",
     category: "spectral",
     description: "The spectral threshold frequency below which 85% of total audio frame energy is concentrated. Marks frame cutoff parameters.",
-    formula: "sum_{f=0}^{R} X(f) = 0.85 * sum(X(f))"
+    formula: "sum_{f=0}^{R} X(f) = 0.85 * sum(X(f))",
+    descriptor: "Training Feature Component"
   },
 ];
 
@@ -292,11 +300,11 @@ export default function ResearchDatasetPage() {
         </div>
       </section>
 
-      {/* EXTRACTED AUDIO FEATURES WITH DYNAMIC FILTER */}
+      {/* FEATURE ENGINEERING COMPONENTS WITH DYNAMIC FILTER */}
       <section className="relative z-20 mx-auto mt-28 max-w-7xl px-6">
         <div className="text-center mb-12">
           <h2 className="text-xs uppercase tracking-widest text-cyan-400 font-bold">Feature Engineering</h2>
-          <h3 className="text-3xl sm:text-4xl font-bold mt-2">Extracted Audio Features</h3>
+          <h3 className="text-3xl sm:text-4xl font-bold mt-2">Feature Engineering Components</h3>
           <p className="text-slate-400 mt-3 max-w-md mx-auto text-sm">
             Filter the parameters below to explore the properties compiled during frame analysis.
           </p>
@@ -336,8 +344,34 @@ export default function ResearchDatasetPage() {
                 </p>
               </div>
               
-              <div className="mt-6 border-t border-white/5 pt-4 font-mono text-[11px] text-cyan-300/80">
-                Formula: {feat.formula}
+              <div className="mt-6 border-t border-white/5 pt-4 space-y-3">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">
+                    Classification Role
+                  </span>
+                  <span className="text-xs font-semibold text-cyan-400/90">
+                    {feat.descriptor}
+                  </span>
+                </div>
+                
+                <details className="group border border-white/5 bg-slate-950/40 rounded-xl overflow-hidden [&_summary::-webkit-details-marker]:hidden">
+                  <summary className="flex items-center justify-between p-2.5 text-[11px] font-mono font-bold text-slate-400 hover:text-white cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden">
+                    <span>Mathematical Definition</span>
+                    <svg
+                      className="h-3 w-3 text-cyan-500/80 transition-transform duration-200 group-open:rotate-180"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </summary>
+                  <div className="p-3 border-t border-cyan-500/10 bg-slate-950/90 rounded-b-xl shadow-inner font-mono text-[10px] text-cyan-300/80 break-words leading-relaxed select-all">
+                    {feat.formula}
+                  </div>
+                </details>
               </div>
             </div>
           ))}
@@ -415,7 +449,7 @@ export default function ResearchDatasetPage() {
       </section>
 
       {/* RESEARCH PUBLICATION SHOWCASE CARD WITH BIBTEX COPY */}
-      <section className="relative z-20 mx-auto mt-28 mb-24 max-w-7xl px-6">
+      <section id="publication" className="relative z-20 mx-auto mt-28 mb-24 max-w-7xl px-6">
         <div className="rounded-[40px] border border-cyan-500/20 bg-gradient-to-br from-[#07111f] to-[#081528] p-8 md:p-12 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 h-80 w-80 rounded-full bg-cyan-500/5 blur-[80px] pointer-events-none" />
 
@@ -427,7 +461,7 @@ export default function ResearchDatasetPage() {
                 IEEE Publication 2026
               </span>
               <h2 className="text-3xl sm:text-4xl font-black text-white leading-tight">
-                Research Publication
+                SteganoML Research Publication
               </h2>
               <h3 className="text-xl font-bold text-cyan-400/90 leading-snug">
                 SteganoML: An Adaptive ML-Driven Audio Steganography for Robust Secure Communication
@@ -496,6 +530,8 @@ export default function ResearchDatasetPage() {
             <Link href="/" className="hover:text-cyan-400 transition">Home</Link>
             <Link href="/about" className="hover:text-cyan-400 transition">About</Link>
             <Link href="/model-insights" className="hover:text-cyan-400 transition">Model Insights</Link>
+            <Link href="/research-dataset" className="hover:text-cyan-400 transition">Research Dataset</Link>
+            <Link href="/research-dataset#publication" className="hover:text-cyan-400 transition">Publication</Link>
           </div>
         </div>
       </footer>

@@ -604,32 +604,50 @@ export default function HomePage() {
         <div className="grid gap-6 md:grid-cols-3">
           <Link
             href="/about"
-            className="rounded-3xl border border-white/10 bg-[#071122] p-8 transition-all duration-300 hover:border-cyan-500/30 hover:bg-[#081328]/60 hover:-translate-y-1 hover:shadow-[0_4px_25px_rgba(6,182,212,0.04)] focus-visible:ring-2 focus-visible:ring-cyan-400 outline-none"
+            className="rounded-3xl border border-white/10 bg-[#071122] p-8 transition-all duration-300 hover:border-cyan-500/30 hover:bg-[#081328]/60 hover:-translate-y-1 hover:shadow-[0_4px_25px_rgba(6,182,212,0.04)] focus-visible:ring-2 focus-visible:ring-cyan-400 outline-none flex flex-col justify-between min-h-[240px]"
           >
-            <h3 className="text-xl font-semibold text-white">About SteganoML</h3>
-            <p className="mt-4 text-sm text-slate-400 leading-relaxed">
-              Complete project overview, encoding pipeline, decoding workflow, IEEE publication and quality metrics.
-            </p>
+            <div>
+              <h3 className="text-xl font-semibold text-white">About SteganoML</h3>
+              <p className="mt-4 text-sm text-slate-400 leading-relaxed">
+                Project overview, architecture, encoding workflow, decoding pipeline, and quality evaluation metrics.
+              </p>
+            </div>
+            <div className="mt-6 text-xs font-bold text-cyan-400 hover:text-cyan-300 transition flex items-center gap-1">
+              <span>View Overview</span>
+              <span>→</span>
+            </div>
           </Link>
 
           <Link
             href="/model-insights"
-            className="rounded-3xl border border-white/10 bg-[#071122] p-8 transition-all duration-300 hover:border-cyan-500/30 hover:bg-[#081328]/60 hover:-translate-y-1 hover:shadow-[0_4px_25px_rgba(6,182,212,0.04)] focus-visible:ring-2 focus-visible:ring-cyan-400 outline-none"
+            className="rounded-3xl border border-white/10 bg-[#071122] p-8 transition-all duration-300 hover:border-cyan-500/30 hover:bg-[#081328]/60 hover:-translate-y-1 hover:shadow-[0_4px_25px_rgba(6,182,212,0.04)] focus-visible:ring-2 focus-visible:ring-cyan-400 outline-none flex flex-col justify-between min-h-[240px]"
           >
-            <h3 className="text-xl font-semibold text-white">Model Insights</h3>
-            <p className="mt-4 text-sm text-slate-400 leading-relaxed">
-              CatBoost performance, ROC-AUC evaluation, confusion matrix and feature importance analysis.
-            </p>
+            <div>
+              <h3 className="text-xl font-semibold text-white">Model Insights</h3>
+              <p className="mt-4 text-sm text-slate-400 leading-relaxed">
+                CatBoost classifier performance, ROC-AUC evaluation, feature importance, and confusion matrix analysis.
+              </p>
+            </div>
+            <div className="mt-6 text-xs font-bold text-cyan-400 hover:text-cyan-300 transition flex items-center gap-1">
+              <span>View Model Insights</span>
+              <span>→</span>
+            </div>
           </Link>
 
           <Link
             href="/research-dataset"
-            className="rounded-3xl border border-white/10 bg-[#071122] p-8 transition-all duration-300 hover:border-cyan-500/30 hover:bg-[#081328]/60 hover:-translate-y-1 hover:shadow-[0_4px_25px_rgba(6,182,212,0.04)] focus-visible:ring-2 focus-visible:ring-cyan-400 outline-none"
+            className="rounded-3xl border border-white/10 bg-[#071122] p-8 transition-all duration-300 hover:border-cyan-500/30 hover:bg-[#081328]/60 hover:-translate-y-1 hover:shadow-[0_4px_25px_rgba(6,182,212,0.04)] focus-visible:ring-2 focus-visible:ring-cyan-400 outline-none flex flex-col justify-between min-h-[240px]"
           >
-            <h3 className="text-xl font-semibold text-white">Research Dataset</h3>
-            <p className="mt-4 text-sm text-slate-400 leading-relaxed">
-              Dataset construction, audio feature extraction, preprocessing and training workflow.
-            </p>
+            <div>
+              <h3 className="text-xl font-semibold text-white">Research Dataset & Publication</h3>
+              <p className="mt-4 text-sm text-slate-400 leading-relaxed">
+                Training dataset construction, feature engineering, preprocessing workflow, and IEEE WiSPNET publication.
+              </p>
+            </div>
+            <div className="mt-6 text-xs font-bold text-cyan-400 hover:text-cyan-300 transition flex items-center gap-1">
+              <span>View Dataset & Publication</span>
+              <span>→</span>
+            </div>
           </Link>
         </div>
       </section>
@@ -639,9 +657,11 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
           <span>© 2026 SteganoML. All Rights Reserved.</span>
           <div className="flex gap-6">
+            <Link href="/" className="hover:text-cyan-400 transition">Home</Link>
             <Link href="/about" className="hover:text-cyan-400 transition">About</Link>
             <Link href="/model-insights" className="hover:text-cyan-400 transition">Model Insights</Link>
-            <Link href="/research-dataset" className="hover:text-cyan-400 transition">Dataset</Link>
+            <Link href="/research-dataset" className="hover:text-cyan-400 transition">Research Dataset</Link>
+            <Link href="/research-dataset#publication" className="hover:text-cyan-400 transition">Publication</Link>
           </div>
         </div>
       </footer>

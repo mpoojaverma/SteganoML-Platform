@@ -458,11 +458,11 @@ export default function AboutPage() {
               </li>
               <li className="flex items-start gap-3 text-slate-400 text-sm">
                 <X className="text-red-500 shrink-0 mt-0.5" size={16} />
-                <span>Highly vulnerable to steganalysis, filter alterations, or audio compression.</span>
+                <span>More susceptible to statistical detection methods, filter alterations, or audio compression.</span>
               </li>
               <li className="flex items-start gap-3 text-slate-400 text-sm">
                 <X className="text-red-500 shrink-0 mt-0.5" size={16} />
-                <span>No intelligent signal evaluation or frame capacity prediction algorithms.</span>
+                <span>Uses fixed embedding strategies without feature-based frame analysis.</span>
               </li>
             </ul>
           </div>
@@ -528,8 +528,10 @@ export default function AboutPage() {
           <span>© 2026 SteganoML. All Rights Reserved.</span>
           <div className="flex gap-6">
             <Link href="/" className="hover:text-cyan-400 transition">Home</Link>
+            <Link href="/about" className="hover:text-cyan-400 transition">About</Link>
             <Link href="/model-insights" className="hover:text-cyan-400 transition">Model Insights</Link>
-            <Link href="/research-dataset" className="hover:text-cyan-400 transition">Dataset</Link>
+            <Link href="/research-dataset" className="hover:text-cyan-400 transition">Research Dataset</Link>
+            <Link href="/research-dataset#publication" className="hover:text-cyan-400 transition">Publication</Link>
           </div>
         </div>
       </footer>
