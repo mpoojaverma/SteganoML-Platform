@@ -140,8 +140,8 @@ export default function RegisterPage() {
           </svg>
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white tracking-wide leading-none">SteganoML</h1>
-          <p className="text-[10px] text-slate-500 mt-1">Adaptive Audio Steganography Platform</p>
+          <h1 className="text-xl font-bold text-white tracking-wide leading-none whitespace-nowrap">SteganoML</h1>
+          <p className="text-[10px] text-slate-500 mt-1 whitespace-nowrap">Adaptive Audio Steganography Platform</p>
         </div>
       </Link>
 

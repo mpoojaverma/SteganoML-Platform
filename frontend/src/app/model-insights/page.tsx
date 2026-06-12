@@ -152,7 +152,7 @@ export default function ModelInsightsPage() {
       {/* NAVBAR */}
       <nav className="relative z-30 border-b border-white/5 bg-[#020817]/60 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <Link href="/" className="flex items-center gap-3 group outline-none">
+          <Link href="/" className="flex items-center gap-3 group outline-none shrink-0">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 transition group-hover:scale-105 shrink-0">
               <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
                 <rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor" fillOpacity="0.08" stroke="currentColor" strokeWidth="1.5" className="stroke-cyan-500/25" />
@@ -161,8 +161,8 @@ export default function ModelInsightsPage() {
               </svg>
             </div>
             <div>
-              <h1 className="font-bold text-lg leading-none">SteganoML</h1>
-              <p className="text-[10px] text-slate-500 mt-1">Secure Audio Steganography</p>
+              <h1 className="font-bold text-lg leading-none whitespace-nowrap">SteganoML</h1>
+              <p className="text-[10px] text-slate-500 mt-1 whitespace-nowrap">Secure Audio Steganography</p>
             </div>
           </Link>
           <div className="flex items-center gap-4">

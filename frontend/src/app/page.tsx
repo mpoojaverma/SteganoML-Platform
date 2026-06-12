@@ -179,8 +179,8 @@ export default function HomePage() {
       {/* NAVBAR */}
       <nav className="relative z-30 border-b border-white/5 bg-[#020817]/60 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 shrink-0">
+          <Link href="/" className="flex items-center gap-3 group outline-none shrink-0">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 transition group-hover:scale-105 shrink-0">
               <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -208,10 +208,10 @@ export default function HomePage() {
               </svg>
             </div>
             <div>
-              <h1 className="font-bold text-lg leading-none">SteganoML</h1>
-              <p className="text-[10px] text-slate-500 mt-1">Secure Audio Steganography</p>
+              <h1 className="font-bold text-lg leading-none whitespace-nowrap">SteganoML</h1>
+              <p className="text-[10px] text-slate-500 mt-1 whitespace-nowrap">Secure Audio Steganography</p>
             </div>
-          </div>
+          </Link>
 
           <div className="flex items-center gap-4">
             <Link

@@ -117,7 +117,7 @@ export default function LoginPage() {
         <div className="absolute left-[-150px] top-[-150px] h-[350px] w-[350px] rounded-full bg-cyan-500/10 blur-[100px]" />
         
         {/* LOGO LINK */}
-        <Link href="/" className="flex items-center gap-3 group focus-visible:ring-2 focus-visible:ring-cyan-400 outline-none rounded-xl p-1 self-start mb-6 lg:mb-0">
+        <Link href="/" className="flex items-center gap-3 group focus-visible:ring-2 focus-visible:ring-cyan-400 outline-none rounded-xl p-1 self-start mb-6 lg:mb-0 shrink-0">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 transition group-hover:scale-105 shrink-0">
             <svg
               viewBox="0 0 24 24"
@@ -146,8 +146,8 @@ export default function LoginPage() {
             </svg>
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white tracking-wide leading-none">SteganoML</h1>
-            <p className="text-[10px] text-slate-500 mt-1">Adaptive Audio Steganography Platform</p>
+            <h1 className="text-xl font-bold text-white tracking-wide leading-none whitespace-nowrap">SteganoML</h1>
+            <p className="text-[10px] text-slate-500 mt-1 whitespace-nowrap">Adaptive Audio Steganography Platform</p>
           </div>
         </Link>
 

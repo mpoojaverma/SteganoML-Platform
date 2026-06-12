@@ -153,7 +153,7 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
         <Link
           href="/dashboard"
-          className="flex items-center gap-3"
+          className="flex items-center gap-3 shrink-0"
         >
 
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 shrink-0">
@@ -186,11 +186,11 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
           <div>
 
-            <h1 className="text-xl font-bold text-white leading-none">
+            <h1 className="text-xl font-bold text-white leading-none whitespace-nowrap">
               SteganoML
             </h1>
 
-            <p className="text-[10px] text-slate-500 mt-1">
+            <p className="text-[10px] text-slate-500 mt-1 whitespace-nowrap">
               Audio Steganography
             </p>
 
