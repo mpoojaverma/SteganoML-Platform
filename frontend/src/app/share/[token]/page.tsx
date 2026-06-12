@@ -18,6 +18,7 @@ import {
   Zap
 } from "lucide-react";
 import { motion } from "framer-motion";
+import Logo from "@/components/ui/Logo";
 
 const isLocalhost = typeof window !== "undefined" && 
   (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
@@ -118,19 +119,9 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
       {/* Decorative glowing lines and dots overlays */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808005_1px,transparent_1px),linear-gradient(to_bottom,#80808005_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
 
-      {/* Header */}
       <header className="border-b border-white/5 bg-[#0b1327]/40 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-purple-600 p-[1.5px]">
-              <div className="h-full w-full bg-[#020817] rounded-lg flex items-center justify-center font-bold text-sm text-cyan-400">
-                S
-              </div>
-            </div>
-            <span className="font-extrabold tracking-tight text-lg bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent font-sans">
-              SteganoML
-            </span>
-          </div>
+          <Logo size="md" showSubText={true} href="/" />
           <span className="text-[10px] font-mono bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold">
             Secure Delivery
           </span>

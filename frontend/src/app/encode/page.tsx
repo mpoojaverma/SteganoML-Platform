@@ -387,24 +387,29 @@ export default function EncodePage() {
       let errorMsg = "Failed to generate secure share link.";
       if (err?.response) {
         const detail = err.response.data?.detail;
-        if (detail) {
+        const status = err.response.status;
+        if (status === 422) {
+          errorMsg = "Invalid request payload: Schema validation failed on backend.";
+        } else if (detail) {
           const detailStr = String(detail);
           if (detailStr.includes("Database ownership validation error") || detailStr.includes("unauthorized") || detailStr.includes("Unauthorized")) {
-            errorMsg = "Authentication required or file ownership mismatch.";
+            errorMsg = "Share creation validation failed: File ownership verification failed.";
           } else if (detailStr.includes("shared_files") && (detailStr.includes("missing") || detailStr.includes("relation") || detailStr.includes("does not exist"))) {
             errorMsg = "Database table missing. Please run database migrations.";
-          } else if (detailStr.includes("Share creation query failure")) {
-            errorMsg = "Share link creation failed: backend database insertion failed.";
+          } else if (detailStr.includes("Share creation query failure") || detailStr.includes("Failed to record")) {
+            errorMsg = "Database insert failed: Failed to save share link details.";
           } else if (detailStr.includes("Bucket") || detailStr.includes("bucket")) {
-            errorMsg = "Bucket configuration error: Supabase bucket is missing or private.";
+            errorMsg = "Storage lookup failed: Supabase bucket is missing or private.";
+          } else if (detailStr.includes("hashing failed") || detailStr.includes("bcrypt")) {
+            errorMsg = "Password hashing failed on the backend.";
           } else {
             errorMsg = detailStr;
           }
         } else {
-          errorMsg = `Invalid response (Status ${err.response.status}): ${err.response.statusText || "Unable to parse backend response."}`;
+          errorMsg = `Invalid response (Status ${status}): ${err.response.statusText || "Unable to parse backend response."}`;
         }
       } else if (err?.message === "Network Error" || !err?.response) {
-        errorMsg = "Backend unavailable: The API server is not running or network connection failed.";
+        errorMsg = "Backend unavailable: The API server is not running, network connection failed, or the server crashed during request processing.";
       } else {
         errorMsg = err.message || "Failed to generate secure share link.";
       }

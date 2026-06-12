@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import Logo from "@/components/ui/Logo";
 import {
   Shield,
   Cpu,
@@ -121,19 +122,7 @@ export default function AboutPage() {
       {/* NAVBAR */}
       <nav className="relative z-30 border-b border-white/5 bg-[#020817]/60 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-          <Link href="/" className="flex items-center gap-3 group outline-none shrink-0">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 transition group-hover:scale-105 shrink-0">
-              <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
-                <rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor" fillOpacity="0.08" stroke="currentColor" strokeWidth="1.5" className="stroke-cyan-500/25" />
-                <path d="M5 12c1.5-4 3.5-4 5 0s3.5 4 5 0 3.5-4 5 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="stroke-cyan-400" />
-                <path d="M7 12c1.2-2.5 2.8-2.5 4 0s2.8 2.5 4 0 2.8-2.5 4 0" stroke="currentColor" strokeWidth="1" strokeDasharray="1.5 1.5" strokeLinecap="round" strokeLinejoin="round" className="stroke-cyan-300/50" />
-              </svg>
-            </div>
-            <div>
-              <h1 className="font-bold text-lg leading-none whitespace-nowrap">SteganoML</h1>
-              <p className="text-[10px] text-slate-500 mt-1 whitespace-nowrap">Secure Audio Steganography</p>
-            </div>
-          </Link>
+          <Logo size="md" showSubText={true} href="/" />
           <div className="flex items-center gap-4">
             <Link
               href={isLoggedIn ? "/dashboard" : "/login"}

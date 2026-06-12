@@ -1,5 +1,8 @@
 import os
 import secrets
+import hashlib
+import traceback
+import sys
 from datetime import datetime, timedelta, timezone
 from typing import Optional, List
 from pydantic import BaseModel, EmailStr
@@ -9,7 +12,17 @@ from passlib.context import CryptContext
 from app.utils.supabase_logger import supabase
 
 router = APIRouter()
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# Initialize password context with bcrypt and fallback to pbkdf2_sha256 to avoid crashes on Windows
+pwd_context = None
+try:
+    import bcrypt
+    # Test if bcrypt actually works without segfaulting/throwing
+    bcrypt.hashpw(b"test", bcrypt.gensalt())
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+except Exception as e:
+    print(f"WARNING: bcrypt library is not fully functional ({str(e)}). Falling back to pure Python pbkdf2_sha256 context.")
+    pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 class ShareCreateRequest(BaseModel):
     file_name: str
@@ -46,15 +59,27 @@ def parse_download_limit(limit_str: str) -> int:
 
 @router.post("/create", status_code=status.HTTP_201_CREATED)
 async def create_share_link(req: ShareCreateRequest):
+    # Log incoming request parameters
+    print("--- [POST /api/share/create] LOG ---")
+    print(f"Request: file_name={req.file_name}, storage_path={req.storage_path}, expiration={req.expiration}, download_limit={req.download_limit}")
+    print(f"owner_id={req.owner_id}, user_email={req.user_email}")
+    password_present = req.password is not None and len(req.password.strip()) > 0
+    print(f"Password present: {password_present}")
+    if password_present:
+        print(f"Password length: {len(req.password.strip())}")
+    
     # 1. Verify ownership of the file by checking the jobs table
     try:
         jobs_res = supabase.table("jobs").select("*").eq("user_email", req.user_email).eq("output_file", req.file_name).execute()
         if not jobs_res.data:
+            print("LOG: Ownership verification failed.")
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Unauthorized: You do not own this audio file output."
             )
     except Exception as e:
+        print("LOG: Ownership validation exception:")
+        traceback.print_exc(file=sys.stdout)
         if isinstance(e, HTTPException):
             raise e
         raise HTTPException(
@@ -66,10 +91,20 @@ async def create_share_link(req: ShareCreateRequest):
     expires_at = parse_expiration(req.expiration)
     max_downloads = parse_download_limit(req.download_limit)
 
-    # 3. Hash the optional password using bcrypt
+    # 3. Hash the optional password safely, falling back to SHA-256 if hashing fails
     password_hash = None
-    if req.password and req.password.strip():
-        password_hash = pwd_context.hash(req.password.strip())
+    if password_present:
+        try:
+            print("LOG: Attempting to hash password...")
+            if pwd_context is not None:
+                password_hash = pwd_context.hash(req.password.strip())
+                print("LOG: Password hashed successfully using pwd_context.")
+            else:
+                raise RuntimeError("pwd_context is not initialized")
+        except Exception as e:
+            print(f"LOG: Password hashing failed: {str(e)}. Falling back to SHA-256.")
+            traceback.print_exc(file=sys.stdout)
+            password_hash = f"sha256:{hashlib.sha256(req.password.strip().encode()).hexdigest()}"
 
     # 4. Generate high-entropy 32-character secure token (16 bytes)
     share_token = secrets.token_hex(16)
@@ -89,18 +124,23 @@ async def create_share_link(req: ShareCreateRequest):
     }
 
     try:
+        print(f"LOG: Inserting share record for token {share_token}...")
         insert_res = supabase.table("shared_files").insert(record).execute()
         if not insert_res.data:
+            print("LOG: Insert query returned no data.")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to record share link details."
             )
+        print("LOG: Share creation successful.")
         return {
             "status": "success",
             "share_token": share_token,
             "expires_at": insert_res.data[0]["expires_at"]
         }
     except Exception as e:
+        print("LOG: Insert query exception:")
+        traceback.print_exc(file=sys.stdout)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Share creation query failure: {str(e)}"
@@ -195,8 +235,19 @@ async def get_share_info(token: str, body: Optional[PasswordVerifyRequest] = Non
                     "is_password_protected": True,
                     "file_name": "Encrypted File"
                 }
-            # Verify password
-            if not pwd_context.verify(body.password, record["link_password_hash"]):
+            # Verify password with fallback support
+            pwd_hash = record["link_password_hash"]
+            is_valid = False
+            if pwd_hash.startswith("sha256:"):
+                raw_hash = pwd_hash.split(":", 1)[1]
+                is_valid = hashlib.sha256(body.password.strip().encode()).hexdigest() == raw_hash
+            else:
+                try:
+                    is_valid = pwd_context.verify(body.password, pwd_hash)
+                except Exception:
+                    is_valid = hashlib.sha256(body.password.strip().encode()).hexdigest() == pwd_hash
+            
+            if not is_valid:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect link password.")
 
         # Increment access count (page views)
@@ -251,9 +302,23 @@ async def download_shared_file(token: str, password: Optional[str] = Query(None)
                 supabase.table("shared_files").update({"status": "download_limit_reached"}).eq("share_token", token).execute()
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Download limit reached for this share link.")
 
-        # Password required checks
+        # Password required checks with fallback support
         if record["link_password_hash"] is not None:
-            if not password or not pwd_context.verify(password, record["link_password_hash"]):
+            if not password:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect or missing link password.")
+            
+            pwd_hash = record["link_password_hash"]
+            is_valid = False
+            if pwd_hash.startswith("sha256:"):
+                raw_hash = pwd_hash.split(":", 1)[1]
+                is_valid = hashlib.sha256(password.strip().encode()).hexdigest() == raw_hash
+            else:
+                try:
+                    is_valid = pwd_context.verify(password, pwd_hash)
+                except Exception:
+                    is_valid = hashlib.sha256(password.strip().encode()).hexdigest() == pwd_hash
+            
+            if not is_valid:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect or missing link password.")
 
         # Increment download count
