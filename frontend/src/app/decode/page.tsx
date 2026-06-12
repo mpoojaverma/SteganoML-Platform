@@ -188,11 +188,6 @@ export default function DecodePage() {
       } catch (e) {}
     }
 
-    const savedPassword = sessionStorage.getItem("steganoml_decode_password");
-    if (savedPassword !== null) {
-      setPassword(savedPassword);
-    }
-
     const savedResult = sessionStorage.getItem("steganoml_decode_result");
     if (savedResult) {
       try {
@@ -222,7 +217,6 @@ export default function DecodePage() {
 
   const handlePasswordChange = (val: string) => {
     setPassword(val);
-    sessionStorage.setItem("steganoml_decode_password", val);
   };
 
   const [isDragOver, setIsDragOver] = useState(false);

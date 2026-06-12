@@ -7,6 +7,7 @@ import { getDownloadUrl } from "@/lib/api";
 import Toast from "@/components/ui/Toast";
 import axios from "axios";
 import { supabase } from "@/lib/supabase";
+import QRCode from "qrcode";
 import CustomSelect from "@/components/ui/CustomSelect";
 import { 
   UploadCloud, 
@@ -189,6 +190,7 @@ export default function EncodePage() {
   const [isGeneratingShare, setIsGeneratingShare] = useState(false);
   const [shareResult, setShareResult] = useState<{ token: string; expires_at: string } | null>(null);
   const [shareError, setShareError] = useState<string | null>(null);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
 
   // New audio state metadata
   const [audioUrl, setAudioUrl] = useState<string>("");
@@ -358,13 +360,15 @@ export default function EncodePage() {
     setIsGeneratingShare(true);
     setShareError(null);
     setShareResult(null);
+    setQrCodeDataUrl("");
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
         throw new Error("You must be logged in to create share links.");
       }
 
+      const user = session.user;
       const storagePath = `outputs/${localResult.filename}`;
 
       const payload = {
@@ -377,12 +381,28 @@ export default function EncodePage() {
         user_email: user.email || "",
       };
 
-      const response = await axios.post(`${API_BASE}/share/create`, payload);
+      const response = await axios.post(`${API_BASE}/share/create`, payload, {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
       if (response.data.status === "success") {
+        const token = response.data.share_token;
+        const expires_at = response.data.expires_at;
         setShareResult({
-          token: response.data.share_token,
-          expires_at: response.data.expires_at,
+          token,
+          expires_at,
         });
+
+        // Generate QR code data URL locally
+        const shareUrl = `${window.location.origin}/share/${token}`;
+        try {
+          const qrDataUrl = await QRCode.toDataURL(shareUrl, { margin: 1, width: 200 });
+          setQrCodeDataUrl(qrDataUrl);
+        } catch (qrErr) {
+          console.error("Local QR code generation error:", qrErr);
+        }
       }
     } catch (err: any) {
       console.error(err);
@@ -431,15 +451,7 @@ export default function EncodePage() {
       } catch (e) {}
     }
 
-    const savedMessage = sessionStorage.getItem("steganoml_encode_message");
-    if (savedMessage !== null) {
-      setMessage(savedMessage);
-    }
 
-    const savedPassword = sessionStorage.getItem("steganoml_encode_password");
-    if (savedPassword !== null) {
-      setPassword(savedPassword);
-    }
 
     const savedResult = sessionStorage.getItem("steganoml_encode_result");
     if (savedResult) {
@@ -486,12 +498,10 @@ export default function EncodePage() {
 
   const handleMessageChange = (val: string) => {
     setMessage(val);
-    sessionStorage.setItem("steganoml_encode_message", val);
   };
 
   const handlePasswordChange = (val: string) => {
     setPassword(val);
-    sessionStorage.setItem("steganoml_encode_password", val);
   };
 
   const [isDragOver, setIsDragOver] = useState(false);
@@ -1736,13 +1746,17 @@ export default function EncodePage() {
 
                         <div className="flex flex-col items-center py-2 bg-[#020817]/60 border border-white/5 rounded-lg gap-2">
                           <div className="bg-white p-1.5 rounded-lg">
-                            <img
-                              src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
-                                `${window.location.origin}/share/${shareResult.token}`
-                              )}`}
-                              alt="Secure Share QR Code"
-                              className="w-[110px] h-[110px]"
-                            />
+                            {qrCodeDataUrl ? (
+                              <img
+                                src={qrCodeDataUrl}
+                                alt="Secure Share QR Code"
+                                className="w-[110px] h-[110px]"
+                              />
+                            ) : (
+                              <div className="w-[110px] h-[110px] flex items-center justify-center text-slate-500 text-[10px] font-mono">
+                                Generating QR...
+                              </div>
+                            )}
                           </div>
                           <span className="text-[9px] font-mono text-slate-500">
                             Scan to open share link
@@ -1789,6 +1803,7 @@ export default function EncodePage() {
                           onClick={() => {
                             setShareResult(null);
                             setSharePassword("");
+                            setQrCodeDataUrl("");
                           }}
                           className="w-full text-center text-[10px] font-mono text-slate-500 hover:text-white transition cursor-pointer pt-2"
                         >

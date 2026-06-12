@@ -1,4 +1,5 @@
 import axios from "axios";
+import { supabase } from "./supabase";
 
 const isLocalhost = typeof window !== "undefined" && 
   (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
@@ -11,9 +12,21 @@ export const api = axios.create({
   baseURL: API_BASE,
 });
 
+async function getAuthHeaders() {
+  try {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  } catch (e) {
+    console.error("Error fetching auth headers:", e);
+    return {};
+  }
+}
+
 export async function encodeAudio(
   formData: FormData
 ) {
+  const authHeaders = await getAuthHeaders();
   const response =
     await api.post(
       "/encode/",
@@ -22,6 +35,7 @@ export async function encodeAudio(
         headers: {
           "Content-Type":
             "multipart/form-data",
+          ...authHeaders,
         },
       }
     );
@@ -32,6 +46,7 @@ export async function encodeAudio(
 export async function decodeAudio(
   formData: FormData
 ) {
+  const authHeaders = await getAuthHeaders();
   const response =
     await api.post(
       "/decode/",
@@ -40,6 +55,7 @@ export async function decodeAudio(
         headers: {
           "Content-Type":
             "multipart/form-data",
+          ...authHeaders,
         },
       }
     );

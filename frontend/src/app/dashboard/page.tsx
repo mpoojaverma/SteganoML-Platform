@@ -29,10 +29,14 @@ export default function DashboardPage() {
   async function loadShares() {
     try {
       setSharesLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
 
-      const response = await fetch(`${API_BASE}/share/list?owner_id=${user.id}`);
+      const response = await fetch(`${API_BASE}/share/list`, {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
       const data = await response.json();
       setShares(data || []);
     } catch (error) {
@@ -44,11 +48,14 @@ export default function DashboardPage() {
 
   const handleDisableShare = async (token: string) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
 
-      await fetch(`${API_BASE}/share/disable/${token}?owner_id=${user.id}`, {
+      await fetch(`${API_BASE}/share/disable/${token}`, {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
       });
       loadShares();
     } catch (error) {
@@ -59,11 +66,14 @@ export default function DashboardPage() {
   const handleDeleteShare = async (token: string) => {
     if (!confirm("Are you sure you want to permanently delete this secure share link?")) return;
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
 
-      await fetch(`${API_BASE}/share/delete/${token}?owner_id=${user.id}`, {
+      await fetch(`${API_BASE}/share/delete/${token}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
       });
       loadShares();
     } catch (error) {

@@ -7,24 +7,21 @@ const API_BASE =
 
 export async function getAnalytics() {
   const {
-    data: { user },
-  } =
-    await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user?.email) {
+  if (!session) {
     return null;
   }
 
-  const response =
-    await axios.get(
-      `${API_BASE}/analytics`,
-      {
-        params: {
-          email: user.email,
-          owner_id: user.id,
-        },
-      }
-    );
+  const response = await axios.get(
+    `${API_BASE}/analytics`,
+    {
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    }
+  );
 
   return response.data;
 }

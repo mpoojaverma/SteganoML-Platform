@@ -26,42 +26,17 @@ export default function useEncode() {
 
       const {
         data: { user },
-      } =
-        await supabase.auth.getUser();
+      } = await supabase.auth.getUser();
 
-      if (!user) {
-        throw new Error(
-          "User not logged in"
-        );
+      const formData = new FormData();
+      formData.append("audio_file", audioFile);
+      formData.append("secret_message", message);
+      formData.append("password", password);
+      formData.append("method", method);
+
+      if (user?.email) {
+        formData.append("user_email", user.email);
       }
-
-      const formData =
-        new FormData();
-
-      formData.append(
-        "audio_file",
-        audioFile
-      );
-
-      formData.append(
-        "secret_message",
-        message
-      );
-
-      formData.append(
-        "password",
-        password
-      );
-
-      formData.append(
-        "method",
-        method
-      );
-
-      formData.append(
-        "user_email",
-        user.email || ""
-      );
 
       const data =
         await encodeAudio(

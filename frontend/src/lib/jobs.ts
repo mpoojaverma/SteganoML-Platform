@@ -7,23 +7,21 @@ const API_BASE =
 
 export async function getJobs() {
   const {
-    data: { user },
-  } =
-    await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!user?.email) {
+  if (!session) {
     return [];
   }
 
-  const response =
-    await axios.get(
-      `${API_BASE}/jobs/`,
-      {
-        params: {
-          email: user.email,
-        },
-      }
-    );
+  const response = await axios.get(
+    `${API_BASE}/jobs/`,
+    {
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    }
+  );
 
   return response.data;
 }

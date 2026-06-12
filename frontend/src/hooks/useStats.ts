@@ -24,16 +24,16 @@ export default function useStats() {
   async function loadStats() {
     try {
       const {
-        data: { user },
-      } =
-        await supabase.auth.getUser();
+        data: { session },
+      } = await supabase.auth.getSession();
 
-      if (!user?.email) return;
+      if (!session) return;
 
-      const response =
-        await api.get(
-          `/stats/?email=${user.email}`
-        );
+      const response = await api.get("/stats/", {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
 
       setStats(response.data);
     } catch (error) {

@@ -2,6 +2,7 @@ import shutil
 import uuid
 import logging
 from pathlib import Path
+from typing import Optional
 
 from fastapi import (
     APIRouter,
@@ -10,6 +11,8 @@ from fastapi import (
     Form,
     HTTPException,
     BackgroundTasks,
+    Request,
+    Response,
 )
 
 from app.services.pipeline_service import (
@@ -19,6 +22,7 @@ from app.services.pipeline_service import (
 from app.utils.supabase_logger import (
     save_job_supabase,
 )
+from app.utils.auth import get_optional_authenticated_user
 
 router = APIRouter()
 
@@ -43,13 +47,26 @@ def cleanup_temp_files(*paths: str):
 
 @router.post("/")
 async def decode_audio_route(
+    request: Request,
+    response: Response,
     background_tasks: BackgroundTasks,
     audio_file: UploadFile = File(...),
     password: str = Form(...),
-    user_email: str = Form(...),
+    user_email: Optional[str] = Form(None),
     method: str = Form("ml"),
 ):
     try:
+        # Enforce Cache-Control response headers
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+
+        # P1: Enforce parameter validation limits
+        if len(password) > 128:
+            raise HTTPException(status_code=400, detail="Password exceeds the maximum length of 128 characters.")
+
+        # P1: Optional user identity verification
+        authenticated_user = get_optional_authenticated_user(request)
+
         # P1: Backend MIME & format validation
         allowed_types = [
             "audio/wav", "audio/x-wav", "audio/mpeg", "audio/mp3",
@@ -91,18 +108,20 @@ async def decode_audio_route(
             method=method,
         )
 
-        save_job_supabase(
-            {
-                "user_email": user_email,
-                "type": "decode",
-                "file_name": safe_filename,
-                "method": method,
-                "status": result.get(
-                    "status",
-                    "success",
-                ),
-            }
-        )
+        # Save metrics only for authenticated users (public demo skips logging)
+        if authenticated_user:
+            save_job_supabase(
+                {
+                    "user_email": authenticated_user["email"],
+                    "type": "decode",
+                    "file_name": safe_filename,
+                    "method": method,
+                    "status": result.get(
+                        "status",
+                        "success",
+                    ),
+                }
+            )
 
         # P1: Temp file cleanup (on success/completion)
         background_tasks.add_task(cleanup_temp_files, str(input_audio_path))

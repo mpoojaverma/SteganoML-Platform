@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, Query, HTTPException, Request
 from app.utils.supabase_logger import get_jobs_supabase
+from app.utils.auth import get_authenticated_user
 
 router = APIRouter()
 
 @router.get("/")
-async def get_stats(email: str = Query(...)):
-    if not email or "@" not in email:
-        raise HTTPException(status_code=400, detail="A valid user email parameter requirement must be supplied.")
+async def get_stats(request: Request, email: str = Query(None)):
+    user = get_authenticated_user(request)
+    email = user["email"]
         
     try:
         result = get_jobs_supabase(email)

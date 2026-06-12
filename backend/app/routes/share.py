@@ -3,15 +3,19 @@ import secrets
 import hashlib
 import traceback
 import sys
+import time
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Optional, List
 from pydantic import BaseModel, EmailStr
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Query, status, Request, Response
 from fastapi.responses import RedirectResponse
 from passlib.context import CryptContext
 from app.utils.supabase_logger import supabase
+from app.utils.auth import get_authenticated_user, validate_share_token, validate_uuid
 
 router = APIRouter()
+logger = logging.getLogger("uvicorn.error")
 
 # Initialize password context with bcrypt and fallback to pbkdf2_sha256 to avoid crashes on Windows
 pwd_context = None
@@ -21,7 +25,7 @@ try:
     bcrypt.hashpw(b"test", bcrypt.gensalt())
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 except Exception as e:
-    print(f"WARNING: bcrypt library is not fully functional ({str(e)}). Falling back to pure Python pbkdf2_sha256 context.")
+    logger.warning(f"bcrypt library is not fully functional ({str(e)}). Falling back to pure Python pbkdf2_sha256 context.")
     pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 class ShareCreateRequest(BaseModel):
@@ -35,6 +39,21 @@ class ShareCreateRequest(BaseModel):
 
 class PasswordVerifyRequest(BaseModel):
     password: Optional[str] = None
+
+# InMemory store for failed password attempts: (ip + token) -> {"count": int, "lock_until": float, "last_updated": float}
+failed_password_attempts = {}
+MAX_FAILED_ATTEMPTS = 5
+LOCKOUT_DURATION_SECONDS = 900  # 15 minutes
+
+def prune_expired_lockouts():
+    """Removes entries from failed_password_attempts that haven't been updated for over an hour."""
+    now = time.time()
+    expired = [k for k, v in failed_password_attempts.items() if now - v["last_updated"] > 3600]
+    for k in expired:
+        try:
+            del failed_password_attempts[k]
+        except KeyError:
+            pass
 
 def parse_expiration(exp_str: str) -> datetime:
     now = datetime.now(timezone.utc)
@@ -58,28 +77,29 @@ def parse_download_limit(limit_str: str) -> int:
         return 1
 
 @router.post("/create", status_code=status.HTTP_201_CREATED)
-async def create_share_link(req: ShareCreateRequest):
-    # Log incoming request parameters
-    print("--- [POST /api/share/create] LOG ---")
-    print(f"Request: file_name={req.file_name}, storage_path={req.storage_path}, expiration={req.expiration}, download_limit={req.download_limit}")
-    print(f"owner_id={req.owner_id}, user_email={req.user_email}")
+async def create_share_link(req: ShareCreateRequest, request: Request):
+    # P1: Enforce JWT authentication identity verification
+    user = get_authenticated_user(request)
+    
+    # Overwrite payload attributes with verified JWT claims to prevent IDOR/BOLA
+    req.owner_id = user["id"]
+    req.user_email = user["email"]
+
+    if req.password and len(req.password) > 128:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password exceeds the maximum length of 128 characters.")
+
     password_present = req.password is not None and len(req.password.strip()) > 0
-    print(f"Password present: {password_present}")
-    if password_present:
-        print(f"Password length: {len(req.password.strip())}")
     
     # 1. Verify ownership of the file by checking the jobs table
     try:
         jobs_res = supabase.table("jobs").select("*").eq("user_email", req.user_email).eq("output_file", req.file_name).execute()
         if not jobs_res.data:
-            print("LOG: Ownership verification failed.")
+            logger.warning(f"Share creation warning: Ownership verification failed for file {req.file_name} under user {req.user_email}")
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Unauthorized: You do not own this audio file output."
             )
     except Exception as e:
-        print("LOG: Ownership validation exception:")
-        traceback.print_exc(file=sys.stdout)
         if isinstance(e, HTTPException):
             raise e
         raise HTTPException(
@@ -95,15 +115,12 @@ async def create_share_link(req: ShareCreateRequest):
     password_hash = None
     if password_present:
         try:
-            print("LOG: Attempting to hash password...")
             if pwd_context is not None:
                 password_hash = pwd_context.hash(req.password.strip())
-                print("LOG: Password hashed successfully using pwd_context.")
             else:
                 raise RuntimeError("pwd_context is not initialized")
         except Exception as e:
-            print(f"LOG: Password hashing failed: {str(e)}. Falling back to SHA-256.")
-            traceback.print_exc(file=sys.stdout)
+            logger.error(f"Password hashing fallback triggered: {str(e)}")
             password_hash = f"sha256:{hashlib.sha256(req.password.strip().encode()).hexdigest()}"
 
     # 4. Generate high-entropy 32-character secure token (16 bytes)
@@ -124,42 +141,48 @@ async def create_share_link(req: ShareCreateRequest):
     }
 
     try:
-        print(f"LOG: Inserting share record for token {share_token}...")
         insert_res = supabase.table("shared_files").insert(record).execute()
         if not insert_res.data:
-            print("LOG: Insert query returned no data.")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to record share link details."
             )
-        print("LOG: Share creation successful.")
         return {
             "status": "success",
             "share_token": share_token,
             "expires_at": insert_res.data[0]["expires_at"]
         }
     except Exception as e:
-        print("LOG: Insert query exception:")
-        traceback.print_exc(file=sys.stdout)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Share creation query failure: {str(e)}"
         )
 
 @router.get("/list")
-async def list_shares(owner_id: str = Query(...)):
+async def list_shares(request: Request, owner_id: Optional[str] = Query(None)):
     try:
+        # P1: Authenticate user via JWT to extract owner ID (prevent IDOR)
+        user = get_authenticated_user(request)
+        owner_id = user["id"]
+        
         res = supabase.table("shared_files").select("*").eq("owner_id", owner_id).order("created_at", desc=True).execute()
         return res.data or []
     except Exception as e:
+        if isinstance(e, HTTPException):
+            raise e
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error listing shared files: {str(e)}"
         )
 
 @router.post("/disable/{token}")
-async def disable_share(token: str, owner_id: str = Query(...)):
+async def disable_share(token: str, request: Request, owner_id: Optional[str] = Query(None)):
     try:
+        validate_share_token(token)
+        # P1: Authenticate user via JWT to extract owner ID (prevent IDOR)
+        user = get_authenticated_user(request)
+        owner_id = user["id"]
+
         # Verify ownership
         res = supabase.table("shared_files").select("*").eq("share_token", token).eq("owner_id", owner_id).execute()
         if not res.data:
@@ -179,8 +202,13 @@ async def disable_share(token: str, owner_id: str = Query(...)):
         )
 
 @router.delete("/delete/{token}")
-async def delete_share(token: str, owner_id: str = Query(...)):
+async def delete_share(token: str, request: Request, owner_id: Optional[str] = Query(None)):
     try:
+        validate_share_token(token)
+        # P1: Authenticate user via JWT to extract owner ID (prevent IDOR)
+        user = get_authenticated_user(request)
+        owner_id = user["id"]
+
         # Verify ownership
         res = supabase.table("shared_files").select("*").eq("share_token", token).eq("owner_id", owner_id).execute()
         if not res.data:
@@ -200,8 +228,17 @@ async def delete_share(token: str, owner_id: str = Query(...)):
         )
 
 @router.post("/info/{token}")
-async def get_share_info(token: str, body: Optional[PasswordVerifyRequest] = None):
+async def get_share_info(token: str, request: Request, response: Response, body: Optional[PasswordVerifyRequest] = None):
     try:
+        validate_share_token(token)
+
+        # Enforce Cache-Control response headers
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+
+        # Prune expired lockout logs to prevent memory leaks
+        prune_expired_lockouts()
+
         res = supabase.table("shared_files").select("*").eq("share_token", token).execute()
         if not res.data:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Secure link not found.")
@@ -229,12 +266,30 @@ async def get_share_info(token: str, body: Optional[PasswordVerifyRequest] = Non
         # Password required checks
         is_password_protected = record["link_password_hash"] is not None
         if is_password_protected:
+            client_ip = request.client.host if request.client else "unknown"
+            lockout_key = f"{client_ip}_{token}"
+            current_time = time.time()
+            
+            # Check lockout state
+            lock_info = failed_password_attempts.get(lockout_key)
+            if lock_info and lock_info["lock_until"] > current_time:
+                remaining = int(lock_info["lock_until"] - current_time)
+                raise HTTPException(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    detail=f"Too many failed password attempts. Access locked for {remaining} seconds."
+                )
+
             if not body or not body.password:
                 return {
                     "status": "password_protected",
                     "is_password_protected": True,
                     "file_name": "Encrypted File"
                 }
+
+            # Enforce parameter length limits
+            if len(body.password) > 128:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password exceeds the maximum length of 128 characters.")
+
             # Verify password with fallback support
             pwd_hash = record["link_password_hash"]
             is_valid = False
@@ -248,7 +303,37 @@ async def get_share_info(token: str, body: Optional[PasswordVerifyRequest] = Non
                     is_valid = hashlib.sha256(body.password.strip().encode()).hexdigest() == pwd_hash
             
             if not is_valid:
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect link password.")
+                # Increment failed attempts count
+                if lockout_key not in failed_password_attempts:
+                    failed_password_attempts[lockout_key] = {"count": 0, "lock_until": 0.0, "last_updated": current_time}
+                
+                failed_password_attempts[lockout_key]["count"] += 1
+                failed_password_attempts[lockout_key]["last_updated"] = current_time
+                
+                count = failed_password_attempts[lockout_key]["count"]
+                
+                # Apply progressive delay
+                if count == 3:
+                    time.sleep(2.0)
+                elif count == 4:
+                    time.sleep(5.0)
+                elif count >= MAX_FAILED_ATTEMPTS:
+                    failed_password_attempts[lockout_key]["lock_until"] = current_time + LOCKOUT_DURATION_SECONDS
+                    failed_password_attempts[lockout_key]["count"] = 0
+                    raise HTTPException(
+                        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                        detail="Too many failed password attempts. Access locked for 15 minutes."
+                    )
+                
+                attempts_left = MAX_FAILED_ATTEMPTS - count
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail=f"Incorrect link password. {attempts_left} attempts remaining."
+                )
+
+            # Password is valid, reset lockout state
+            if lockout_key in failed_password_attempts:
+                del failed_password_attempts[lockout_key]
 
         # Increment access count (page views)
         supabase.table("shared_files").update({
@@ -276,8 +361,17 @@ async def get_share_info(token: str, body: Optional[PasswordVerifyRequest] = Non
         )
 
 @router.get("/download/{token}")
-async def download_shared_file(token: str, password: Optional[str] = Query(None)):
+async def download_shared_file(token: str, request: Request, response: Response, password: Optional[str] = Query(None)):
     try:
+        validate_share_token(token)
+
+        # Enforce Cache-Control response headers
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+
+        # Prune expired lockout logs
+        prune_expired_lockouts()
+
         res = supabase.table("shared_files").select("*").eq("share_token", token).execute()
         if not res.data:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Secure link not found.")
@@ -304,9 +398,26 @@ async def download_shared_file(token: str, password: Optional[str] = Query(None)
 
         # Password required checks with fallback support
         if record["link_password_hash"] is not None:
+            client_ip = request.client.host if request.client else "unknown"
+            lockout_key = f"{client_ip}_{token}"
+            current_time = time.time()
+            
+            # Check lockout status
+            lock_info = failed_password_attempts.get(lockout_key)
+            if lock_info and lock_info["lock_until"] > current_time:
+                remaining = int(lock_info["lock_until"] - current_time)
+                raise HTTPException(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    detail=f"Too many failed password attempts. Access locked for {remaining} seconds."
+                )
+
             if not password:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect or missing link password.")
             
+            # Enforce parameter length limits
+            if len(password) > 128:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password exceeds the maximum length of 128 characters.")
+
             pwd_hash = record["link_password_hash"]
             is_valid = False
             if pwd_hash.startswith("sha256:"):
@@ -319,7 +430,37 @@ async def download_shared_file(token: str, password: Optional[str] = Query(None)
                     is_valid = hashlib.sha256(password.strip().encode()).hexdigest() == pwd_hash
             
             if not is_valid:
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect or missing link password.")
+                # Increment failed attempts count
+                if lockout_key not in failed_password_attempts:
+                    failed_password_attempts[lockout_key] = {"count": 0, "lock_until": 0.0, "last_updated": current_time}
+                
+                failed_password_attempts[lockout_key]["count"] += 1
+                failed_password_attempts[lockout_key]["last_updated"] = current_time
+                
+                count = failed_password_attempts[lockout_key]["count"]
+                
+                # Apply progressive delay
+                if count == 3:
+                    time.sleep(2.0)
+                elif count == 4:
+                    time.sleep(5.0)
+                elif count >= MAX_FAILED_ATTEMPTS:
+                    failed_password_attempts[lockout_key]["lock_until"] = current_time + LOCKOUT_DURATION_SECONDS
+                    failed_password_attempts[lockout_key]["count"] = 0
+                    raise HTTPException(
+                        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                        detail="Too many failed password attempts. Access locked for 15 minutes."
+                    )
+                
+                attempts_left = MAX_FAILED_ATTEMPTS - count
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail=f"Incorrect or missing link password. {attempts_left} attempts remaining."
+                )
+
+            # Password is valid, reset lockout state
+            if lockout_key in failed_password_attempts:
+                del failed_password_attempts[lockout_key]
 
         # Increment download count
         new_download_count = record["download_count"] + 1

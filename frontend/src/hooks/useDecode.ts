@@ -25,37 +25,16 @@ export default function useDecode() {
 
       const {
         data: { user },
-      } =
-        await supabase.auth.getUser();
+      } = await supabase.auth.getUser();
 
-      if (!user) {
-        throw new Error(
-          "User not logged in"
-        );
+      const formData = new FormData();
+      formData.append("audio_file", audioFile);
+      formData.append("password", password);
+      formData.append("method", method);
+
+      if (user?.email) {
+        formData.append("user_email", user.email);
       }
-
-      const formData =
-        new FormData();
-
-      formData.append(
-        "audio_file",
-        audioFile
-      );
-
-      formData.append(
-        "password",
-        password
-      );
-
-      formData.append(
-        "method",
-        method
-      );
-
-      formData.append(
-        "user_email",
-        user.email || ""
-      );
 
       const data =
         await decodeAudio(

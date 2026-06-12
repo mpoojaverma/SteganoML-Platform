@@ -1,18 +1,22 @@
-# backend/routes/analytics.py
-
 from datetime import datetime, timezone
 from typing import Optional
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Request
 from app.utils.supabase_logger import get_jobs_supabase, supabase
+from app.utils.auth import get_authenticated_user
 
 router = APIRouter()
 
 
 @router.get("/")
 async def get_analytics(
-    email: str = Query(...),
+    request: Request,
+    email: str = Query(None),
     owner_id: Optional[str] = Query(None)
 ):
+    user = get_authenticated_user(request)
+    email = user["email"]
+    owner_id = user["id"]
+    
     result = get_jobs_supabase(email)
 
     jobs = result.data or []

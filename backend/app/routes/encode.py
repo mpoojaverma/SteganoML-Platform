@@ -2,10 +2,12 @@ import uuid
 import shutil
 import logging
 from pathlib import Path
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks
+from typing import Optional
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks, Request
 from fastapi.responses import FileResponse
 from app.services.pipeline_service import run_encode_pipeline
 from app.utils.supabase_logger import save_job_supabase
+from app.utils.auth import get_optional_authenticated_user
 
 router = APIRouter()
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -28,14 +30,24 @@ def cleanup_temp_files(*paths: str):
 
 @router.post("/")
 async def encode_audio_route(
+    request: Request,
     background_tasks: BackgroundTasks,
     audio_file: UploadFile = File(...),
     secret_message: str = Form(...),
     password: str = Form(...),
-    user_email: str = Form(...),
+    user_email: Optional[str] = Form(None),
     method: str = Form("ml"),
 ):
     try:
+        # P1: Enforce release-grade parameter validations
+        if len(password) > 128:
+            raise HTTPException(status_code=400, detail="Password exceeds the maximum length of 128 characters.")
+        if len(secret_message) > 100000:
+            raise HTTPException(status_code=400, detail="Secret message exceeds the maximum length of 100,000 characters.")
+
+        # P1: Optional user identity verification from session
+        authenticated_user = get_optional_authenticated_user(request)
+
         # P1: Backend MIME & format validation
         allowed_types = [
             "audio/wav", "audio/x-wav", "audio/mpeg", "audio/mp3",
@@ -81,25 +93,24 @@ async def encode_audio_route(
         position_list = list(result.get("position_list", []))
         position_map_str = ",".join(map(str, position_list))
 
-        print(
-           "POSITION COUNT:",
-            len(position_list)
-        )
+        logger.info(f"POSITION COUNT: {len(position_list)}")
         
-        save_job_supabase({
-            "user_email": user_email,
-            "type": "encode",
-            "file_name": safe_filename,
-            "method": method,
-            "status": result.get("status", "success"),
-            "psnr": float(details.get("psnr", 0.0)),
-            "snr": float(details.get("snr", 0.0)),
-            "ber": float(details.get("ber", 0.0)),
-            "nc": float(details.get("nc", 1.0)),
-            "output_file": result.get("filename", ""),
-            "storage_url": result.get("storage_url", ""),
-            "position_map": position_map_str
-        })
+        # Save metrics only for authenticated users (public demo skips logging)
+        if authenticated_user:
+            save_job_supabase({
+                "user_email": authenticated_user["email"],
+                "type": "encode",
+                "file_name": safe_filename,
+                "method": method,
+                "status": result.get("status", "success"),
+                "psnr": float(details.get("psnr", 0.0)),
+                "snr": float(details.get("snr", 0.0)),
+                "ber": float(details.get("ber", 0.0)),
+                "nc": float(details.get("nc", 1.0)),
+                "output_file": result.get("filename", ""),
+                "storage_url": result.get("storage_url", ""),
+                "position_map": position_map_str
+            })
 
         # P1: Temp file cleanup (on success)
         output_filename = result.get("filename")
