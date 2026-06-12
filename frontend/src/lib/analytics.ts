@@ -21,6 +21,7 @@ export async function getAnalytics() {
       {
         params: {
           email: user.email,
+          owner_id: user.id,
         },
       }
     );

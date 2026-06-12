@@ -5,6 +5,8 @@ import useEncode from "@/hooks/useEncode";
 import AppShell from "@/components/layout/AppShell";
 import { getDownloadUrl } from "@/lib/api";
 import Toast from "@/components/ui/Toast";
+import axios from "axios";
+import { supabase } from "@/lib/supabase";
 import { 
   UploadCloud, 
   FileAudio, 
@@ -154,6 +156,8 @@ const waveform = [
   18, 24, 40, 58, 72, 56,
 ];
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+
 export default function EncodePage() {
   const [audioFile, setAudioFile] = useState<File | { name: string; size?: number; fake: boolean } | null>(null);
 
@@ -169,6 +173,14 @@ export default function EncodePage() {
   const [activeWaveform, setActiveWaveform] = useState<number[]>(waveform);
   const [progressStep, setProgressStep] = useState(-1);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Secure Share states
+  const [shareExpiration, setShareExpiration] = useState("24 Hours");
+  const [shareDownloadLimit, setShareDownloadLimit] = useState("1");
+  const [sharePassword, setSharePassword] = useState("");
+  const [isGeneratingShare, setIsGeneratingShare] = useState(false);
+  const [shareResult, setShareResult] = useState<{ token: string; expires_at: string } | null>(null);
+  const [shareError, setShareError] = useState<string | null>(null);
 
   // New audio state metadata
   const [audioUrl, setAudioUrl] = useState<string>("");
@@ -330,6 +342,49 @@ export default function EncodePage() {
     const el = document.getElementById("waveform-comparison");
     if (el) {
       el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleGenerateShareLink = async () => {
+    if (!localResult) return;
+    setIsGeneratingShare(true);
+    setShareError(null);
+    setShareResult(null);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("You must be logged in to create share links.");
+      }
+
+      const storagePath = `outputs/${localResult.filename}`;
+
+      const payload = {
+        file_name: localResult.filename,
+        storage_path: storagePath,
+        expiration: shareExpiration,
+        download_limit: shareDownloadLimit,
+        password: sharePassword || null,
+        owner_id: user.id,
+        user_email: user.email || "",
+      };
+
+      const response = await axios.post(`${API_BASE}/share/create`, payload);
+      if (response.data.status === "success") {
+        setShareResult({
+          token: response.data.share_token,
+          expires_at: response.data.expires_at,
+        });
+      }
+    } catch (err: any) {
+      console.error(err);
+      setShareError(
+        err?.response?.data?.detail || 
+        err?.message || 
+        "Failed to generate secure share link."
+      );
+    } finally {
+      setIsGeneratingShare(false);
     }
   };
 
@@ -1488,6 +1543,162 @@ export default function EncodePage() {
                       Copy Cloud URL
                     </button>
                   )}
+
+                  {/* Secure Delivery / Share Link Section */}
+                  <div className="border-t border-white/5 pt-4 mt-4 space-y-4">
+                    <h4 className="text-xs font-mono uppercase tracking-wider text-cyan-400 font-bold flex items-center gap-1.5">
+                      <Lock size={12} /> Secure Delivery
+                    </h4>
+
+                    {!shareResult ? (
+                      <div className="space-y-3 bg-[#020817]/40 border border-white/5 rounded-xl p-4">
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-[10px] font-mono text-slate-500 block mb-1">
+                              Expiration
+                            </label>
+                            <select
+                              value={shareExpiration}
+                              onChange={(e) => setShareExpiration(e.target.value)}
+                              className="w-full rounded-lg border border-white/5 bg-white/5 px-2 py-2 text-xs outline-none focus:border-cyan-500/50"
+                            >
+                              <option value="1 Hour">1 Hour</option>
+                              <option value="24 Hours">24 Hours</option>
+                              <option value="7 Days">7 Days</option>
+                              <option value="30 Days">30 Days</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="text-[10px] font-mono text-slate-500 block mb-1">
+                              Download Limit
+                            </label>
+                            <select
+                              value={shareDownloadLimit}
+                              onChange={(e) => setShareDownloadLimit(e.target.value)}
+                              className="w-full rounded-lg border border-white/5 bg-white/5 px-2 py-2 text-xs outline-none focus:border-cyan-500/50"
+                            >
+                              <option value="1">1 Download</option>
+                              <option value="5">5 Downloads</option>
+                              <option value="10">10 Downloads</option>
+                              <option value="Unlimited">Unlimited</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] font-mono text-slate-500 block mb-1">
+                            Link Password (Optional)
+                          </label>
+                          <input
+                            type="password"
+                            placeholder="Set secondary password"
+                            value={sharePassword}
+                            onChange={(e) => setSharePassword(e.target.value)}
+                            className="w-full rounded-lg border border-white/5 bg-white/5 px-3 py-2 text-xs outline-none focus:border-cyan-500/50"
+                          />
+                        </div>
+
+                        {shareError && (
+                          <p className="text-red-400 text-[11px] font-mono flex items-start gap-1">
+                            <AlertTriangle size={12} className="shrink-0 mt-0.5" />
+                            <span>{shareError}</span>
+                          </p>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={handleGenerateShareLink}
+                          disabled={isGeneratingShare}
+                          className="w-full rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 py-2.5 text-xs font-bold text-black hover:brightness-110 transition cursor-pointer flex items-center justify-center gap-1.5 mt-2"
+                        >
+                          {isGeneratingShare ? (
+                            <>
+                              <RefreshCw size={12} className="animate-spin" />
+                              <span>Generating...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Lock size={12} />
+                              <span>Generate Share Link</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="bg-[#020817]/40 border border-white/5 rounded-xl p-4 space-y-4">
+                        <div className="flex justify-between items-center">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                            ✓ Link Created
+                          </span>
+                          <span className="text-[10px] font-mono text-slate-500">
+                            Expires: {shareExpiration}
+                          </span>
+                        </div>
+
+                        <div className="flex flex-col items-center py-2 bg-[#020817]/60 border border-white/5 rounded-lg gap-2">
+                          <div className="bg-white p-1.5 rounded-lg">
+                            <img
+                              src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(
+                                `${window.location.origin}/share/${shareResult.token}`
+                              )}`}
+                              alt="Secure Share QR Code"
+                              className="w-[110px] h-[110px]"
+                            />
+                          </div>
+                          <span className="text-[9px] font-mono text-slate-500">
+                            Scan to open share link
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-400">
+                          <div>
+                            <span className="text-slate-500">Limit: </span>
+                            <span className="font-bold text-white">
+                              {shareDownloadLimit === "Unlimited" ? "Unlimited" : `${shareDownloadLimit} Remaining`}
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-slate-500">Status: </span>
+                            <span className="font-bold text-emerald-400">Active</span>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const shareUrl = `${window.location.origin}/share/${shareResult.token}`;
+                              navigator.clipboard.writeText(shareUrl);
+                              alert("Share URL copied to clipboard!");
+                            }}
+                            className="rounded-lg border border-teal-400 bg-teal-500/10 py-2.5 text-center text-xs font-bold text-teal-300 hover:bg-teal-500/20 transition cursor-pointer"
+                          >
+                            Copy Link
+                          </button>
+                          <a
+                            href={`${window.location.origin}/share/${shareResult.token}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="rounded-lg border border-cyan-400 bg-cyan-500/10 py-2.5 text-center text-xs font-bold text-cyan-300 hover:bg-cyan-500/20 transition cursor-pointer flex items-center justify-center text-center"
+                          >
+                            Open Share
+                          </a>
+                        </div>
+                        
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShareResult(null);
+                            setSharePassword("");
+                          }}
+                          className="w-full text-center text-[10px] font-mono text-slate-500 hover:text-white transition cursor-pointer pt-2"
+                        >
+                          Create New Share Link
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

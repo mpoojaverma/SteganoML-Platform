@@ -23,12 +23,29 @@ import {
 export default function AnalyticsPage() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [shareStats, setShareStats] = useState({
+    links_created: 0,
+    files_shared: 0,
+    downloads_completed: 0,
+    expired_links: 0
+  });
 
   useEffect(() => {
     async function load() {
       try {
         const data = await getJobs();
-        setJobs(data);
+        setJobs(data || []);
+
+        const { getAnalytics } = await import("@/lib/analytics");
+        const analyticsData = await getAnalytics();
+        if (analyticsData) {
+          setShareStats({
+            links_created: analyticsData.links_created || 0,
+            files_shared: analyticsData.files_shared || 0,
+            downloads_completed: analyticsData.downloads_completed || 0,
+            expired_links: analyticsData.expired_links || 0
+          });
+        }
       } catch (error) {
         console.error(error);
       } finally {
@@ -325,6 +342,51 @@ export default function AnalyticsPage() {
                 </h2>
               </div>
 
+            </div>
+
+            {/* Share Stats Grid */}
+            <div className="space-y-4">
+              <h3 className="text-xs font-mono uppercase tracking-widest text-cyan-400 font-bold">
+                Secure Delivery & Sharing Analytics
+              </h3>
+              
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5 min-w-0 transition-all duration-300 hover:border-cyan-500/20">
+                  <p className="text-xs uppercase text-slate-500 truncate" title="Links Created">
+                    Links Created
+                  </p>
+                  <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold truncate text-cyan-400">
+                    {shareStats.links_created}
+                  </h2>
+                </div>
+
+                <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5 min-w-0 transition-all duration-300 hover:border-teal-500/20">
+                  <p className="text-xs uppercase text-slate-500 truncate" title="Files Shared">
+                    Files Shared
+                  </p>
+                  <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold truncate text-teal-400">
+                    {shareStats.files_shared}
+                  </h2>
+                </div>
+
+                <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5 min-w-0 transition-all duration-300 hover:border-purple-500/20">
+                  <p className="text-xs uppercase text-slate-500 truncate" title="Downloads Completed">
+                    Downloads
+                  </p>
+                  <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold truncate text-purple-400">
+                    {shareStats.downloads_completed}
+                  </h2>
+                </div>
+
+                <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5 min-w-0 transition-all duration-300 hover:border-orange-500/20">
+                  <p className="text-xs uppercase text-slate-500 truncate" title="Expired Links">
+                    Expired Links
+                  </p>
+                  <h2 className="mt-4 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold truncate text-orange-400">
+                    {shareStats.expired_links}
+                  </h2>
+                </div>
+              </div>
             </div>
 
             {/* Desktop View (>= md) */}

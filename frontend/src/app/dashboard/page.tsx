@@ -1,9 +1,12 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import AppShell from "@/components/layout/AppShell";
 import useStats from "@/hooks/useStats";
 import useJobs from "@/hooks/useJobs";
+import { supabase } from "@/lib/supabase";
+import { Lock, Unlock, Download, Eye, Trash2, Copy, Link as LinkIcon, RefreshCw } from "lucide-react";
 
 export default function DashboardPage() {
   const { stats, loading: statsLoading } =
@@ -11,6 +14,61 @@ export default function DashboardPage() {
 
   const { jobs, loading: jobsLoading } = useJobs();
   const isLoading = statsLoading || jobsLoading;
+
+  const [shares, setShares] = useState<any[]>([]);
+  const [sharesLoading, setSharesLoading] = useState(true);
+
+  async function loadShares() {
+    try {
+      setSharesLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+      const response = await fetch(`${API_BASE}/share/list?owner_id=${user.id}`);
+      const data = await response.json();
+      setShares(data || []);
+    } catch (error) {
+      console.error("Error loading secure shares:", error);
+    } finally {
+      setSharesLoading(false);
+    }
+  }
+
+  const handleDisableShare = async (token: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+      await fetch(`${API_BASE}/share/disable/${token}?owner_id=${user.id}`, {
+        method: "POST",
+      });
+      loadShares();
+    } catch (error) {
+      console.error("Error disabling share:", error);
+    }
+  };
+
+  const handleDeleteShare = async (token: string) => {
+    if (!confirm("Are you sure you want to permanently delete this secure share link?")) return;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+      await fetch(`${API_BASE}/share/delete/${token}?owner_id=${user.id}`, {
+        method: "DELETE",
+      });
+      loadShares();
+    } catch (error) {
+      console.error("Error deleting share:", error);
+    }
+  };
+
+  useEffect(() => {
+    loadShares();
+  }, []);
 
   return (
     <AppShell>
@@ -401,6 +459,126 @@ export default function DashboardPage() {
 
           </div>
 
+        </div>
+
+        {/* Secure Shares Manager Section */}
+        <div className="rounded-3xl border border-white/10 bg-[#0b1327] overflow-hidden">
+          <div className="flex items-center justify-between border-b border-white/10 p-5">
+            <h2 className="font-semibold text-white">Secure Shares</h2>
+            <span className="rounded-full bg-cyan-500/10 px-3 py-1 text-xs text-cyan-400 font-mono uppercase tracking-wider font-semibold">
+              Secure Delivery
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="text-left text-xs text-slate-500 border-b border-white/5">
+                  <th className="px-5 py-4">File Name</th>
+                  <th>Expiration</th>
+                  <th>Downloads Remaining</th>
+                  <th>Views</th>
+                  <th>Status</th>
+                  <th className="px-5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="text-sm">
+                {sharesLoading ? (
+                  Array.from({ length: 3 }).map((_, idx) => (
+                    <tr key={idx} className="border-b border-white/5 animate-pulse">
+                      <td className="px-5 py-4"><div className="h-4 w-40 bg-white/5 rounded" /></td>
+                      <td><div className="h-4 w-24 bg-white/5 rounded" /></td>
+                      <td><div className="h-4 w-20 bg-white/5 rounded" /></td>
+                      <td><div className="h-4 w-10 bg-white/5 rounded" /></td>
+                      <td><div className="h-6 w-16 bg-white/5 rounded-full" /></td>
+                      <td className="px-5"><div className="h-8 w-24 bg-white/5 rounded ml-auto" /></td>
+                    </tr>
+                  ))
+                ) : shares.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-5 py-10 text-center text-slate-500">
+                      No active share links. Generate links in the Encode Studio to deliver files securely.
+                    </td>
+                  </tr>
+                ) : (
+                  shares.map((share: any) => {
+                    const isExpired = share.status === "expired" || new Date(share.expires_at) < new Date();
+                    const downloadsRemaining = share.max_downloads === -1 ? "Unlimited" : (share.max_downloads - share.download_count);
+                    const shareUrl = `${window.location.origin}/share/${share.share_token}`;
+
+                    return (
+                      <tr key={share.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                        <td className="px-5 py-4 max-w-[200px] truncate" title={share.file_name}>
+                          {share.file_name}
+                        </td>
+                        <td>
+                          {new Date(share.expires_at).toLocaleDateString()} {new Date(share.expires_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        </td>
+                        <td>
+                          {downloadsRemaining}
+                        </td>
+                        <td>
+                          {share.access_count}
+                        </td>
+                        <td>
+                          <span
+                            className={`rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${
+                              share.status === "active" && !isExpired
+                                ? "bg-emerald-500/10 text-emerald-400"
+                                : share.status === "disabled"
+                                  ? "bg-slate-500/10 text-slate-400"
+                                  : "bg-red-500/10 text-red-400"
+                            }`}
+                          >
+                            {isExpired ? "expired" : share.status}
+                          </span>
+                        </td>
+                        <td className="px-5 py-4 text-right">
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(shareUrl);
+                                alert("Link copied to clipboard!");
+                              }}
+                              className="p-1.5 rounded hover:bg-white/10 text-slate-400 hover:text-white transition shrink-0 cursor-pointer"
+                              title="Copy Share Link"
+                            >
+                              <Copy size={14} />
+                            </button>
+                            <a
+                              href={`/share/${share.share_token}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="p-1.5 rounded hover:bg-white/10 text-slate-400 hover:text-white transition shrink-0 cursor-pointer flex items-center"
+                              title="View Share Page"
+                            >
+                              <Eye size={14} />
+                            </a>
+                            {share.status === "active" && !isExpired && (
+                              <button
+                                onClick={() => handleDisableShare(share.share_token)}
+                                className="p-1.5 rounded hover:bg-white/10 text-slate-400 hover:text-white transition shrink-0 cursor-pointer"
+                                title="Disable Share Link"
+                              >
+                                <Lock size={14} />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDeleteShare(share.share_token)}
+                              className="p-1.5 rounded hover:bg-white/10 text-red-400 hover:bg-red-500/10 transition shrink-0 cursor-pointer"
+                              title="Delete Share Link"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
