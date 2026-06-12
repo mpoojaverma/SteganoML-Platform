@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Logo from "@/components/ui/Logo";
+import { motion } from "framer-motion";
 
 import {
   LayoutDashboard,
@@ -168,27 +169,9 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             Workspace
           </p>
 
-          {workspace.map((item) => {
-            const Icon = item.icon;
-
-            const active =
-              pathname === item.href;
-
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={`mb-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-200 ${
-                  active
-                    ? "bg-cyan-500/20 text-cyan-300 border-l-2 border-cyan-400 pl-[14px]"
-                    : "text-slate-300 hover:bg-white/5 hover:translate-x-0.5"
-                } focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111f] outline-none`}
-              >
-                <Icon size={18} />
-                {item.label}
-              </Link>
-            );
-          })}
+          {workspace.map((item) => (
+            <SidebarLink key={item.label} item={item} pathname={pathname} />
+          ))}
 
         </div>
 
@@ -200,27 +183,9 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             Insights
           </p>
 
-          {insights.map((item) => {
-            const Icon = item.icon;
-
-            const active =
-              pathname === item.href;
-
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={`mb-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-200 ${
-                  active
-                    ? "bg-cyan-500/20 text-cyan-300 border-l-2 border-cyan-400 pl-[14px]"
-                    : "text-slate-300 hover:bg-white/5 hover:translate-x-0.5"
-                } focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111f] outline-none`}
-              >
-                <Icon size={18} />
-                {item.label}
-              </Link>
-            );
-          })}
+          {insights.map((item) => (
+            <SidebarLink key={item.label} item={item} pathname={pathname} />
+          ))}
 
         </div>
 
@@ -232,29 +197,9 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             Resources
           </p>
 
-          {resources.map((item) => {
-            const Icon = item.icon;
-
-            const active =
-              pathname === item.href;
-
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                target={item.external ? "_blank" : undefined}
-                rel={item.external ? "noopener noreferrer" : undefined}
-                className={`mb-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-200 ${
-                  active
-                    ? "bg-cyan-500/20 text-cyan-300 border-l-2 border-cyan-400 pl-[14px]"
-                    : "text-slate-300 hover:bg-white/5 hover:translate-x-0.5"
-                } focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111f] outline-none`}
-              >
-                <Icon size={18} />
-                {item.label}
-              </Link>
-            );
-          })}
+          {resources.map((item) => (
+            <SidebarLink key={item.label} item={item} pathname={pathname} />
+          ))}
 
         </div>
 
@@ -266,27 +211,9 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             System
           </p>
 
-          {system.map((item) => {
-            const Icon = item.icon;
-
-            const active =
-              pathname === item.href;
-
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={`mb-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-200 ${
-                  active
-                    ? "bg-cyan-500/20 text-cyan-300 border-l-2 border-cyan-400 pl-[14px]"
-                    : "text-slate-300 hover:bg-white/5 hover:translate-x-0.5"
-                } focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111f] outline-none`}
-              >
-                <Icon size={18} />
-                {item.label}
-              </Link>
-            );
-          })}
+          {system.map((item) => (
+            <SidebarLink key={item.label} item={item} pathname={pathname} />
+          ))}
 
         </div>
 
@@ -324,5 +251,47 @@ export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       </div>
 
     </aside>
+  );
+}
+
+function SidebarLink({ item, pathname }: { item: any; pathname: string }) {
+  const Icon = item.icon;
+  const active = pathname === item.href;
+
+  return (
+    <Link
+      href={item.href}
+      target={item.external ? "_blank" : undefined}
+      rel={item.external ? "noopener noreferrer" : undefined}
+      className={`relative mb-2 flex items-center gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-200 outline-none overflow-hidden group ${
+        active
+          ? "bg-cyan-500/10 text-cyan-300 border-l-2 border-cyan-400 pl-[14px]"
+          : "text-slate-300 hover:bg-white/5"
+      } focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07111f]`}
+    >
+      {/* Hover Magnetic Icon Container */}
+      <motion.div
+        className="shrink-0 text-cyan-400/80 group-hover:text-cyan-400"
+        whileHover={{ x: 2, y: -0.5 }}
+        transition={{ type: "spring", stiffness: 400, damping: 15 }}
+      >
+        <Icon size={18} />
+      </motion.div>
+
+      <span className="relative z-10 transition-colors group-hover:text-white">
+        {item.label}
+      </span>
+
+      {/* Active Indicator Beam */}
+      {active && (
+        <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-xl">
+          <motion.div
+            className="absolute top-0 bottom-0 w-16 bg-gradient-to-r from-transparent via-cyan-400/15 to-transparent"
+            animate={{ left: ["-30%", "130%"] }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
+          />
+        </div>
+      )}
+    </Link>
   );
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import Logo from "@/components/ui/Logo";
+import HeroBackgroundEffects from "@/components/ui/HeroBackgroundEffects";
 import {
   Shield,
   Cpu,
@@ -194,8 +195,9 @@ export default function HomePage() {
       </nav>
 
       {/* HERO SECTION WITH INTERACTIVE PIPELINE */}
-      <section className="relative z-20 mx-auto max-w-7xl px-6 pt-8 pb-12 lg:pt-14">
-        <div className="grid items-center gap-12 lg:grid-cols-12">
+      <section className="relative mx-auto max-w-7xl px-6 pt-8 pb-12 lg:pt-14 overflow-hidden rounded-[40px]">
+        <HeroBackgroundEffects />
+        <div className="grid items-center gap-12 lg:grid-cols-12 relative z-20">
           {/* LEFT: TEXT & CTA */}
           <div className="lg:col-span-6 space-y-8 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-4 py-2 text-xs font-medium text-cyan-300 animate-pulse">

@@ -7,6 +7,7 @@ import useStats from "@/hooks/useStats";
 import useJobs from "@/hooks/useJobs";
 import { supabase } from "@/lib/supabase";
 import { Lock, Unlock, Download, Eye, Trash2, Copy, Link as LinkIcon, RefreshCw } from "lucide-react";
+import { motion } from "framer-motion";
 
 const isLocalhost = typeof window !== "undefined" && 
   (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
@@ -248,8 +249,11 @@ export default function DashboardPage() {
                           job: any,
                           index: number
                         ) => (
-                          <tr
+                          <motion.tr
                             key={index}
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
                             className="border-t border-white/5 hover:bg-white/[0.03]"
                           >
                             <td className="px-5 py-4 max-w-[250px] group">
@@ -317,7 +321,7 @@ export default function DashboardPage() {
                               {job.nc ?? "-"}
                             </td>
 
-                          </tr>
+                          </motion.tr>
                         )
                       )
                   )}
@@ -358,7 +362,13 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 jobs.slice(0, 8).map((job: any, index: number) => (
-                  <div key={index} className="p-5 space-y-3">
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                    className="p-5 space-y-3"
+                  >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
@@ -425,8 +435,7 @@ export default function DashboardPage() {
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                  </motion.div>
               )}
             </div>
 
@@ -505,13 +514,19 @@ export default function DashboardPage() {
                     </td>
                   </tr>
                 ) : (
-                  shares.map((share: any) => {
+                  shares.map((share: any, idx: number) => {
                     const isExpired = share.status === "expired" || new Date(share.expires_at) < new Date();
                     const downloadsRemaining = share.max_downloads === -1 ? "Unlimited" : (share.max_downloads - share.download_count);
                     const shareUrl = `${window.location.origin}/share/${share.share_token}`;
 
                     return (
-                      <tr key={share.id} className="border-b border-white/5 hover:bg-white/[0.02]">
+                      <motion.tr
+                        key={share.id}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: idx * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                        className="border-b border-white/5 hover:bg-white/[0.02]"
+                      >
                         <td className="px-5 py-4 max-w-[200px] truncate" title={share.file_name}>
                           {share.file_name}
                         </td>
@@ -576,7 +591,7 @@ export default function DashboardPage() {
                             </button>
                           </div>
                         </td>
-                      </tr>
+                      </motion.tr>
                     );
                   })
                 )}
@@ -628,9 +643,49 @@ function MetricCard({
   color = "",
   loading = false,
 }: any) {
-  return (
-    <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-4 sm:p-5 lg:p-5 min-w-0 lg:min-w-fit">
+  const isSignalMetric = ["Avg PSNR", "Avg SNR", "Avg BER", "Avg NC"].includes(title);
+  
+  // Color mapping for different glows
+  let glowColor = "rgba(6, 182, 212, 0.08)"; // default cyan
+  if (title === "Avg SNR") glowColor = "rgba(168, 85, 247, 0.08)"; // purple
+  if (title === "Avg BER") glowColor = "rgba(249, 115, 22, 0.08)"; // orange
+  if (title === "Avg NC") glowColor = "rgba(236, 72, 153, 0.08)"; // pink
 
+  let hoverGlow = "0 10px 30px -10px rgba(6, 182, 212, 0.15)";
+  if (title === "Avg SNR") hoverGlow = "0 10px 30px -10px rgba(168, 85, 247, 0.15)";
+  if (title === "Avg BER") hoverGlow = "0 10px 30px -10px rgba(249, 115, 22, 0.15)";
+  if (title === "Avg NC") hoverGlow = "0 10px 30px -10px rgba(236, 72, 153, 0.15)";
+
+  let hoverBorder = "rgba(6, 182, 212, 0.4)";
+  if (title === "Avg SNR") hoverBorder = "rgba(168, 85, 247, 0.4)";
+  if (title === "Avg BER") hoverBorder = "rgba(249, 115, 22, 0.4)";
+  if (title === "Avg NC") hoverBorder = "rgba(236, 72, 153, 0.4)";
+
+  return (
+    <motion.div
+      className="rounded-3xl border border-white/10 bg-[#0b1327] p-4 sm:p-5 lg:p-5 min-w-0 lg:min-w-fit relative overflow-hidden group"
+      whileHover={{
+        y: -6,
+        scale: 1.02,
+        borderColor: hoverBorder,
+        boxShadow: hoverGlow
+      }}
+      animate={isSignalMetric ? {
+        boxShadow: [
+          "0 0 0px 0px rgba(0, 0, 0, 0)",
+          `0 0 15px 2px ${glowColor}`,
+          "0 0 0px 0px rgba(0, 0, 0, 0)"
+        ]
+      } : undefined}
+      transition={{
+        y: { type: "spring", stiffness: 300, damping: 20 },
+        scale: { type: "spring", stiffness: 300, damping: 20 },
+        boxShadow: isSignalMetric ? { duration: 5, repeat: Infinity, ease: "easeInOut" } : undefined
+      }}
+    >
+      {/* Subtle top gradient sweep on hover */}
+      <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
       <p className="text-xs uppercase text-slate-500 truncate lg:overflow-visible lg:whitespace-normal" title={title}>
         {title}
       </p>
@@ -645,8 +700,7 @@ function MetricCard({
           {value}
         </h2>
       )}
-
-    </div>
+    </motion.div>
   );
 }
 

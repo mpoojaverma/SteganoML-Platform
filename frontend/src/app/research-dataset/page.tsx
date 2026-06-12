@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import Logo from "@/components/ui/Logo";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Database,
   FileText,
@@ -151,6 +152,14 @@ export default function ResearchDatasetPage() {
   const [activeCreationStep, setActiveCreationStep] = useState(0);
   const [activeWorkflowStage, setActiveWorkflowStage] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [expandedFormulas, setExpandedFormulas] = useState<Record<string, boolean>>({});
+
+  const toggleFormula = (title: string) => {
+    setExpandedFormulas(prev => ({
+      ...prev,
+      [title]: !prev[title]
+    }));
+  };
 
   useEffect(() => {
     async function checkSession() {
@@ -319,9 +328,15 @@ export default function ResearchDatasetPage() {
         {/* Feature Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
           {filteredFeatures.map((feat) => (
-            <div
+            <motion.div
               key={feat.title}
-              className="rounded-3xl border border-white/10 bg-[#07111f]/60 p-6 flex flex-col justify-between hover:border-cyan-500/20 hover:-translate-y-0.5 transition-all duration-300"
+              whileHover={{
+                y: -8,
+                borderColor: "rgba(34, 211, 238, 0.4)",
+                boxShadow: "0 10px 30px -10px rgba(34, 211, 238, 0.15)"
+              }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="rounded-3xl border border-white/10 bg-[#07111f]/60 p-6 flex flex-col justify-between relative overflow-hidden group min-h-[320px]"
             >
               <div>
                 <span className="text-[9px] uppercase font-mono tracking-widest text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-full border border-cyan-500/20">
@@ -334,7 +349,8 @@ export default function ResearchDatasetPage() {
               </div>
               
               <div className="mt-6 border-t border-white/5 pt-4 space-y-3">
-                <div className="flex flex-col gap-1">
+                {/* Reveal Descriptor on Hover */}
+                <div className="flex flex-col gap-1 max-h-0 opacity-0 group-hover:max-h-12 group-hover:opacity-100 transition-all duration-300 overflow-hidden">
                   <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500">
                     Classification Role
                   </span>
@@ -343,11 +359,17 @@ export default function ResearchDatasetPage() {
                   </span>
                 </div>
                 
-                <details className="group border border-white/5 bg-slate-950/40 rounded-xl overflow-hidden [&_summary::-webkit-details-marker]:hidden">
-                  <summary className="flex items-center justify-between p-2.5 text-[11px] font-mono font-bold text-slate-400 hover:text-white cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden">
+                {/* Mathematical Formula Accordion with Height/Fade/Blur Animations */}
+                <div className="border border-white/5 bg-slate-950/40 rounded-xl overflow-hidden">
+                  <button
+                    onClick={() => toggleFormula(feat.title)}
+                    className="w-full flex items-center justify-between p-2.5 text-[11px] font-mono font-bold text-slate-400 hover:text-white cursor-pointer select-none outline-none"
+                  >
                     <span>Mathematical Definition</span>
-                    <svg
-                      className="h-3 w-3 text-cyan-500/80 transition-transform duration-200 group-open:rotate-180"
+                    <motion.svg
+                      className="h-3 w-3 text-cyan-500/80"
+                      animate={{ rotate: expandedFormulas[feat.title] ? 180 : 0 }}
+                      transition={{ duration: 0.3 }}
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -355,14 +377,27 @@ export default function ResearchDatasetPage() {
                       strokeWidth="3"
                     >
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </summary>
-                  <div className="p-3 border-t border-cyan-500/10 bg-slate-950/90 rounded-b-xl shadow-inner font-mono text-[10px] text-cyan-300/80 break-words leading-relaxed select-all">
-                    {feat.formula}
-                  </div>
-                </details>
+                    </motion.svg>
+                  </button>
+                  
+                  <AnimatePresence initial={false}>
+                    {expandedFormulas[feat.title] && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0, filter: "blur(6px)" }}
+                        animate={{ height: "auto", opacity: 1, filter: "blur(0px)" }}
+                        exit={{ height: 0, opacity: 0, filter: "blur(4px)" }}
+                        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-3 border-t border-cyan-500/10 bg-slate-950/90 rounded-b-xl shadow-inner font-mono text-[10px] text-cyan-300/80 break-words leading-relaxed select-all">
+                          {feat.formula}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </section>

@@ -38,6 +38,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [authorizing, setAuthorizing] = useState(false);
 
   async function fetchShareInfo(verifyPassword?: string) {
     setLoading(true);
@@ -102,22 +103,28 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
   };
 
   const handleDownload = () => {
-    if (!token) return;
-    const downloadUrl = `${API_BASE}/share/download/${token}${
-      password ? `?password=${encodeURIComponent(password)}` : ""
-    }`;
-    window.location.href = downloadUrl;
+    if (!token || authorizing) return;
+    setAuthorizing(true);
 
-    // Refresh info to update downloads remaining metric after a slight delay
     setTimeout(() => {
-      fetchShareInfo(password || undefined);
-    }, 1500);
+      const downloadUrl = `${API_BASE}/share/download/${token}${
+        password ? `?password=${encodeURIComponent(password)}` : ""
+      }`;
+      window.location.href = downloadUrl;
+      setAuthorizing(false);
+
+      // Refresh info to update downloads remaining metric after a slight delay
+      setTimeout(() => {
+        fetchShareInfo(password || undefined);
+      }, 1500);
+    }, 1200);
   };
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-[#020817] text-white relative overflow-hidden">
       {/* Decorative glowing lines and dots overlays */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808005_1px,transparent_1px),linear-gradient(to_bottom,#80808005_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
+      <ShareBackgroundEffects />
 
       <header className="border-b border-white/5 bg-[#0b1327]/40 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -192,15 +199,22 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                   <span className="text-[9px] font-mono text-slate-500">Sender Node</span>
                 </div>
                 
-                <div className="flex-1 relative mx-4 h-[2px] bg-white/5">
+                <div className="flex-1 relative mx-4 h-6 overflow-hidden">
+                  <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-white/5 -translate-y-1/2" />
                   <motion.div 
-                    className="absolute top-0 h-full w-12 bg-gradient-to-r from-transparent via-cyan-400 to-transparent"
-                    animate={{ left: ["-20%", "120%"] }}
-                    transition={{
-                      duration: 2.2,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
+                    className="absolute top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]"
+                    animate={{ left: ["-5%", "105%"] }}
+                    transition={{ duration: 2.4, repeat: Infinity, ease: "linear" }}
+                  />
+                  <motion.div 
+                    className="absolute top-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full bg-purple-400 shadow-[0_0_8px_#a855f7]"
+                    animate={{ left: ["-5%", "105%"] }}
+                    transition={{ duration: 2.4, delay: 0.8, repeat: Infinity, ease: "linear" }}
+                  />
+                  <motion.div 
+                    className="absolute top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"
+                    animate={{ left: ["-5%", "105%"] }}
+                    transition={{ duration: 2.4, delay: 1.6, repeat: Infinity, ease: "linear" }}
                   />
                 </div>
                 
@@ -256,8 +270,26 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                 <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600" />
                 
                 <div className="text-center space-y-2">
-                  <div className="w-12 h-12 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center mx-auto shadow-md">
-                    <Lock size={20} />
+                  <div className="relative w-16 h-16 flex items-center justify-center mx-auto">
+                    <motion.svg
+                      viewBox="0 0 100 100"
+                      className="absolute inset-0 w-full h-full text-cyan-500/40"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    >
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="44"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeDasharray="20 15 30 10"
+                        fill="transparent"
+                      />
+                    </motion.svg>
+                    <div className="w-11 h-11 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center shadow-md">
+                      <Lock size={18} />
+                    </div>
                   </div>
                   <h2 className="text-xl font-bold text-white tracking-tight">Protected Shared File</h2>
                   <p className="text-xs text-slate-400 leading-normal">
@@ -308,8 +340,26 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
                 <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
                 
                 <div className="text-center space-y-2">
-                  <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto shadow-md">
-                    <ShieldCheck size={22} />
+                  <div className="relative w-16 h-16 flex items-center justify-center mx-auto">
+                    <motion.svg
+                      viewBox="0 0 100 100"
+                      className="absolute inset-0 w-full h-full text-emerald-500/40"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    >
+                      <circle
+                        cx="50"
+                        cy="50"
+                        r="44"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeDasharray="25 10 15 20"
+                        fill="transparent"
+                      />
+                    </motion.svg>
+                    <div className="w-11 h-11 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shadow-md">
+                      <ShieldCheck size={20} />
+                    </div>
                   </div>
                   <h2 className="text-xl font-bold text-white tracking-tight">Delivery Details</h2>
                   <p className="text-xs text-slate-400">
@@ -370,10 +420,31 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
 
                 <button
                   onClick={handleDownload}
-                  className="w-full rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 py-3.5 text-sm font-semibold text-black hover:brightness-110 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/10"
+                  disabled={authorizing}
+                  className="w-full relative rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 py-3.5 text-sm font-semibold text-black hover:brightness-110 active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/10 overflow-hidden"
                 >
-                  <Download size={16} />
-                  <span>Secure Download</span>
+                  {authorizing ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin text-black" />
+                      <span>Authorizing Delivery Key...</span>
+                      <motion.div 
+                        className="absolute inset-y-0 left-0 bg-white/20 w-1/3"
+                        animate={{ left: ["-30%", "130%"] }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <Download size={16} />
+                      <span>Secure Download</span>
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none"
+                        initial={{ left: "-100%" }}
+                        whileHover={{ left: "100%" }}
+                        transition={{ duration: 0.6, ease: "easeInOut" }}
+                      />
+                    </>
+                  )}
                 </button>
 
                 <p className="text-[10px] text-center text-slate-500 leading-normal">
@@ -412,6 +483,52 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
           </div>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function ShareBackgroundEffects() {
+  return (
+    <div className="absolute inset-0 w-full h-full pointer-events-none overflow-hidden opacity-25 z-0">
+      {/* Moving Scan Lines */}
+      <motion.div 
+        className="absolute inset-x-0 h-[1px] bg-cyan-500/10"
+        animate={{ top: ["0%", "100%"] }}
+        transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+      />
+      
+      {/* Soft Neural Nodes */}
+      <svg className="absolute inset-0 w-full h-full opacity-20">
+        <circle cx="20%" cy="30%" r="2" fill="#22d3ee" className="animate-pulse" />
+        <circle cx="80%" cy="15%" r="1.5" fill="#22d3ee" />
+        <circle cx="70%" cy="75%" r="2" fill="#22d3ee" className="animate-pulse" />
+        <circle cx="25%" cy="85%" r="1.5" fill="#22d3ee" />
+        
+        <line x1="20%" y1="30%" x2="25%" y2="85%" stroke="rgba(34, 211, 238, 0.05)" strokeWidth="1" />
+        <line x1="80%" y1="15%" x2="70%" y2="75%" stroke="rgba(34, 211, 238, 0.05)" strokeWidth="1" />
+      </svg>
+
+      {/* Faint Audio Spectrum in background */}
+      <div className="absolute bottom-0 inset-x-0 h-24 flex items-end justify-between opacity-[0.04] blur-[1px] px-8">
+        {[...Array(60)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="w-[2px] bg-cyan-500 rounded-t"
+            animate={{
+              height: [
+                `${Math.random() * 40 + 5}px`,
+                `${Math.random() * 80 + 5}px`,
+                `${Math.random() * 40 + 5}px`
+              ]
+            }}
+            transition={{
+              duration: 2 + (i % 5) * 0.4,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
 }
