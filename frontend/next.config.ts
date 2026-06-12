@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://*.supabase.co https://*.supabase.in http://localhost:8000 http://127.0.0.1:8000 https://*.up.railway.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self';",
+            value: "default-src 'self'; img-src 'self' data: https: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://*.supabase.in http://localhost:8000 http://127.0.0.1:8000 https://*.up.railway.app; frame-ancestors 'none'; base-uri 'self'; form-action 'self';",
           },
         ],
       },
