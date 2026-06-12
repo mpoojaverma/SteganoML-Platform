@@ -131,11 +131,32 @@ async def download_encoded_file(filename: str):
     # P0: Path traversal boundary check
     file_path = (output_dir / filename).resolve()
 
-    if not file_path.is_relative_to(output_dir) or not file_path.exists():
+    if not file_path.is_relative_to(output_dir):
         raise HTTPException(status_code=403, detail="Access denied.")
 
-    return FileResponse(
-        path=str(file_path),
-        filename=filename,
-        media_type="audio/wav",
-    )
+    if file_path.exists():
+        return FileResponse(
+            path=str(file_path),
+            filename=filename,
+            media_type="audio/wav",
+        )
+
+    # Fallback to Supabase Storage if temp file was cleaned up
+    try:
+        from app.utils.supabase_logger import supabase
+        from fastapi.responses import Response
+        
+        storage_path = f"outputs/{filename}"
+        response_bytes = supabase.storage.from_("audio-files").download(storage_path)
+        if response_bytes:
+            return Response(
+                content=response_bytes,
+                media_type="audio/wav",
+                headers={
+                    "Content-Disposition": f"attachment; filename={filename}"
+                }
+            )
+    except Exception as e:
+        logger.error(f"Error downloading {filename} from Supabase: {str(e)}")
+
+    raise HTTPException(status_code=404, detail="Audio file not found.")

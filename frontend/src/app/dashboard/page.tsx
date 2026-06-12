@@ -8,6 +8,13 @@ import useJobs from "@/hooks/useJobs";
 import { supabase } from "@/lib/supabase";
 import { Lock, Unlock, Download, Eye, Trash2, Copy, Link as LinkIcon, RefreshCw } from "lucide-react";
 
+const isLocalhost = typeof window !== "undefined" && 
+  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+
+const API_BASE = isLocalhost 
+  ? "http://127.0.0.1:8000/api" 
+  : (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api");
+
 export default function DashboardPage() {
   const { stats, loading: statsLoading } =
     useStats();
@@ -24,7 +31,6 @@ export default function DashboardPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
       const response = await fetch(`${API_BASE}/share/list?owner_id=${user.id}`);
       const data = await response.json();
       setShares(data || []);
@@ -40,7 +46,6 @@ export default function DashboardPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
       await fetch(`${API_BASE}/share/disable/${token}?owner_id=${user.id}`, {
         method: "POST",
       });
@@ -56,7 +61,6 @@ export default function DashboardPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
       await fetch(`${API_BASE}/share/delete/${token}?owner_id=${user.id}`, {
         method: "DELETE",
       });

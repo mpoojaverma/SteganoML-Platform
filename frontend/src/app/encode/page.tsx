@@ -7,6 +7,8 @@ import { getDownloadUrl } from "@/lib/api";
 import Toast from "@/components/ui/Toast";
 import axios from "axios";
 import { supabase } from "@/lib/supabase";
+import CustomSelect from "@/components/ui/CustomSelect";
+import { QRCodeSVG } from "qrcode.react";
 import { 
   UploadCloud, 
   FileAudio, 
@@ -156,7 +158,12 @@ const waveform = [
   18, 24, 40, 58, 72, 56,
 ];
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+const isLocalhost = typeof window !== "undefined" && 
+  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+
+const API_BASE = isLocalhost 
+  ? "http://127.0.0.1:8000/api" 
+  : (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api");
 
 export default function EncodePage() {
   const [audioFile, setAudioFile] = useState<File | { name: string; size?: number; fake: boolean } | null>(null);
@@ -378,11 +385,31 @@ export default function EncodePage() {
       }
     } catch (err: any) {
       console.error(err);
-      setShareError(
-        err?.response?.data?.detail || 
-        err?.message || 
-        "Failed to generate secure share link."
-      );
+      let errorMsg = "Failed to generate secure share link.";
+      if (err?.response) {
+        const detail = err.response.data?.detail;
+        if (detail) {
+          const detailStr = String(detail);
+          if (detailStr.includes("Database ownership validation error") || detailStr.includes("unauthorized") || detailStr.includes("Unauthorized")) {
+            errorMsg = "Authentication required or file ownership mismatch.";
+          } else if (detailStr.includes("shared_files") && (detailStr.includes("missing") || detailStr.includes("relation") || detailStr.includes("does not exist"))) {
+            errorMsg = "Database table missing. Please run database migrations.";
+          } else if (detailStr.includes("Share creation query failure")) {
+            errorMsg = "Share link creation failed: backend database insertion failed.";
+          } else if (detailStr.includes("Bucket") || detailStr.includes("bucket")) {
+            errorMsg = "Bucket configuration error: Supabase bucket is missing or private.";
+          } else {
+            errorMsg = detailStr;
+          }
+        } else {
+          errorMsg = `Invalid response (Status ${err.response.status}): ${err.response.statusText || "Unable to parse backend response."}`;
+        }
+      } else if (err?.message === "Network Error" || !err?.response) {
+        errorMsg = "Backend unavailable: The API server is not running or network connection failed.";
+      } else {
+        errorMsg = err.message || "Failed to generate secure share link.";
+      }
+      setShareError(errorMsg);
     } finally {
       setIsGeneratingShare(false);
     }
@@ -1532,11 +1559,12 @@ export default function EncodePage() {
                   
                   {localResult?.storage_url && (
                     <button
-                      onClick={() =>
+                      onClick={() => {
                         navigator.clipboard.writeText(
-                          localResult.storage_url
-                        )
-                      }
+                          getDownloadUrl(localResult.storage_url, localResult.output_file)
+                        );
+                        alert("Secure cloud download URL copied!");
+                      }}
                       type="button"
                       className="w-full rounded-xl border border-white/10 bg-white/5 py-3 text-xs font-bold text-slate-300 hover:bg-white/10 transition cursor-pointer"
                     >
@@ -1557,32 +1585,22 @@ export default function EncodePage() {
                             <label className="text-[10px] font-mono text-slate-500 block mb-1">
                               Expiration
                             </label>
-                            <select
+                            <CustomSelect
                               value={shareExpiration}
-                              onChange={(e) => setShareExpiration(e.target.value)}
-                              className="w-full rounded-lg border border-white/5 bg-white/5 px-2 py-2 text-xs outline-none focus:border-cyan-500/50"
-                            >
-                              <option value="1 Hour">1 Hour</option>
-                              <option value="24 Hours">24 Hours</option>
-                              <option value="7 Days">7 Days</option>
-                              <option value="30 Days">30 Days</option>
-                            </select>
+                              options={["1 Hour", "24 Hours", "7 Days", "30 Days"]}
+                              onChange={(val) => setShareExpiration(val)}
+                            />
                           </div>
 
                           <div>
                             <label className="text-[10px] font-mono text-slate-500 block mb-1">
                               Download Limit
                             </label>
-                            <select
+                            <CustomSelect
                               value={shareDownloadLimit}
-                              onChange={(e) => setShareDownloadLimit(e.target.value)}
-                              className="w-full rounded-lg border border-white/5 bg-white/5 px-2 py-2 text-xs outline-none focus:border-cyan-500/50"
-                            >
-                              <option value="1">1 Download</option>
-                              <option value="5">5 Downloads</option>
-                              <option value="10">10 Downloads</option>
-                              <option value="Unlimited">Unlimited</option>
-                            </select>
+                              options={["1", "5", "10", "Unlimited"]}
+                              onChange={(val) => setShareDownloadLimit(val)}
+                            />
                           </div>
                         </div>
 
@@ -1638,12 +1656,11 @@ export default function EncodePage() {
 
                         <div className="flex flex-col items-center py-2 bg-[#020817]/60 border border-white/5 rounded-lg gap-2">
                           <div className="bg-white p-1.5 rounded-lg">
-                            <img
-                              src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(
-                                `${window.location.origin}/share/${shareResult.token}`
-                              )}`}
-                              alt="Secure Share QR Code"
-                              className="w-[110px] h-[110px]"
+                            <QRCodeSVG
+                              value={`${window.location.origin}/share/${shareResult.token}`}
+                              size={110}
+                              level="M"
+                              includeMargin={false}
                             />
                           </div>
                           <span className="text-[9px] font-mono text-slate-500">
