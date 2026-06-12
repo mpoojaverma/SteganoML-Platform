@@ -19,3 +19,5 @@ pydantic
 joblib
 supabase
 python-dotenv
+email-validator>=2.0.0
+bcrypt
