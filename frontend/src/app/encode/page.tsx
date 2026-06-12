@@ -8,7 +8,6 @@ import Toast from "@/components/ui/Toast";
 import axios from "axios";
 import { supabase } from "@/lib/supabase";
 import CustomSelect from "@/components/ui/CustomSelect";
-import { QRCodeSVG } from "qrcode.react";
 import { 
   UploadCloud, 
   FileAudio, 
@@ -1656,11 +1655,12 @@ export default function EncodePage() {
 
                         <div className="flex flex-col items-center py-2 bg-[#020817]/60 border border-white/5 rounded-lg gap-2">
                           <div className="bg-white p-1.5 rounded-lg">
-                            <QRCodeSVG
-                              value={`${window.location.origin}/share/${shareResult.token}`}
-                              size={110}
-                              level="M"
-                              includeMargin={false}
+                            <img
+                              src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
+                                `${window.location.origin}/share/${shareResult.token}`
+                              )}`}
+                              alt="Secure Share QR Code"
+                              className="w-[110px] h-[110px]"
                             />
                           </div>
                           <span className="text-[9px] font-mono text-slate-500">
