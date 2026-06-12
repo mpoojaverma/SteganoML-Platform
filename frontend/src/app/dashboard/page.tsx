@@ -22,27 +22,26 @@ export default function DashboardPage() {
           </h1>
 
           <p className="mt-2 text-slate-400">
-            Monitor adaptive steganography pipelines,
-            security metrics and system activity.
+            Monitor payload protection pipelines, quality metrics, and recent operations.
           </p>
         </div>
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 xl:grid-cols-8">
 
           <MetricCard
-            title="Total Jobs"
+            title="Total Operations"
             value={stats.total_jobs}
             loading={isLoading}
           />
 
           <MetricCard
-            title="Encodes"
+            title="Secure Encodes"
             value={stats.encodes}
             loading={isLoading}
           />
 
           <MetricCard
-            title="Decodes"
+            title="Successful Decodes"
             value={stats.decodes}
             loading={isLoading}
           />
@@ -93,7 +92,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between border-b border-white/10 p-5">
 
               <h2 className="font-semibold">
-                Recent Jobs
+                Recent Operations
               </h2>
 
               <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs text-emerald-400">
@@ -112,12 +111,12 @@ export default function DashboardPage() {
                   <tr className="text-left text-xs text-slate-500">
 
                     <th className="px-5 py-4">
-                      File
+                      Audio File
                     </th>
 
-                    <th>Type</th>
+                    <th>Operation</th>
 
-                    <th>Method</th>
+                    <th>Algorithm</th>
 
                     <th>Status</th>
 
@@ -174,8 +173,8 @@ export default function DashboardPage() {
                           <svg className="w-12 h-12 text-slate-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                           </svg>
-                          <p className="text-sm font-medium text-slate-300">No recent jobs found</p>
-                          <p className="text-xs text-slate-500 mt-1">Run an encode or decode job to see live activity here.</p>
+                          <p className="text-sm font-medium text-slate-300">No Operations Logged</p>
+                          <p className="text-xs text-slate-500 mt-1">Run an encode or decode task to see real-time activity logged here.</p>
                         </div>
                       </td>
                     </tr>
@@ -292,8 +291,8 @@ export default function DashboardPage() {
                   <svg className="w-12 h-12 text-slate-600 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
-                  <p className="text-sm font-medium text-slate-300">No recent jobs found</p>
-                  <p className="text-xs text-slate-500 mt-1">Run an encode or decode job to see live activity here.</p>
+                  <p className="text-sm font-medium text-slate-300">No Operations Logged</p>
+                  <p className="text-xs text-slate-500 mt-1">Run an encode or decode task to see real-time activity logged here.</p>
                 </div>
               ) : (
                 jobs.slice(0, 8).map((job: any, index: number) => (
@@ -316,9 +315,9 @@ export default function DashboardPage() {
                           </button>
                         </div>
                         <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-slate-400 capitalize">
-                          <span>Type: {job.type}</span>
+                          <span>Operation: {job.type}</span>
                           <span>•</span>
-                          <span>Method: {job.method || "-"}</span>
+                          <span>Algorithm: {job.method || "-"}</span>
                           {job.created_at && (
                             <>
                               <span>•</span>
@@ -414,12 +413,12 @@ export default function DashboardPage() {
 
             <QuickLink
               href="/encode"
-              label="New Encode Job"
+              label="New Encode Session"
             />
 
             <QuickLink
               href="/decode"
-              label="Decode Audio"
+              label="Extract Payload"
             />
 
             <QuickLink
@@ -429,7 +428,7 @@ export default function DashboardPage() {
 
             <QuickLink
               href="/job-history"
-              label="Job History"
+              label="Operation History"
             />
 
           </div>
@@ -536,7 +535,7 @@ function MetricsCard({
     <div className="rounded-3xl border border-white/10 bg-[#0b1327] p-5">
 
       <h2 className="mb-4 font-semibold">
-        Live Metrics
+        Operations Summary
       </h2>
 
       <div className="space-y-3 text-sm">
@@ -551,17 +550,17 @@ function MetricsCard({
         ) : (
           <>
             <MetricRow
-              label="Total Records"
+              label="Total Operations"
               value={total}
             />
 
             <MetricRow
-              label="Encoded Files"
+              label="Secure Encodes"
               value={encodes}
             />
 
             <MetricRow
-              label="Decoded Files"
+              label="Successful Decodes"
               value={decodes}
             />
 

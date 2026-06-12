@@ -86,11 +86,11 @@ export default function HomePage() {
   };
 
   const steps = [
-    { title: "Carrier Validation", desc: "Verifying sample rates, audio bit depth, and spectral constraints" },
-    { title: "Cryptographic Envelope", desc: "Encrypting message payloads via AES-256 with PBKDF2 derived keys" },
-    { title: "ML Feature Mapping", desc: "Evaluating acoustic frame parameters using trained CatBoost models" },
-    { title: "Adaptive Masking", desc: "LSB-guided embedding on high capacity targets" },
-    { title: "Fidelity Verification", desc: "Running validation metrics (PSNR, SNR, BER, NC) for stego assurance" },
+    { title: "Audio Analysis", desc: "Verifying sample rates, bit depth, and spectral constraints" },
+    { title: "Payload Encryption", desc: "Encrypting payload bytes using AES-256 with PBKDF2 key derivation" },
+    { title: "ML Frame Selection", desc: "Evaluating acoustic parameters using trained tree-boosting classifiers" },
+    { title: "Adaptive Embedding", desc: "Adjusting LSB insertion depth based on local frame capacity limits" },
+    { title: "Fidelity Verification", desc: "Calculating validation metrics (PSNR, SNR, BER) for transmission assurance" },
   ];
 
   const archBlocks = [
@@ -140,28 +140,28 @@ export default function HomePage() {
 
   const innovations = [
     {
-      title: "ML-Guided Stego Engine",
-      desc: "Advanced steganographic workflow incorporating CatBoost tree ensemble models to map acoustic stability thresholds and prevent automated detection.",
+      title: "ML-Guided Embedding",
+      desc: "Machine learning identifies acoustically stable regions for secure payload placement.",
       badge: "01"
     },
     {
-      title: "Adaptive Masking",
-      desc: "Dynamically identifies carrier frames capable of higher noise tolerances, completely avoiding flat-tone distortions.",
+      title: "Adaptive Signal Preservation",
+      desc: "Maintains audio fidelity while maximizing embedding capacity.",
       badge: "02"
     },
     {
-      title: "Dual-Layer Rigid Security",
-      desc: "Combines steganographic obscurity with PBKDF2 + AES-256 cryptographic rigidity, creating dual-layer authentication.",
+      title: "Dual-Layer Security",
+      desc: "Combines AES-256 encryption with steganographic concealment.",
       badge: "03"
     },
     {
-      title: "FPGA-Ready Algorithms",
-      desc: "Optimized feature extraction and LSB embedding formulas designed for FPGA synthesis and hardware security modules (HSM).",
+      title: "Research-Backed Design",
+      desc: "Built from experimentally validated steganographic methods.",
       badge: "04"
     },
     {
-      title: "Enterprise API Platform",
-      desc: "Premium, responsive Next.js SaaS dashboard with integrated API triggers for high-throughput batch stego operations.",
+      title: "Analytics & Monitoring",
+      desc: "Monitor encoding activity, signal quality metrics, and system performance through a unified dashboard.",
       badge: "05"
     }
   ];
@@ -231,18 +231,17 @@ export default function HomePage() {
           <div className="lg:col-span-6 space-y-8 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-4 py-2 text-xs font-medium text-cyan-300 animate-pulse">
               <Shield size={12} />
-              <span>Enterprise-Grade • AI-Secured Covert Channels</span>
+              <span>Research-Backed Audio Steganography</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl xl:text-6xl font-black leading-tight tracking-tight">
-              Adaptive
-              <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.2)]"> ML-driven</span>
+              Adaptive Audio Steganography
               <br />
-              Audio Steganography
+              <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.2)]">Powered by Machine Learning</span>
             </h1>
 
             <p className="max-w-xl mx-auto lg:mx-0 text-base text-slate-400 leading-relaxed">
-              Enterprise-grade audio steganography platform powered by machine learning. Deploy cryptographically secure covert communication channels using trained tree boosting models, verified by peer-reviewed research standards.
+              Securely embed encrypted information within audio signals using machine learning-guided frame selection, adaptive embedding, and AES-256 encryption while preserving audio fidelity.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -387,8 +386,8 @@ export default function HomePage() {
       </section>
 
       {/* RESEARCH HIGHLIGHTS WITH ANIMATED COUNTERS */}
-      <section className="relative z-20 mx-auto mt-24 max-w-7xl px-6">
-        <div className="text-center mb-12">
+      <section className="relative z-20 mx-auto mt-14 max-w-7xl px-6">
+        <div className="text-center mb-8">
           <h2 className="text-xs uppercase tracking-widest text-cyan-400 font-bold">Research Performance</h2>
           <h3 className="text-3xl sm:text-4xl font-bold mt-2">Steganographic Quality Benchmarks</h3>
           <p className="text-slate-400 mt-3 max-w-xl mx-auto text-sm">
@@ -401,29 +400,29 @@ export default function HomePage() {
             {
               value: psnrCounter.toFixed(2),
               unit: " dB",
-              label: "Average PSNR",
-              desc: "Peak Signal-to-Noise Ratio showing near-identical replica output.",
+              label: "PSNR",
+              desc: "Peak Signal-to-Noise Ratio measuring similarity between original and protected audio.",
               color: "text-cyan-400"
             },
             {
               value: snrCounter.toFixed(2),
               unit: " dB",
-              label: "Signal-to-Noise Ratio",
-              desc: "Average signal ratio preserving pure fidelity constraints.",
+              label: "SNR",
+              desc: "Signal-to-Noise Ratio measuring preservation of audio quality after embedding.",
               color: "text-cyan-400"
             },
             {
               value: "1e−6",
               unit: "",
-              label: "Bit Error Rate (BER)",
-              desc: "Extracted bits matching source files at near-absolute efficiency.",
+              label: "BER",
+              desc: "Bit Error Rate measuring extraction accuracy during payload recovery.",
               color: "text-purple-400"
             },
             {
               value: "0.9581",
               unit: "",
-              label: "ROC-AUC Detection Score",
-              desc: "CatBoost model accuracy in distinguishing secure noise zones.",
+              label: "ROC-AUC",
+              desc: "Model Performance measuring how accurately the ML model identifies safe embedding regions.",
               color: "text-emerald-400"
             }
           ].map((stat, idx) => (
@@ -443,8 +442,8 @@ export default function HomePage() {
       </section>
 
       {/* CORE RESEARCH FEATURE CARDS */}
-      <section className="relative z-20 mx-auto mt-24 max-w-7xl px-6">
-        <div className="text-center mb-12">
+      <section className="relative z-20 mx-auto mt-14 max-w-7xl px-6">
+        <div className="text-center mb-8">
           <h2 className="text-xs uppercase tracking-widest text-cyan-400 font-bold">Robustness & Features</h2>
           <h3 className="text-3xl sm:text-4xl font-bold mt-2">Core System Offerings</h3>
         </div>
@@ -453,27 +452,27 @@ export default function HomePage() {
           {[
             {
               title: "ML-Guided Frame Selection",
-              description: "Employs peer-reviewed CatBoost classifiers to pinpoint structurally stable audio frames, optimizing payload imperceptibility."
+              description: "Employs trained classifiers to pinpoint structurally stable audio frames, optimizing payload imperceptibility."
             },
             {
-              title: "Adaptive LSB Embedder",
-              description: "Modulates sample modifications based on local frame capacity analysis, eliminating audible anomalies and signal spikes."
+              title: "Adaptive Payload Embedding",
+              description: "Modulates LSB sample modifications based on frame capacity analysis, eliminating audible anomalies."
             },
             {
-              title: "AES-256 Cryptographic Envelope",
-              description: "Seals payloads using high-entropy keys derived from PBKDF2 iterations, assuring rigorous confidentiality."
+              title: "AES-256 Encryption",
+              description: "Seals payloads using high-entropy keys derived from PBKDF2 password derivation, assuring confidentiality."
             },
             {
-              title: "Dynamic Quality Diagnostics",
-              description: "Exposes real-time objective metrics (PSNR, SNR, BER, NC) on stego signals to guarantee channel transparency."
+              title: "Quality Monitoring",
+              description: "Exposes real-time objective metrics (PSNR, SNR, BER, NC) to guarantee carrier signal transparency."
             },
             {
-              title: "End-to-End Visual Pipeline",
+              title: "Processing Visualization",
               description: "Maps processing phases step-by-step from initial acoustic framing down to cryptographic extraction."
             },
             {
-              title: "Covert Channel Hardening",
-              description: "Engineered to withstand audio filtering, downsampling channels, and compression modifications."
+              title: "Robustness Validation",
+              description: "Engineered to evaluate resistance against audio filtering, downsampling channels, and compression."
             }
           ].map((feature, idx) => (
             <div
@@ -491,8 +490,8 @@ export default function HomePage() {
       </section>
 
       {/* INTERACTIVE ARCHITECTURE EXPLORER */}
-      <section id="architecture" className="relative z-20 mx-auto mt-28 max-w-7xl px-6 py-12 border-t border-white/5">
-        <div className="text-center mb-16">
+      <section id="architecture" className="relative z-20 mx-auto mt-16 max-w-7xl px-6 py-12 border-t border-white/5">
+        <div className="text-center mb-8">
           <h2 className="text-xs uppercase tracking-widest text-cyan-400 font-bold">Technical Blueprint</h2>
           <h3 className="text-3xl sm:text-4xl font-bold mt-2">Architecture Explorer</h3>
           <p className="text-slate-400 mt-3 max-w-lg mx-auto text-sm">
@@ -556,9 +555,9 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="relative z-10 mt-8 pt-6 border-t border-white/5 flex flex-col sm:flex-row lg:flex-row sm:items-center lg:items-center justify-between text-xs text-slate-500 gap-3 lg:gap-0">
-              <span className="font-semibold text-slate-400">Specifications:</span>
-              <span className="font-mono text-cyan-400/80 bg-cyan-500/5 px-3 py-1.5 rounded-lg border border-cyan-500/10 text-left sm:text-right break-words max-w-full">
+            <div className="relative z-10 mt-8 pt-6 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-500 gap-3">
+              <span className="font-semibold text-slate-400 shrink-0">Specifications:</span>
+              <span className="font-mono text-cyan-400/80 bg-cyan-500/5 px-3 py-1.5 rounded-lg border border-cyan-500/10 text-left sm:text-right break-words max-w-full self-start sm:self-auto">
                 {archBlocks[activeArchBlock].detail}
               </span>
             </div>
@@ -567,8 +566,8 @@ export default function HomePage() {
       </section>
 
       {/* WHAT MAKES STEGANOML DIFFERENT SECTION */}
-      <section className="relative z-20 mx-auto mt-28 max-w-7xl px-6 py-16 border-t border-white/5">
-        <div className="text-center mb-16">
+      <section className="relative z-20 mx-auto mt-16 max-w-7xl px-6 py-16 border-t border-white/5">
+        <div className="text-center mb-8">
           <h2 className="text-xs uppercase tracking-widest text-cyan-400 font-bold">Platform Advantages</h2>
           <h3 className="text-3xl sm:text-4xl font-bold mt-2">What Makes SteganoML Different</h3>
           <p className="text-slate-400 mt-3 max-w-lg mx-auto text-sm">
@@ -599,8 +598,8 @@ export default function HomePage() {
       </section>
 
       {/* RESEARCH RESOURCES */}
-      <section className="relative z-20 mx-auto mt-20 max-w-7xl px-6 pb-28">
-        <h2 className="mb-12 text-center text-3xl font-bold">Research Resources</h2>
+      <section className="relative z-20 mx-auto mt-12 max-w-7xl px-6 pb-28">
+        <h2 className="mb-6 text-center text-3xl font-bold">Research Resources</h2>
 
         <div className="grid gap-6 md:grid-cols-3">
           <Link

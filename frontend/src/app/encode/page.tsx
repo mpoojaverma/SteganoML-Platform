@@ -618,7 +618,7 @@ export default function EncodePage() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         <div className="lg:col-span-12 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-4 mb-2">
           <div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">Encode studio</h1>
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">Encode Studio</h1>
             <p className="mt-2 text-slate-400 text-sm">
               Embed secure encrypted payloads into audio carriers with SOTA ML guidance
             </p>
@@ -643,7 +643,7 @@ export default function EncodePage() {
           <div className="rounded-[20px] border border-white/10 bg-[#0b1327] p-6 space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-4">
               <div>
-                <h2 className="font-semibold text-white">Audio source</h2>
+                <h2 className="font-semibold text-white">Audio Source</h2>
                 <p className="text-xs text-slate-500 mt-0.5">
                   Select a carrier audio file or record live from microphone
                 </p>
@@ -1062,7 +1062,7 @@ export default function EncodePage() {
 
           <div id="secret-payload-section" className="rounded-[20px] border border-white/10 bg-[#0b1327] overflow-hidden scroll-mt-6">
             <div className="px-6 py-5 border-b border-white/5">
-              <h2 className="font-semibold">Secret payload</h2>
+              <h2 className="font-semibold">Secret Payload</h2>
 
               <p className="text-xs text-slate-500 mt-1">
                 AES-256 encrypted before embedding
@@ -1071,7 +1071,7 @@ export default function EncodePage() {
 
             <div className="p-4 space-y-4">
               <div>
-                <label htmlFor="secret-message" className="text-xs text-slate-500">Secret message</label>
+                <label htmlFor="secret-message" className="text-xs text-slate-500">Secret Message</label>
 
                 <textarea
                   id="secret-message"
@@ -1138,7 +1138,7 @@ export default function EncodePage() {
 
               <div>
                 <label htmlFor="encode-password" className="text-xs text-slate-500">
-                  Shared password (PBKDF2 key derivation)
+                  Encryption Password
                 </label>
 
                 <div className="relative mt-2">
@@ -1172,7 +1172,7 @@ export default function EncodePage() {
 
           <div className="rounded-[20px] border border-white/10 bg-[#0b1327] overflow-hidden">
             <div className="px-6 py-5 border-b border-white/5">
-              <h2 className="font-semibold">Embedding method</h2>
+              <h2 className="font-semibold">Embedding Method</h2>
             </div>
 
             <div className="p-4 grid grid-cols-2 gap-4">
@@ -1181,7 +1181,7 @@ export default function EncodePage() {
 
                 <div className="w-7 h-7 rounded-md bg-indigo-500/40 mb-4" />
 
-                <h3 className="font-semibold">ML-guided</h3>
+                <h3 className="font-semibold">ML-Guided (Recommended)</h3>
 
                 <p className="mt-2 text-sm text-slate-400">
                   CatBoost selects acoustically stable frames. Higher
@@ -1193,17 +1193,17 @@ export default function EncodePage() {
                 </span>
               </div>
 
-              <div className="rounded-2xl border border-white/5 bg-white/5 p-4 transition duration-200 hover:border-white/10 hover:bg-white/[0.07] cursor-pointer hover:shadow-[0_4px_20px_rgba(255,255,255,0.02)]">
-                <div className="w-7 h-7 rounded-md bg-teal-500/20 mb-4" />
+              <div className="rounded-2xl border border-white/5 bg-white/5 p-4 opacity-40 cursor-not-allowed select-none">
+                <div className="w-7 h-7 rounded-md bg-slate-500/20 mb-4" />
 
-                <h3 className="font-semibold">Randomized LSB</h3>
+                <h3 className="font-semibold text-slate-500">Randomized LSB</h3>
 
-                <p className="mt-2 text-sm text-slate-400">
+                <p className="mt-2 text-sm text-slate-500">
                   Password seeded random positions. Fast baseline method.
                 </p>
 
-                <span className="inline-block mt-4 rounded-md bg-teal-500/20 px-2 py-1 text-xs text-teal-300">
-                  Baseline
+                <span className="inline-block mt-4 rounded-md bg-white/5 px-2 py-1 text-xs text-slate-400 border border-white/10">
+                  Coming Soon
                 </span>
               </div>
             </div>

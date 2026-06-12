@@ -65,7 +65,7 @@ export default function ProfilePage() {
         <div>
           <h1 className="text-5xl font-black tracking-tight text-white">Profile</h1>
           <p className="mt-2 text-slate-400 text-sm">
-            Account information, cryptographic configurations, and performance diagnostics.
+            View account information, activity history, and platform performance metrics.
           </p>
         </div>
 
@@ -135,8 +135,8 @@ export default function ProfilePage() {
               ))
             ) : (
               <>
-                <StatCard title="Total Encodes" value={stats.encodes} desc="Encrypted stego carriers compiled" />
-                <StatCard title="Total Decodes" value={stats.decodes} desc="Secure signal extractions run" />
+                <StatCard title="Total Encodes" value={stats.encodes} desc="Secured audio files generated." />
+                <StatCard title="Total Decodes" value={stats.decodes} desc="Successful payload extractions performed." />
                 <StatCard title="Avg PSNR" value={`${stats.avgPsnr} dB`} color="text-cyan-400" desc="Peak signal-to-noise ratio" />
                 <StatCard title="Avg SNR" value={`${stats.avgSnr} dB`} color="text-purple-400" desc="Average signal-to-noise fidelity" />
               </>

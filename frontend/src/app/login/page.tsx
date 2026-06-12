@@ -96,11 +96,11 @@ export default function LoginPage() {
   };
 
   const steps = [
-    { title: "Audio Validation", desc: "Checking sample rates, audio bit depth, and constraints" },
-    { title: "AES-256 Encryption", desc: "Encrypting secret payload using derives from PBKDF2" },
-    { title: "ML Frame Analysis", desc: "CatBoost selecting acoustically stable frames" },
-    { title: "Adaptive Embedding", desc: "Embedding payload bits into unperceived LSB spaces" },
-    { title: "Quality Verification", desc: "Running validation metrics (PSNR, SNR, BER, NC)" },
+    { title: "Audio Analysis", desc: "Verifying sample rates, bit depth, and spectral constraints." },
+    { title: "Payload Encryption", desc: "Encrypting payload bytes using AES-256 with PBKDF2 key derivation." },
+    { title: "ML Frame Selection", desc: "Evaluating acoustic parameters using trained tree-boosting classifiers." },
+    { title: "Adaptive Embedding", desc: "Adjusting LSB insertion depth based on local frame capacity limits." },
+    { title: "Fidelity Verification", desc: "Calculating validation metrics (PSNR, SNR, BER) for transmission assurance." },
   ];
 
   const floatingBadges = [
@@ -147,7 +147,7 @@ export default function LoginPage() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-white tracking-wide leading-none">SteganoML</h1>
-            <p className="text-[10px] text-slate-500 mt-1">Audio Steganography Platform</p>
+            <p className="text-[10px] text-slate-500 mt-1">Adaptive Audio Steganography Platform</p>
           </div>
         </Link>
 
@@ -160,9 +160,9 @@ export default function LoginPage() {
             className="space-y-6"
           >
             <div>
-              <h2 className="text-3xl font-bold text-white tracking-tight">Welcome Back</h2>
+              <h2 className="text-3xl font-bold text-white tracking-tight">Sign In</h2>
               <p className="mt-2 text-sm text-slate-400">
-                Sign in to your secure research node.
+                Access your ML-powered audio payload protection dashboard.
               </p>
             </div>
 
@@ -178,7 +178,7 @@ export default function LoginPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <span>Connecting to Google...</span>
+                  <span>Signing in with Google...</span>
                 </>
               ) : (
                 <>
@@ -188,7 +188,7 @@ export default function LoginPage() {
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
                   </svg>
-                  <span>Continue with Google</span>
+                  <span>Sign in with Google</span>
                 </>
               )}
             </button>
@@ -202,7 +202,7 @@ export default function LoginPage() {
             <div className="space-y-4">
               <div>
                 <label htmlFor="login-email" className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                  Email
+                  Email Address
                 </label>
                 <input
                   id="login-email"
@@ -273,16 +273,16 @@ export default function LoginPage() {
                 </>
               ) : (
                 <>
-                  <span>Sign In</span>
+                  <span>Sign In to Account</span>
                   <ArrowRight size={16} />
                 </>
               )}
             </button>
 
             <div className="text-center text-sm text-slate-500 pt-2 border-t border-white/5">
-              New here?{" "}
+              Don't have an account?{" "}
               <Link href="/register" className="text-cyan-400 font-medium hover:underline hover:text-cyan-300 focus-visible:ring-2 focus-visible:ring-cyan-400 outline-none rounded px-1 py-0.5">
-                Create Account
+                Sign up
               </Link>
             </div>
           </form>
@@ -294,7 +294,7 @@ export default function LoginPage() {
             © {new Date().getFullYear()} SteganoML. All Rights Reserved.
           </p>
           <p className="text-[10px] text-slate-500 mt-1 text-center lg:text-left">
-            Developed as part of the SteganoML research project.
+            SteganoML is an adaptive audio steganography platform guided by machine learning.
           </p>
         </div>
       </div>

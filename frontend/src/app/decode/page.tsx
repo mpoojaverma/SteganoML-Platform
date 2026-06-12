@@ -296,9 +296,9 @@ export default function DecodePage() {
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-4 mb-2">
           <div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">Decode studio</h1>
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">Decode Studio</h1>
             <p className="mt-2 text-slate-400 text-sm">
-              Extract hidden payload from stego audio carriers
+              Extract encrypted payloads from stego audio carriers
             </p>
           </div>
           <button
@@ -322,7 +322,7 @@ export default function DecodePage() {
 
           <div className="rounded-[20px] border border-white/10 bg-[#0b1327] p-6 space-y-6">
             <div>
-              <h2 className="font-semibold text-white">Stego audio file</h2>
+              <h2 className="font-semibold text-white">Stego Audio File</h2>
               <p className="text-xs text-slate-500 mt-0.5">
                 WAV formats only — max 50 MB
               </p>
@@ -471,7 +471,7 @@ export default function DecodePage() {
               </div>
 
               <div className="p-6">
-                <label htmlFor="decode-password" className="sr-only">Password</label>
+                <label htmlFor="decode-password" className="sr-only">Encryption Password</label>
                 <div className="relative">
                   <input
                     id="decode-password"
@@ -479,7 +479,7 @@ export default function DecodePage() {
                     autoComplete="off"
                     value={password}
                     onChange={(e) => handlePasswordChange(e.target.value)}
-                    placeholder="Password"
+                    placeholder="Encryption Password"
                     className="w-full rounded-2xl border border-white/10 bg-white/5 pl-5 pr-12 py-4 outline-none focus:border-cyan-500/50 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1327] transition-all"
                   />
                   <button
@@ -563,11 +563,11 @@ export default function DecodePage() {
                   
                   if (errorType === "WRONG_PASSWORD_OR_MODIFIED_AUDIO") {
                     setLocalError(
-                      "Unable to decrypt payload. The supplied password is incorrect, or the uploaded audio appears to have been modified after encoding."
+                      "Decryption failed. Verify the password and ensure the audio file has not been modified since encoding."
                     );
                   } else if (errorType === "NO_EMBEDDED_PAYLOAD") {
                     setLocalError(
-                      "No valid hidden payload was detected. The selected carrier contains no embedded data or was encrypted with a different key."
+                      "No hidden payload detected. This audio file does not contain embedded data, or a different encryption key was used."
                     );
                   } else if (errorType === "UNSUPPORTED_AUDIO_FORMAT") {
                     setLocalError(
@@ -575,7 +575,7 @@ export default function DecodePage() {
                     );
                   } else if (errorType === "DATABASE_MAPPING_MISSING") {
                     setLocalError(
-                      "The database coordinates for this file are missing, and fallback extraction failed."
+                      "Metadata link missing. The required coordinates to locate the hidden payload could not be retrieved, and fallback search failed."
                     );
                   } else {
                     setLocalError(

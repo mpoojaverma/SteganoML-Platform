@@ -503,7 +503,7 @@ export default function AboutPage() {
           <h2 className="text-xs uppercase tracking-widest text-cyan-400 font-bold">Tech Framework</h2>
           <h3 className="text-3xl sm:text-4xl font-bold mt-2">Engineered Tech Stack</h3>
           <p className="text-slate-400 mt-3 max-w-md mx-auto text-sm">
-            SteganoML relies on state-of-the-art framework technologies to deliver reliable performance.
+            SteganoML relies on modern software engineering frameworks to deliver reliable performance.
           </p>
         </div>
 

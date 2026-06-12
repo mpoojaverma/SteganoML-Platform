@@ -53,24 +53,24 @@ export default function JobHistoryPage() {
 
         <div>
           <h1 className="text-5xl font-bold">
-            Job History
+            Activity History
           </h1>
 
           <p className="mt-2 text-slate-400">
-            Review encoding and decoding operations.
+            Review encoding and decoding activity across the platform.
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
           <StatCard
-            title="Total Jobs"
+            title="Total Operations"
             value={totalJobs}
             loading={loading}
           />
 
           <StatCard
-            title="Encodes"
+            title="Secure Encodes"
             value={encodeJobs}
             loading={loading}
           />
@@ -95,7 +95,7 @@ export default function JobHistoryPage() {
           <div className="flex items-center justify-between border-b border-white/10 p-5">
 
             <h2 className="font-semibold">
-              Recent Operations
+              Recent Activity
             </h2>
 
             <input
@@ -105,7 +105,7 @@ export default function JobHistoryPage() {
                   e.target.value
                 )
               }
-              placeholder="Search jobs..."
+              placeholder="Search activity..."
               className="rounded-xl border border-white/10 bg-[#182238] px-4 py-2 text-sm outline-none"
             />
 
@@ -117,8 +117,8 @@ export default function JobHistoryPage() {
                 <thead>
                   <tr className="border-b border-white/10 text-slate-400 text-left">
                     <th className="p-4">File</th>
-                    <th className="p-4">Type</th>
-                    <th className="p-4">Method</th>
+                    <th className="p-4">Operation</th>
+                    <th className="p-4">Algorithm</th>
                     <th className="p-4">Status</th>
                     <th className="p-4">PSNR</th>
                     <th className="p-4">SNR</th>
@@ -149,9 +149,9 @@ export default function JobHistoryPage() {
               <svg className="w-16 h-16 text-slate-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <h3 className="text-lg font-semibold text-slate-200">No jobs found</h3>
+              <h3 className="text-lg font-semibold text-slate-200">No Operations Found</h3>
               <p className="text-sm text-slate-500 mt-1 max-w-sm">
-                We couldn't find any steganography runs matching your search query.
+                We couldn't find any steganography operations matching your search query.
               </p>
             </div>
           ) : (
@@ -168,11 +168,11 @@ export default function JobHistoryPage() {
                     </th>
 
                     <th className="p-4 text-left">
-                      Type
+                      Operation
                     </th>
 
                     <th className="p-4 text-left">
-                      Method
+                      Algorithm
                     </th>
 
                     <th className="p-4 text-left">

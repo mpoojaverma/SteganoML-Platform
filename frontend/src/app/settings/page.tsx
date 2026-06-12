@@ -263,9 +263,9 @@ export default function SettingsPage() {
             {/* Preference Card 2: Auto Download */}
             <div className="rounded-2xl border border-white/5 bg-[#020817] p-5 flex flex-col justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-white">Auto Download Output</h3>
+                <h3 className="text-sm font-semibold text-white">Auto-Download Results</h3>
                 <p className="text-xs text-slate-500 mt-1 leading-normal">
-                  Automatically triggers browser download after stego compile completes.
+                  Automatically download the secured audio file once the encoding process is finished.
                 </p>
               </div>
               <div className="flex items-center justify-between mt-4">
@@ -286,9 +286,9 @@ export default function SettingsPage() {
             {/* Preference Card 3: Remember Recent Files */}
             <div className="rounded-2xl border border-white/5 bg-[#020817] p-5 flex flex-col justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-white">Cache Active Session</h3>
+                <h3 className="text-sm font-semibold text-white">Remember Recent Files</h3>
                 <p className="text-xs text-slate-500 mt-1 leading-normal">
-                  Retains uploaded audio information locally to prevent data loss on page refresh.
+                  Keep your uploaded files and settings active in the browser when reloading the page.
                 </p>
               </div>
               <div className="flex items-center justify-between mt-4">
@@ -309,9 +309,9 @@ export default function SettingsPage() {
             {/* Preference Card 4: Dashboard Layout */}
             <div className="rounded-2xl border border-white/5 bg-[#020817] p-5 flex flex-col justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-white">Dashboard Grid Layout</h3>
+                <h3 className="text-sm font-semibold text-white">Dashboard Layout</h3>
                 <p className="text-xs text-slate-500 mt-1 leading-normal">
-                  Controls structural layout parameter alignment for dashboard stats modules.
+                  Select your preferred structure for viewing analytics and operation stats on the dashboard.
                 </p>
               </div>
               <div className="flex gap-2 mt-4">
@@ -412,7 +412,7 @@ export default function SettingsPage() {
                 disabled={pwdLoading}
                 className="w-full rounded-xl bg-cyan-500 py-3 text-xs font-bold text-black flex items-center justify-center gap-2 transition hover:brightness-110 disabled:opacity-50 cursor-pointer shadow-md shadow-cyan-500/10 active:scale-[0.98]"
               >
-                {pwdLoading ? "Updating..." : "Update Security Credentials"}
+                {pwdLoading ? "Updating..." : "Update Password"}
               </button>
             </form>
           </div>
@@ -420,9 +420,9 @@ export default function SettingsPage() {
           {/* Subcard B: Current Session info (5 cols) */}
           <div className="md:col-span-5 rounded-3xl border border-white/5 bg-[#071122]/60 p-6 sm:p-8 glass space-y-6 transition duration-300 hover:border-cyan-500/10">
             <div>
-              <h2 className="text-xl font-bold tracking-tight text-white mb-2">Active Session</h2>
+              <h2 className="text-xl font-bold tracking-tight text-white mb-2">Session Details</h2>
               <p className="text-xs text-slate-500 leading-normal">
-                Cryptographic authentication validation metadata.
+                Information about your current active security session.
               </p>
             </div>
 
@@ -430,7 +430,7 @@ export default function SettingsPage() {
               <div className="rounded-xl bg-[#020817] p-4 border border-white/5 flex gap-3 items-center min-w-0">
                 <Laptop size={18} className="text-cyan-400 shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs text-slate-500 font-mono">CLIENT OPERATING SYSTEM</p>
+                  <p className="text-xs text-slate-500 font-mono">Operating System</p>
                   <p className="text-sm font-semibold text-white truncate lg:overflow-visible lg:whitespace-normal lg:break-normal break-words max-w-full lg:max-w-none" title={clientSessionInfo.os}>{clientSessionInfo.os}</p>
                 </div>
               </div>
@@ -438,7 +438,7 @@ export default function SettingsPage() {
               <div className="rounded-xl bg-[#020817] p-4 border border-white/5 flex gap-3 items-center min-w-0">
                 <Globe size={18} className="text-purple-400 shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs text-slate-500 font-mono">ACTIVE BROWSER AGENT</p>
+                  <p className="text-xs text-slate-500 font-mono">Browser</p>
                   <p className="text-sm font-semibold text-white truncate lg:overflow-visible lg:whitespace-normal lg:break-normal break-words max-w-full lg:max-w-none" title={clientSessionInfo.browser}>{clientSessionInfo.browser}</p>
                 </div>
               </div>
@@ -446,7 +446,7 @@ export default function SettingsPage() {
               <div className="rounded-xl bg-[#020817] p-4 border border-white/5 flex gap-3 items-center min-w-0">
                 <History size={18} className="text-emerald-400 shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs text-slate-500 font-mono">LAST LOGIN TIMESTEP</p>
+                  <p className="text-xs text-slate-500 font-mono">Last Sign-In Time</p>
                   <p className="text-sm font-semibold text-white truncate lg:overflow-visible lg:whitespace-normal lg:break-normal break-words max-w-full lg:max-w-none font-mono text-xs" title={lastLogin}>{lastLogin}</p>
                 </div>
               </div>
@@ -458,13 +458,13 @@ export default function SettingsPage() {
         <div className="rounded-3xl border border-red-500/25 bg-[#071122]/60 p-6 sm:p-8 glass transition duration-300 hover:border-red-500/40">
           <h2 className="text-xl font-bold tracking-tight text-red-400 mb-2">Danger Zone</h2>
           <p className="text-xs text-slate-500 mb-6 leading-normal">
-            Terminates active authorization handles immediately, clearing session cache keys.
+            Sign out of your account on this device and clear the local workspace session.
           </p>
           <button
             onClick={() => setIsLogoutModalOpen(true)}
             className="rounded-xl bg-red-500/10 border border-red-500/30 px-5 py-3 font-semibold text-red-400 transition hover:bg-red-500 hover:text-white focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#071122] outline-none cursor-pointer"
           >
-            Terminate Session & Logout
+            Sign Out
           </button>
         </div>
       </div>

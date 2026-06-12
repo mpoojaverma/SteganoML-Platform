@@ -47,7 +47,7 @@ const insights = [
     icon: BarChart3,
   },
   {
-    label: "Job History",
+    label: "Activity History",
     href: "/job-history",
     icon: History,
   },
