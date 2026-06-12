@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import useEncode from "@/hooks/useEncode";
 import AppShell from "@/components/layout/AppShell";
 import { getDownloadUrl } from "@/lib/api";
@@ -27,8 +27,10 @@ import {
   Lock,
   Trash2,
   Check,
-  ArrowRight
+  ArrowRight,
+  Zap
 } from "lucide-react";
+import { motion } from "framer-motion";
 import { AudioRecorder } from "@/lib/audioRecorder";
 
 function CustomAudioPlayer({ src, title }: { src: string; title?: string }) {
@@ -468,14 +470,14 @@ export default function EncodePage() {
       setProgressStep(0);
       const interval = setInterval(() => {
         setProgressStep((prev) => {
-          if (prev < 5) return prev + 1;
+          if (prev < 4) return prev + 1;
           return prev;
         });
       }, 1500);
       return () => clearInterval(interval);
     } else {
       if (localResult) {
-        setProgressStep(6);
+        setProgressStep(5);
       } else {
         setProgressStep(-1);
       }
@@ -1126,16 +1128,38 @@ export default function EncodePage() {
               </div>
             )}
 
-            {/* STATIC WAVEFORM VISUALIZER */}
+            {/* STATIC WAVEFORM VISUALIZER / ANIMATED SIGNAL ANALYSIS PREVIEW */}
             {audioFile && (
-              <div className="rounded-xl bg-white/5 px-4 py-4 border border-white/5">
+              <div className="rounded-xl bg-white/5 px-4 py-4 border border-white/5 relative overflow-hidden">
+                {loading && (
+                  <div className="absolute top-2 left-3 flex items-center gap-1.5 z-10 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded text-[9px] text-cyan-400 font-mono font-bold animate-pulse">
+                    <Zap size={10} className="text-cyan-400 animate-bounce" />
+                    SIGNAL ANALYSIS ACTIVE
+                  </div>
+                )}
                 <div className="h-20 w-full flex items-center justify-between overflow-hidden gap-[2px]">
                   {activeWaveform.map((h, i) => (
-                    <div
+                    <motion.div
                       key={i}
-                      className="w-[3px] rounded-full bg-[#18d5d0]/80 transition-all duration-300 hover:bg-cyan-300"
-                      style={{
-                        height: `${h}px`,
+                      className="w-[3px] rounded-full bg-[#18d5d0]/80 hover:bg-cyan-300"
+                      animate={loading ? {
+                        height: [
+                          `${h}px`,
+                          `${Math.max(12, Math.min(80, h + Math.sin(i + 4) * 15))}px`,
+                          `${Math.max(12, Math.min(80, h - Math.cos(i) * 10))}px`,
+                          `${h}px`
+                        ]
+                      } : {
+                        height: `${h}px`
+                      }}
+                      transition={loading ? {
+                        repeat: Infinity,
+                        duration: 1.2 + (i % 5) * 0.1,
+                        ease: "easeInOut"
+                      } : {
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 20
                       }}
                     />
                   ))}
@@ -1384,33 +1408,45 @@ export default function EncodePage() {
 
             <div className="p-6 space-y-7">
               {[
-                "Preparing Audio",
-                "Encrypting Payload",
-                "Selecting Embedding Locations",
-                "Embedding Payload",
-                "Generating Metrics",
-                "Uploading Result"
+                "Audio Analysis",
+                "Encryption",
+                "ML Selection",
+                "Embedding",
+                "Validation"
               ].map((step, i) => {
                 const isActive = i === progressStep;
                 const isCompleted = i < progressStep;
 
                 return (
-                  <div key={step} className="flex gap-4">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs transition-colors duration-300 ${
+                  <motion.div
+                    key={step}
+                    className="flex gap-4 relative rounded-xl p-2 -mx-2"
+                    animate={isActive ? {
+                      backgroundColor: "rgba(168, 85, 247, 0.03)",
+                      boxShadow: "0 0 10px rgba(168, 85, 247, 0.05) inset"
+                    } : {
+                      backgroundColor: "rgba(0, 0, 0, 0)",
+                      boxShadow: "none"
+                    }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <motion.div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs transition-colors duration-300 shrink-0 ${
                         isCompleted
-                          ? "bg-emerald-500/20 text-emerald-400 font-bold"
+                          ? "bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30"
                           : isActive
-                            ? "bg-purple-500/20 text-purple-300 animate-pulse font-bold"
-                            : "bg-white/5 text-slate-500"
+                            ? "bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30 animate-pulse"
+                            : "bg-white/5 text-slate-500 border border-white/5"
                       }`}
+                      animate={isActive ? { scale: [1, 1.08, 1] } : { scale: 1 }}
+                      transition={isActive ? { repeat: Infinity, duration: 1.5, ease: "easeInOut" } : {}}
                     >
                       {isCompleted ? "✓" : i + 1}
-                    </div>
+                    </motion.div>
 
                     <div className="flex-1">
                       <p
-                        className={`text-sm transition-colors duration-300 ${
+                        className={`text-sm transition-colors duration-355 ${
                           isActive ? "text-purple-300 font-medium" : isCompleted ? "text-slate-300" : "text-slate-500"
                         }`}
                       >
@@ -1418,18 +1454,18 @@ export default function EncodePage() {
                       </p>
 
                       <div className="mt-2 h-1.5 rounded bg-white/5 overflow-hidden">
-                        <div
-                          className={`h-1.5 rounded transition-all duration-500 ${
-                            isCompleted
-                              ? "w-full bg-emerald-400"
-                              : isActive
-                                ? "w-1/2 bg-purple-400 animate-pulse"
-                                : "w-0"
-                          }`}
+                        <motion.div
+                          className="h-1.5 rounded"
+                          initial={{ width: "0%" }}
+                          animate={{
+                            width: isCompleted ? "100%" : isActive ? "50%" : "0%",
+                            backgroundColor: isCompleted ? "#34d399" : isActive ? "#a78bfa" : "#3b82f6"
+                          }}
+                          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                         />
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
@@ -1506,23 +1542,63 @@ export default function EncodePage() {
               )}
 
               {localResult && (
-                <div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 flex items-start gap-3 transition-all duration-300">
-                  <CheckCircle2 size={18} className="shrink-0 mt-0.5 text-emerald-400 animate-bounce" />
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-emerald-400 text-sm">
-                      Encoding Complete
-                    </h3>
-                    <p className="mt-1 text-xs text-slate-350">
-                      Status: {localResult.status}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-300 break-all">
-                      File: {localResult.output_file}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-400">
-                      Bits Embedded: {localResult?.details?.bits_embedded}
-                    </p>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                  className="mt-4 rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-5 relative overflow-hidden shadow-[0_0_25px_rgba(6,182,212,0.1)]"
+                >
+                  {/* Cyan Pulse Signal Wave */}
+                  <motion.div
+                    className="absolute inset-0 border border-cyan-400/40 rounded-2xl pointer-events-none"
+                    initial={{ scale: 0.98, opacity: 0.8 }}
+                    animate={{ scale: [0.98, 1.05, 1.08], opacity: [0.8, 0.2, 0] }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: 2,
+                      ease: "easeOut"
+                    }}
+                  />
+                  
+                  <div className="flex items-start gap-4">
+                    {/* Animated target lock graphic */}
+                    <div className="relative shrink-0 w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 overflow-hidden">
+                      {/* Target corners */}
+                      <span className="absolute top-1 left-1 w-1.5 h-1.5 border-t border-l border-cyan-400" />
+                      <span className="absolute top-1 right-1 w-1.5 h-1.5 border-t border-r border-cyan-400" />
+                      <span className="absolute bottom-1 left-1 w-1.5 h-1.5 border-b border-l border-cyan-400" />
+                      <span className="absolute bottom-1 right-1 w-1.5 h-1.5 border-b border-r border-cyan-400" />
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
+                        className="absolute inset-1 border border-dashed border-cyan-400/25 rounded-lg"
+                      />
+                      <CheckCircle2 size={18} className="text-cyan-400 relative z-10 animate-pulse" />
+                    </div>
+
+                    <div className="flex-1 space-y-1">
+                      <h3 className="font-bold text-cyan-400 text-xs tracking-tight flex items-center gap-1.5 uppercase">
+                        Secure Delivery Ready
+                      </h3>
+                      <p className="text-[11px] text-slate-300 leading-normal">
+                        Payload successfully embedded under ML guidance. Authenticity hash locks verified.
+                      </p>
+                      <div className="pt-2 flex flex-col gap-1 text-[10px] font-mono text-slate-400">
+                        <div className="truncate" title={localResult.output_file}>
+                          <span className="text-slate-500">Output:</span> <span className="text-slate-300">{localResult.output_file}</span>
+                        </div>
+                        <div className="flex gap-4">
+                          <div>
+                            <span className="text-slate-500">Status:</span> <span className="text-emerald-400 font-bold">{localResult.status?.toUpperCase()}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-500">Payload Bits:</span> <span className="text-cyan-300">{localResult?.details?.bits_embedded}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </motion.div>
               )}
 
 

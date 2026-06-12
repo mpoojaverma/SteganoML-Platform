@@ -497,9 +497,36 @@ export default function ResearchDatasetPage() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center text-xs">
-                <div className="bg-cyan-500/5 border border-cyan-500/20 px-3 py-2 rounded-xl text-cyan-400 flex items-center gap-2 font-mono">
-                  <span>DOI: 10.1109/WiSPNET69615.2026.11489464</span>
-                </div>
+                <motion.a
+                  href="https://doi.org/10.1109/WiSPNET69615.2026.11489464"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative group bg-cyan-500/5 border border-cyan-500/20 px-3 py-2 rounded-xl text-cyan-400 flex items-center gap-2 font-mono outline-none cursor-pointer overflow-hidden"
+                  initial="initial"
+                  whileHover="hover"
+                  animate="initial"
+                >
+                  <span className="relative z-10 flex items-center gap-1.5">
+                    DOI: 10.1109/WiSPNET69615.2026.11489464
+                    <ExternalLink size={12} className="opacity-60 group-hover:opacity-100 transition-opacity" />
+                    <motion.span
+                      className="absolute bottom-[-1px] left-0 h-[1.5px] bg-cyan-400"
+                      variants={{
+                        initial: { width: 0 },
+                        hover: { width: "100%" }
+                      }}
+                      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                    />
+                  </span>
+                  <motion.span
+                    className="absolute inset-0 rounded-xl pointer-events-none"
+                    variants={{
+                      initial: { boxShadow: "0 0 0px rgba(6, 182, 212, 0)" },
+                      hover: { boxShadow: "0 0 15px rgba(6, 182, 212, 0.4)" }
+                    }}
+                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  />
+                </motion.a>
                 <a
                   href="https://ieeexplore.ieee.org/document/11489464/"
                   target="_blank"
@@ -534,8 +561,17 @@ export default function ResearchDatasetPage() {
                     )}
                   </button>
                 </div>
-                <pre className="text-[10px] sm:text-xs font-mono text-slate-400 overflow-x-auto select-all leading-relaxed whitespace-pre-wrap">
+                <pre className="text-[10px] sm:text-xs font-mono text-slate-400 overflow-x-auto select-all leading-relaxed whitespace-pre-wrap relative">
                   {bibtexCitation}
+                  <motion.span
+                    className="inline-block w-1.5 h-3.5 bg-cyan-400/85 ml-1 align-middle"
+                    animate={{ opacity: [1, 0, 1] }}
+                    transition={{
+                      duration: 1.2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                  />
                 </pre>
               </div>
               <div className="text-[10px] text-slate-500 mt-6 font-mono">

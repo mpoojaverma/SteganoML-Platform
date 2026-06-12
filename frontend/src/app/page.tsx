@@ -208,11 +208,11 @@ export default function HomePage() {
             <h1 className="text-4xl sm:text-5xl xl:text-6xl font-black leading-tight tracking-tight">
               Adaptive Audio Steganography
               <br />
-              <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.2)]">Powered by Machine Learning</span>
+              <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.2)]">with Machine Learning-Guided Embedding</span>
             </h1>
 
             <p className="max-w-xl mx-auto lg:mx-0 text-base text-slate-400 leading-relaxed">
-              Securely embed encrypted information within audio signals using machine learning-guided frame selection, adaptive embedding, and AES-256 encryption while preserving audio fidelity.
+              Securely embed encrypted information within audio signals using adaptive frame selection, signal-aware payload placement, and AES-256 encryption.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
