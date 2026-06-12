@@ -29,7 +29,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState<string>("active");
+  const [status, setStatus] = useState<string>("loading");
   const [fileInfo, setFileInfo] = useState<any>(null);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -77,6 +77,7 @@ export default function SharePage({ params }: { params: Promise<{ token: string 
         setStatus("not_found");
         setError("Secure link not found. It may have been permanently deleted.");
       } else {
+        setStatus("error");
         setError("Unable to retrieve shared file details. Please try again later.");
       }
     } finally {
