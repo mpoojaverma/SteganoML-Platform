@@ -100,9 +100,11 @@ The result is higher transparency, stronger security, and measurable robustness.
 
 ### Watch the Complete End-to-End Workflow
 
-[![Demo Video](https://img.shields.io/badge/▶%20Watch%20Demo-Video.mp4-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](assets/screenshots/Video.mp4)
+[▶ Watch Full Demo](https://youtu.be/rdnbo8d0_5k)
 
-**[⬇️ Download Demo Video](assets/screenshots/Video.mp4)**
+📹 Download the complete demonstration video from the latest release.
+
+[View Release](https://github.com/mpoojaverma/SteganoML-Platform/releases/latest)
 
 *The demo covers the complete pipeline: audio upload → ML frame analysis → AES encryption → LSB embedding → fidelity verification → secure share generation → payload recovery.*
 
