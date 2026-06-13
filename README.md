@@ -29,28 +29,6 @@
 
 </div>
 
-## Table of Contents
-
-- [Project Overview](#-project-overview)
-- [Live Demo](#-live-demo)
-- [Key Highlights](#-key-highlights)
-- [System Architecture](#-system-architecture)
-- [Pipeline Overview](#-pipeline-overview)
-- [Application Showcase](#-application-showcase)
-- [Machine Learning Model](#-machine-learning-model)
-- [Security Architecture](#-security-architecture)
-- [Research Results](#-research-results)
-- [Feature Comparison](#-feature-comparison)
-- [Repository Structure](#-repository-structure)
-- [Installation](#-installation)
-- [Reproducibility](#-reproducibility)
-- [Publication](#-publication)
-- [Citation](#-citation)
-- [Future Work](#-future-work)
-- [License](#-license)
-- [Contributing](#-contributing)
-- [Acknowledgements](#-acknowledgements)
-
 ---
 
 ## Project Overview
