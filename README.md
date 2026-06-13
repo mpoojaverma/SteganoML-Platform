@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src="assets/screenshots/landing_page.jpeg" alt="SteganoML Platform" width="100%" style="border-radius: 12px; margin-bottom: 20px;" />
-
 # 🔐 SteganoML
 
 ### Adaptive Audio Steganography using Machine Learning Guided Embedding
@@ -25,7 +23,13 @@
 
 ---
 
-## 📋 Table of Contents
+<div align="center">
+
+<img src="assets/screenshots/landing_page.jpeg" width="100%">
+
+</div>
+
+## Table of Contents
 
 - [Project Overview](#-project-overview)
 - [Live Demo](#-live-demo)
@@ -50,7 +54,7 @@
 
 ---
 
-## 🌐 Project Overview
+## Project Overview
 
 Digital communication channels are increasingly vulnerable to interception, surveillance, and data extraction. While cryptography secures content, it reveals *that* a communication is occurring — making the very existence of secure messages a target for adversarial actors. **Steganography** addresses this by embedding secrets invisibly within innocuous carrier media.
 
@@ -80,6 +84,14 @@ SteganoML introduces an **ML-guided adaptive embedding architecture** that redef
 
 The result is a dual-layer security system — steganographic concealment *and* cryptographic protection — deployed through a professional full-stack research platform with real-time analytics, secure sharing, and collaborative access controls.
 
+## Why SteganoML?
+
+Most audio steganography systems rely on static embedding strategies that ignore acoustic context.
+
+SteganoML introduces machine learning guided frame selection, cryptographic payload protection, and quantitative fidelity verification within a unified research platform.
+
+The result is higher transparency, stronger security, and measurable robustness.
+
 ---
 
 ## 🎬 Live Demo
@@ -87,8 +99,6 @@ The result is a dual-layer security system — steganographic concealment *and* 
 <div align="center">
 
 ### Watch the Complete End-to-End Workflow
-
-> **Note:** GitHub does not natively render `.mp4` files inline. To watch the full workflow demonstration, download the video below or view it locally.
 
 [![Demo Video](https://img.shields.io/badge/▶%20Watch%20Demo-Video.mp4-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](assets/screenshots/Video.mp4)
 
@@ -100,26 +110,26 @@ The result is a dual-layer security system — steganographic concealment *and* 
 
 ---
 
-## ✨ Key Highlights
+## Key Highlights
 
 <div align="center">
 
 | Feature | Description | Technology |
 |---|---|---|
-| 🧠 **ML-Guided Frame Selection** | CatBoost ranks audio frames by acoustic stability before embedding | CatBoost Classifier |
-| 🔐 **AES-256 Encryption** | Payload encrypted before embedding with per-session salt | Fernet / PBKDF2-HMAC-SHA256 |
-| 🎵 **Adaptive LSB Embedding** | Bits placed only in perceptually optimal positions | NumPy / Librosa |
-| 📊 **Real-Time Analytics** | Live PSNR, SNR, BER, and NC dashboards | Supabase + Next.js |
-| 🔗 **Secure Sharing System** | Expiring, download-limited share links for stego audio | FastAPI / Supabase |
-| 🛡️ **Password-Protected Extraction** | SHA-256 seeded position map — wrong password = wrong positions | hashlib / secrets |
-| 📐 **Fidelity Verification** | Automatic post-embedding audio quality metrics | SciPy / NumPy |
-| 🔬 **Research-Backed Design** | Published at IEEE WiSPNET 2026 with reproducible evaluation | IEEE Xplore |
+| **ML-Guided Frame Selection** | CatBoost ranks audio frames by acoustic stability before embedding | CatBoost Classifier |
+| **AES-256 Encryption** | Payload encrypted before embedding with per-session salt | Fernet / PBKDF2-HMAC-SHA256 |
+| **Adaptive LSB Embedding** | Bits placed only in perceptually optimal positions | NumPy / Librosa |
+| **Real-Time Analytics** | Live PSNR, SNR, BER, and NC dashboards | Supabase + Next.js |
+| **Secure Sharing System** | Expiring, download-limited share links for stego audio | FastAPI / Supabase |
+| **Password-Protected Extraction** | SHA-256 seeded position map — wrong password = wrong positions | hashlib / secrets |
+| **Fidelity Verification** | Automatic post-embedding audio quality metrics | SciPy / NumPy |
+| **Research-Backed Design** | Published at IEEE WiSPNET 2026 with reproducible evaluation | IEEE Xplore |
 
 </div>
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ### Encoding Pipeline
 
@@ -145,44 +155,23 @@ The result is a dual-layer security system — steganographic concealment *and* 
 
 ---
 
-## 🔄 Pipeline Overview
+## Pipeline Overview
 
 <div align="center">
-
-<img src="assets/screenshots/pipeline_overview.png" alt="SteganoML Full Pipeline Overview" width="85%" />
 
 </div>
 
 The complete SteganoML processing pipeline proceeds through seven deterministic stages:
 
-```
-🎵 Audio Input
-      │
-      ▼
-🔪 Frame Segmentation          [frame_length=2048, hop_length=512]
-      │
-      ▼
-📐 Feature Extraction           [56-dim: MFCC×20 + MFCC-Δ×20 + Chroma×12 + RMS + ZCR + SC + SBW]
-      │
-      ▼
-🧠 CatBoost Frame Selection     [predict_proba() → ranked_frames → top-K stable positions]
-      │
-      ▼
-🔐 AES-256 Encryption           [PBKDF2-HMAC-SHA256, salt=os.urandom(16), iterations=100,000]
-      │
-      ▼
-🔑 Password-Seeded Shuffle      [SHA-256(password) → RNG seed → position obfuscation]
-      │
-      ▼
-⚡ Adaptive LSB Embedding       [(sample & ~1) | bit → for each (bit, position) pair]
-      │
-      ▼
-✅ Stego Output + PSNR/SNR      [WAV output with automatic fidelity metrics]
-```
+<div align="center">
+
+<img src="assets/screenshots/pipeline_overview.png" alt="SteganoML Full Pipeline Overview" width="35%" />
+
+</div>
 
 ---
 
-## 📸 Application Showcase
+## Application Showcase
 
 ### Landing Experience
 
@@ -208,7 +197,7 @@ The complete SteganoML processing pipeline proceeds through seven deterministic 
 
 ---
 
-### Operational Command Dashboard
+### Dashboard
 
 <div align="center">
 
@@ -256,7 +245,7 @@ The complete SteganoML processing pipeline proceeds through seven deterministic 
 
 ---
 
-## 🧠 Machine Learning Model
+## Machine Learning Model
 
 SteganoML's frame selection engine is built around a **CatBoost gradient boosting classifier** trained to distinguish acoustically stable audio frames (suitable for payload embedding) from perceptually sensitive frames (unsuitable for embedding without audible distortion).
 
@@ -314,7 +303,7 @@ ranked_frames = np.argsort(predictions, kind="stable")[::-1]  # Descending rank
 
 ---
 
-## 🛡️ Security Architecture
+## Security Architecture
 
 SteganoML implements a **dual-layer security model** combining steganographic concealment with industry-standard cryptographic protection.
 
@@ -373,7 +362,7 @@ Deterministic, password-unique position map
 
 ---
 
-## 📊 Research Results
+## Research Results
 
 ### Audio Fidelity Metrics
 
@@ -399,25 +388,21 @@ Performance was evaluated on a benchmark audio dataset across multiple payload s
 
 ---
 
-## ⚖️ Feature Comparison
+## Feature Comparison
 
 | Capability | Traditional LSB | Randomised LSB | **SteganoML** |
 |---|---|---|---|
-| Frame Selection Intelligence | ❌ Sequential | ⚠️ Random | ✅ ML-Guided (CatBoost) |
-| Payload Encryption | ❌ None | ❌ None | ✅ AES-256 |
-| Key Derivation | ❌ None | ❌ None | ✅ PBKDF2-HMAC-SHA256 |
-| Per-Session Salt | ❌ None | ❌ None | ✅ 128-bit random salt |
-| Positional Obfuscation | ❌ None | ⚠️ Random | ✅ Password-seeded SHA-256 |
-| Fidelity Metrics (PSNR/SNR) | ❌ None | ❌ None | ✅ Automatic |
-| Steganalysis Resistance | ❌ Low | ⚠️ Medium | ✅ High |
-| Web Platform | ❌ None | ❌ None | ✅ Full-stack Next.js |
-| Secure Sharing | ❌ None | ❌ None | ✅ Expiring share links |
-| Real-Time Analytics | ❌ None | ❌ None | ✅ Live dashboard |
-| IEEE Publication | ❌ | ❌ | ✅ WiSPNET 2026 |
+| Frame Selection Intelligence | Sequential | Random | ML-Guided (CatBoost) |
+| Payload Encryption | None | None | AES-256 |
+| Key Derivation | None | None | PBKDF2-HMAC-SHA256 |
+| Per-Session Salt | None | None | 128-bit random salt |
+| Positional Obfuscation | None | Random | Password-seeded SHA-256 |
+| Fidelity Metrics (PSNR/SNR) | None | None | Automatic |
+| Steganalysis Resistance | Low | Medium | High |
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```
 steganoml/
@@ -479,7 +464,7 @@ steganoml/
 
 ---
 
-## ⚙️ Installation
+## Installation
 
 ### Prerequisites
 
@@ -570,71 +555,7 @@ Open [http://localhost:3000](http://localhost:3000) to access the platform.
 
 ---
 
-## 🚀 Usage
-
-### Encoding a Secret Message
-
-1. Navigate to the **Encoding Studio** from the dashboard.
-2. Upload a WAV audio carrier file.
-3. Enter your secret message in the payload field.
-4. Set a strong password (used for both AES encryption and position seeding).
-5. Select embedding method:
-   - **ML-Guided** (recommended): CatBoost selects optimal frames.
-   - **Randomised-LSB**: Password-seeded random position selection.
-6. Click **Encode** — receive a stego WAV file with PSNR/SNR metrics.
-
-```python
-# Programmatic usage (backend core)
-from core.stego_engine import encode_message
-
-result = encode_message(
-    input_audio_path="carrier.wav",
-    output_audio_path="stego_output.wav",
-    secret_message="Confidential payload",
-    password="your_secure_password",
-    method="ml"   # or "random"
-)
-
-print(f"PSNR: {result['psnr']:.2f} dB")
-print(f"SNR:  {result['snr']:.2f} dB")
-print(f"Bits embedded: {result['bits_embedded']}")
-```
-
-### Decoding a Hidden Payload
-
-1. Navigate to the **Decoding Studio** from the dashboard.
-2. Upload the stego WAV file.
-3. Enter the same password used during encoding.
-4. Click **Decode** — the original message is recovered and displayed.
-
-```python
-# Programmatic usage (backend core)
-from core.stego_engine import decode_message
-
-result = decode_message(
-    audio_path="stego_output.wav",
-    password="your_secure_password",
-    method="ml"
-)
-
-if result["status"] == "success":
-    print(f"Recovered: {result['message']}")
-else:
-    print(f"Error [{result['error_type']}]: {result['message']}")
-```
-
-> **Error Codes**
->
-> | Code | Cause |
-> |---|---|
-> | `WRONG_PASSWORD_OR_MODIFIED_AUDIO` | Incorrect password or audio was modified post-encoding |
-> | `NO_EMBEDDED_PAYLOAD` | No valid hidden payload detected in the audio |
-> | `UNSUPPORTED_AUDIO_FORMAT` | Unsupported or corrupted audio file |
-> | `EXTRACTION_FAILURE` | Coordinate reconstruction failure |
-
----
-
-## 🔬 Reproducibility
+## Reproducibility
 
 ### Dataset
 
@@ -673,11 +594,11 @@ python validate_decode_reliability.py
 
 ---
 
-## 📖 Publication
+## Publication
 
 <div align="center">
 
-### 🏆 IEEE Xplore Indexed Research Publication
+### IEEE Xplore Indexed Research Publication
 
 [![IEEE WiSPNET 2026](https://img.shields.io/badge/IEEE-WiSPNET%202026-00629B?style=for-the-badge&logo=ieee&logoColor=white)](https://doi.org/10.1109/WiSPNET69615.2026.11489464)
 [![DOI](https://img.shields.io/badge/DOI-10.1109%2FWiSPNET69615.2026.11489464-blue?style=for-the-badge)](https://doi.org/10.1109/WiSPNET69615.2026.11489464)
@@ -700,7 +621,7 @@ python validate_decode_reliability.py
 
 ---
 
-## 📝 Citation
+## Citation
 
 If you use SteganoML in your research, please cite:
 
@@ -721,30 +642,30 @@ If you use SteganoML in your research, please cite:
 
 ### APA
 
-> Verma, M. P., Sakamuri, S., & Sahaya Sakila, V. (2026). SteganoML: An Adaptive ML-Driven Audio Steganography for Robust Secure Communication. *2026 International Conference on Wireless Communications, Signal Processing and Networking (WiSPNET)*. IEEE. https://doi.org/10.1109/WiSPNET69615.2026.11489464
+> Pooja Verma, M., Sanjay Sakamuri, & Sahaya Sakila, V. (2026). SteganoML: An Adaptive ML-Driven Audio Steganography for Robust Secure Communication. *2026 International Conference on Wireless Communications, Signal Processing and Networking (WiSPNET)*. IEEE. https://doi.org/10.1109/WiSPNET69615.2026.11489464
 
 ### IEEE
 
-> M. P. Verma, S. Sakamuri and V. Sahaya Sakila, "SteganoML: An Adaptive ML-Driven Audio Steganography for Robust Secure Communication," *2026 International Conference on Wireless Communications, Signal Processing and Networking (WiSPNET)*, 2026, doi: 10.1109/WiSPNET69615.2026.11489464.
+> M. Pooja Verma, Sanjay Sakamuri and V. Sahaya Sakila, "SteganoML: An Adaptive ML-Driven Audio Steganography for Robust Secure Communication," *2026 International Conference on Wireless Communications, Signal Processing and Networking (WiSPNET)*, 2026, doi: 10.1109/WiSPNET69615.2026.11489464.
 
 ---
 
-## 🔭 Future Work
+## Future Work
 
 SteganoML establishes a rigorous foundation for adaptive audio steganography. Planned extensions include:
 
 | Direction | Description | Timeline |
 |---|---|---|
-| 🤖 **Deep Learning Frame Selection** | Replace CatBoost with a lightweight CNN or Transformer operating on raw spectrograms for end-to-end learned embedding site selection | Near-term |
-| 📡 **Real-Time Streaming Steganography** | Extend the pipeline to operate on live audio streams (WebRTC / WebSocket), enabling covert channels in voice communications | Mid-term |
-| 📱 **Mobile Deployment** | React Native or Flutter client with on-device model inference for mobile-native steganographic operations | Mid-term |
-| ⚡ **Edge Inference** | Quantise and deploy the CatBoost model to embedded hardware (Raspberry Pi, NVIDIA Jetson) for air-gapped secure communication scenarios | Long-term |
-| 🛡️ **Robustness Enhancement** | Evaluate and harden against MP3/AAC transcoding attacks, additive noise, and temporal resampling using adversarial training | Near-term |
-| 🔍 **Steganalysis Benchmark** | Systematic evaluation against state-of-the-art audio steganalysis tools (SRNet, JPEG Rich Models adapted for audio) | Near-term |
+| **Deep Learning Frame Selection** | Replace CatBoost with a lightweight CNN or Transformer operating on raw spectrograms for end-to-end learned embedding site selection | Near-term |
+| **Real-Time Streaming Steganography** | Extend the pipeline to operate on live audio streams (WebRTC / WebSocket), enabling covert channels in voice communications | Mid-term |
+| **Mobile Deployment** | React Native or Flutter client with on-device model inference for mobile-native steganographic operations | Mid-term |
+| **Edge Inference** | Quantise and deploy the CatBoost model to embedded hardware (Raspberry Pi, NVIDIA Jetson) for air-gapped secure communication scenarios | Long-term |
+| **Robustness Enhancement** | Evaluate and harden against MP3/AAC transcoding attacks, additive noise, and temporal resampling using adversarial training | Near-term |
+| **Steganalysis Benchmark** | Systematic evaluation against state-of-the-art audio steganalysis tools (SRNet, JPEG Rich Models adapted for audio) | Near-term |
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the **MIT License**.
 
@@ -790,12 +711,12 @@ Contributions are welcome from the research community, security professionals, a
 
 | Area | Examples |
 |---|---|
-| 🧠 **ML Model** | Additional audio features, improved classifiers, model compression |
-| 🔐 **Security** | Alternative KDFs, additional cipher support, steganalysis resistance testing |
-| 📊 **Metrics** | Additional fidelity metrics, steganalysis benchmark integration |
-| 🌐 **Frontend** | UI improvements, accessibility, internationalisation |
-| 📚 **Documentation** | Research notes, usage examples, tutorial notebooks |
-| 🧪 **Testing** | Expanded test coverage, edge case validation, CI pipeline |
+| **ML Model** | Additional audio features, improved classifiers, model compression |
+| **Security** | Alternative KDFs, additional cipher support, steganalysis resistance testing |
+| **Metrics** | Additional fidelity metrics, steganalysis benchmark integration |
+| **Frontend** | UI improvements, accessibility, internationalisation |
+| **Documentation** | Research notes, usage examples, tutorial notebooks |
+| **Testing** | Expanded test coverage, edge case validation, CI pipeline |
 
 ### Code Style
 
@@ -805,13 +726,15 @@ Contributions are welcome from the research community, security professionals, a
 
 ---
 
-## 🙏 Acknowledgements
+## Acknowledgements
 
 **Research Contributors**
 
-- **M Pooja Verma** — Lead researcher, ML pipeline design, full-stack platform development
-- **Sanjay Sakamuri** — Research co-author, security architecture review
-- **Sahaya Sakila V** — Research advisor and academic supervisor
+- **M Pooja Verma** — Lead Researcher, System Architect, Platform Developer, and Security Architecture Reviewer (conceived the core idea behind SteganoML and implemented everything)
+- **Sanjay Sakamuri** — Research Co-Author and Machine Learning Contributor (contributed to the machine learning component of the project)
+- **Dr. Sahaya Sakila V** — Research Advisor and Academic Mentor (provided research supervision, guidance, review, feedback, and a greater support throughout the design, experimentation, validation, and publication process.)
+
+> **Special Thanks:** My sincere gratitude to **Sanjay Sakamuri** for his contributions to the machine learning component and to **Dr. V. Sahaya Sakila** mam for her invaluable guidance, mentorship, and support in transforming the vision of **SteganoML** into a published research contribution. <br>— **M. Pooja Verma**
 
 **Open-Source Libraries**
 
@@ -832,7 +755,8 @@ This project is built on the shoulders of exceptional open-source work:
 
 **Publication**
 
-This research was accepted and presented at the **2026 International Conference on Wireless Communications, Signal Processing and Networking (WiSPNET)**, indexed on IEEE Xplore. DOI: [10.1109/WiSPNET69615.2026.11489464](https://doi.org/10.1109/WiSPNET69615.2026.11489464)
+This research was accepted and presented at the **2026 International Conference on Wireless Communications, Signal Processing and Networking (WiSPNET)**, indexed on IEEE Xplore.<br>
+DOI: [10.1109/WiSPNET69615.2026.11489464](https://doi.org/10.1109/WiSPNET69615.2026.11489464)
 
 ---
 
