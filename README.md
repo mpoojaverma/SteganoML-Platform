@@ -710,7 +710,7 @@ Contributions are welcome from the research community, security professionals, a
 **Research Contributors**
 
 - **M Pooja Verma** — Lead Researcher, System Architect, Platform Developer, and Security Architecture Reviewer (conceived the core idea behind SteganoML and implemented everything)
-- **Sanjay Sakamuri** — Research Co-Author and Machine Learning Contributor (contributed to the machine learning component of the project)
+- **Sanjay Sakamuri** — Research Co-Author and Machine Learning Contributor (contributed to the machine learning component of the project and a greater support)
 - **Dr. Sahaya Sakila V** — Research Advisor and Academic Mentor (provided research supervision, guidance, review, feedback, and a greater support throughout the design, experimentation, validation, and publication process.)
 
 > **Special Thanks:** My sincere gratitude to **Sanjay Sakamuri** for his contributions to the machine learning component and to **Dr. V. Sahaya Sakila** mam for her invaluable guidance, mentorship, and support in transforming the vision of **SteganoML** into a published research contribution. <br>— **M. Pooja Verma**
