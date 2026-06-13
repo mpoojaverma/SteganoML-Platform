@@ -182,7 +182,7 @@ The complete SteganoML processing pipeline proceeds through seven deterministic 
 
 <img src="assets/screenshots/dashboard.jpeg" alt="SteganoML Dashboard" width="100%" />
 
-*Operational Command Dashboard — Centralised view of encoding jobs, system status, recent operations, and access to all platform modules from a single command surface.*
+*Dashboard — Centralised view of encoding jobs, system status, recent operations, and access to all platform modules from a single command surface.*
 
 </div>
 
