@@ -43,7 +43,6 @@
 - [Feature Comparison](#-feature-comparison)
 - [Repository Structure](#-repository-structure)
 - [Installation](#-installation)
-- [Usage](#-usage)
 - [Reproducibility](#-reproducibility)
 - [Publication](#-publication)
 - [Citation](#-citation)
