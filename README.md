@@ -12,7 +12,7 @@
 [![Next.js](https://img.shields.io/badge/Next.js-15-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)](https://nextjs.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![IEEE](https://img.shields.io/badge/IEEE-WiSPNET%202026-00629B?style=for-the-badge&logo=ieee&logoColor=white)](#publication)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/badge/License-Apache%202.0-D22128?style=for-the-badge&logo=apache&logoColor=white)](LICENSE)
 
 [![Audio Steganography](https://img.shields.io/badge/Domain-Audio%20Steganography-8B5CF6?style=flat-square)](https://en.wikipedia.org/wiki/Audio_steganography)
 [![Supabase](https://img.shields.io/badge/Database-Supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
@@ -397,7 +397,6 @@ steganoml/
 │       ├── pipeline_overview.png
 │       ├── encoding_architecture.png
 │       ├── decoding_architecture.png
-│       └── Video.mp4               # End-to-end demo recording
 │
 ├── 📁 backend/                      # FastAPI Python backend
 │   ├── 📁 core/                     # Core steganography engine
@@ -644,34 +643,30 @@ SteganoML establishes a rigorous foundation for adaptive audio steganography. Pl
 
 ---
 
-## License
+## 📄 License
 
-This project is licensed under the **MIT License**.
+This project is licensed under the **Apache License 2.0**.
 
 ```
-MIT License
+Apache License
+Version 2.0, January 2004
+http://www.apache.org/licenses/
 
-Copyright (c) 2026 M Pooja Verma, Sanjay Sakamuri, Sahaya Sakila V
+Copyright 2026 M Pooja Verma
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+http://www.apache.org/licenses/LICENSE-2.0
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+
+See the LICENSE file for the specific language governing permissions
+and limitations under the License.
 ```
-
 ---
 
 ## 🤝 Contributing
